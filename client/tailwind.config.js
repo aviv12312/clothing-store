@@ -1,0 +1,46 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  theme: {
+    extend: {
+      colors: {
+        background: '#131313',
+        'surface': '#1f1f1f',
+        'surface-low': '#1b1b1b',
+        'surface-dim': '#131313',
+        'surface-container': '#1f1f1f',
+        'surface-container-low': '#1b1b1b',
+        'surface-container-high': '#2a2a2a',
+        'surface-container-highest': '#333333',
+        'surface-container-lowest': '#0e0e0e',
+        'on-surface': '#e2e2e2',
+        'on-surface-variant': '#c8c6c5',
+        'outline': '#444748',
+        'outline-variant': '#444748',
+        'primary': '#e9c349',
+        'on-primary': '#131313',
+        'primary-container': '#2a2200',
+        'on-primary-container': '#e9c349',
+        'secondary': '#c8c6c5',
+        'on-secondary': '#131313',
+        'tertiary': '#e9c349',
+        'on-tertiary': '#131313',
+        'inverse-surface': '#e2e2e2',
+        'inverse-on-surface': '#131313',
+        'gold': '#e9c349',
+        'gold-dark': '#997a00',
+      },
+      fontFamily: {
+        headline: ['Noto Serif', 'serif'],
+        body: ['Manrope', 'sans-serif'],
+        label: ['Manrope', 'sans-serif'],
+        serif: ['Noto Serif', 'serif'],
+        sans: ['Manrope', 'sans-serif'],
+      },
+      backgroundImage: {
+        'gold-shimmer': 'linear-gradient(135deg, #e9c349 0%, #997a00 100%)',
+      },
+    },
+  },
+  plugins: [],
+}
