@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
-dotenv.config();
+// במקומי טוען .env — ב-Railway המשתנים מוגדרים ישירות
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import helmet from 'helmet';
 import cors from 'cors';
