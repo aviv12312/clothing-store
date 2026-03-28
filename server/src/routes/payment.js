@@ -221,7 +221,7 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
     }
 
     // שליחת response מיד - בלי לחכות לאימיילים
-    res.json({ success: true });
+    res.json({ success: true, orderId: order?._id });
 
     // שליחת אימיילים ברקע (לא חוסם)
     try {
