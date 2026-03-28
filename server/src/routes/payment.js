@@ -118,7 +118,9 @@ router.post('/paypal/create-order', protect, async (req, res) => {
     headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials',
   });
-  const { access_token } = await tokenRes.json();
+  const tokenData = await tokenRes.json();
+  console.log('PayPal token response:', JSON.stringify(tokenData));
+  const { access_token } = tokenData;
 
   // צור הזמנת PayPal
   const orderRes = await fetch('https://api-m.sandbox.paypal.com/v2/checkout/orders', {
@@ -130,6 +132,7 @@ router.post('/paypal/create-order', protect, async (req, res) => {
     }),
   });
   const paypalOrder = await orderRes.json();
+  console.log('PayPal order response:', JSON.stringify(paypalOrder));
 
   // שמור הזמנה ב-DB
   const order = await Order.create({

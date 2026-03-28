@@ -27,11 +27,19 @@ validateEnv();
 
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(helmet());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowed = (process.env.CLIENT_URL || '').split(',').map(s => s.trim());
+      if (allowed.includes('*') || allowed.some(o => origin.startsWith(o)) || /\.vercel\.app$/.test(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
