@@ -22,11 +22,17 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addItem = (product, size, color, quantity = 1) => {
+    const stock = size && product.sizeStock?.[size] !== undefined
+      ? product.sizeStock[size]
+      : product.stock;
+
     setItems((prev) => {
       const exists = prev.find((i) => i.productId === product._id && i.size === size);
+      const currentQty = exists ? exists.quantity : 0;
+      if (currentQty + quantity > stock) return prev;
       const next = exists
-        ? prev.map((i) => i.productId === product._id && i.size === size ? { ...i, quantity: i.quantity + quantity } : i)
-        : [...prev, { productId: product._id, name: product.name, price: product.salePrice || product.price, image: product.images?.[0], size, color, quantity }];
+        ? prev.map((i) => i.productId === product._id && i.size === size ? { ...i, quantity: i.quantity + quantity, stock } : i)
+        : [...prev, { productId: product._id, name: product.name, price: product.salePrice || product.price, image: product.images?.[0], size, color, quantity, stock }];
       syncCart(next);
       return next;
     });
@@ -42,6 +48,8 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = (productId, size, quantity) => {
     if (quantity <= 0) return removeItem(productId, size);
     setItems((prev) => {
+      const item = prev.find((i) => i.productId === productId && i.size === size);
+      if (item?.stock && quantity > item.stock) return prev;
       const next = prev.map((i) => i.productId === productId && i.size === size ? { ...i, quantity } : i);
       syncCart(next);
       return next;

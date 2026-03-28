@@ -92,7 +92,8 @@ export default function Cart() {
                       </span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center text-[#c8c6c5] hover:text-[#e9c349] transition-colors font-['Manrope']"
+                        disabled={item.stock && item.quantity >= item.stock}
+                        className={`w-8 h-8 flex items-center justify-center transition-colors font-['Manrope'] ${item.stock && item.quantity >= item.stock ? 'text-[#333] cursor-not-allowed' : 'text-[#c8c6c5] hover:text-[#e9c349]'}`}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
                       </button>

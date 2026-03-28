@@ -34,7 +34,7 @@ function AccordionItem({ title, children }) {
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const [product, setProduct] = useState(null);
@@ -71,8 +71,12 @@ export default function ProductDetail() {
     ? product.sizeStock[selectedSize]
     : product.stock;
 
+  const cartItem = items.find((i) => i.productId === product._id && i.size === selectedSize);
+  const cartQty = cartItem ? cartItem.quantity : 0;
+  const canAdd = currentStock > 0 && cartQty < currentStock;
+
   const handleAddToCart = () => {
-    if (currentStock === 0) return;
+    if (!canAdd) return;
     addItem(product, selectedSize, selectedColor);
     trackAddToCart(product, selectedSize, selectedColor);
     setAddedToCart(true);
@@ -259,16 +263,16 @@ export default function ProductDetail() {
             <div className="flex flex-col gap-3 pt-2">
               <button
                 onClick={handleAddToCart}
-                disabled={currentStock === 0}
+                disabled={!canAdd}
                 className={`w-full py-4 text-xs font-['Manrope'] uppercase tracking-[0.2em] font-bold transition-all ${
-                  currentStock === 0
+                  !canAdd
                     ? 'bg-[#1f1f1f] text-[#444748] cursor-not-allowed border border-[#444748]/40'
                     : addedToCart
                     ? 'bg-[#1f1f1f] text-[#e9c349] border border-[#e9c349]/60'
                     : 'gold-shimmer text-[#131313] hover:opacity-90'
                 }`}
               >
-                {currentStock === 0 ? 'אזל המלאי' : addedToCart ? 'נוסף לעגלה ✓' : 'הוסף לעגלה'}
+                {currentStock === 0 ? 'אזל המלאי' : !canAdd ? 'הגעת למקסימום המלאי' : addedToCart ? 'נוסף לעגלה ✓' : 'הוסף לעגלה'}
               </button>
               <button className="w-full py-4 text-xs font-['Manrope'] uppercase tracking-[0.2em] font-semibold border border-[#444748]/60 text-[#c8c6c5] hover:border-[#e9c349]/40 hover:text-[#e2e2e2] transition-all">
                 שאלה על מידה מותאמת
