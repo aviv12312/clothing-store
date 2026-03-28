@@ -113,26 +113,35 @@ router.post('/paypal/create-order', protect, async (req, res) => {
     `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
   ).toString('base64');
 
-  const tokenRes = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
+  const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
+    ? 'https://api-m.paypal.com'
+    : 'https://api-m.sandbox.paypal.com';
+
+  const tokenRes = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
     method: 'POST',
     headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials',
   });
   const tokenData = await tokenRes.json();
-  console.log('PayPal token response:', JSON.stringify(tokenData));
-  const { access_token } = tokenData;
+  if (!tokenData.access_token) {
+    console.error('PayPal token error:', JSON.stringify(tokenData));
+    return res.status(502).json({ error: 'שגיאה בהתחברות ל-PayPal' });
+  }
 
   // צור הזמנת PayPal
-  const orderRes = await fetch('https://api-m.sandbox.paypal.com/v2/checkout/orders', {
+  const orderRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${tokenData.access_token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       intent: 'CAPTURE',
       purchase_units: [{ amount: { currency_code: 'ILS', value: total.toFixed(2) } }],
     }),
   });
   const paypalOrder = await orderRes.json();
-  console.log('PayPal order response:', JSON.stringify(paypalOrder));
+  if (!paypalOrder.id) {
+    console.error('PayPal order error:', JSON.stringify(paypalOrder));
+    return res.status(502).json({ error: 'שגיאה ביצירת הזמנת PayPal' });
+  }
 
   // שמור הזמנה ב-DB
   const order = await Order.create({
@@ -151,7 +160,11 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
     `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
   ).toString('base64');
 
-  const tokenRes = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
+  const PAYPAL_BASE = process.env.PAYPAL_MODE === 'live'
+    ? 'https://api-m.paypal.com'
+    : 'https://api-m.sandbox.paypal.com';
+
+  const tokenRes = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
     method: 'POST',
     headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials',
@@ -159,7 +172,7 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
   const { access_token } = await tokenRes.json();
 
   const captureRes = await fetch(
-    `https://api-m.sandbox.paypal.com/v2/checkout/orders/${paypalOrderId}/capture`,
+    `${PAYPAL_BASE}/v2/checkout/orders/${paypalOrderId}/capture`,
     {
       method: 'POST',
       headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
