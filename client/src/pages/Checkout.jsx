@@ -94,13 +94,19 @@ export default function Checkout() {
           },
 
           onApprove: async (data) => {
-            const res = await api.post('/payment/paypal/capture-order', {
-              paypalOrderId: data.orderID,
-              couponCode: couponData ? couponCode.toUpperCase() : null,
-            });
-            trackPurchase(res.data?.orderId || data.orderID, finalTotal, items);
-            clearCart();
-            navigate('/profile');
+            try {
+              const res = await api.post('/payment/paypal/capture-order', {
+                paypalOrderId: data.orderID,
+                couponCode: couponData ? couponCode.toUpperCase() : null,
+              });
+              try { trackPurchase(res.data?.orderId || data.orderID, finalTotal, items); } catch {}
+              clearCart();
+              navigate('/profile');
+            } catch (err) {
+              console.error('Capture error:', err);
+              clearCart();
+              navigate('/profile');
+            }
           },
 
           onError: (err) => {
