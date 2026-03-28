@@ -220,18 +220,21 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
       } catch (e) { console.error('Coupon mark error:', e.message); }
     }
 
-    // שליחת אימיילים
+    // שליחת response מיד - בלי לחכות לאימיילים
+    res.json({ success: true });
+
+    // שליחת אימיילים ברקע (לא חוסם)
     try {
       const user = await User.findById(order.user).select('email name');
       if (user) {
-        await sendOrderConfirmation(order, user.email, user.name);  // ללקוח
-        await sendAdminNewOrderAlert(order, user.name, user.email);  // לאדמין
+        sendOrderConfirmation(order, user.email, user.name).catch(e => console.error('Email error:', e.message));
+        sendAdminNewOrderAlert(order, user.name, user.email).catch(e => console.error('Admin email error:', e.message));
       }
     } catch (emailErr) {
       console.error('Email error:', emailErr.message);
     }
 
-    return res.json({ success: true });
+    return;
   }
 
   res.status(400).json({ error: 'תשלום לא הושלם' });
