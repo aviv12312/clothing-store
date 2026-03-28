@@ -16,7 +16,7 @@ export default function OrderSuccess() {
           </p>
           {orderId && (
             <p className="text-outline font-label text-sm">
-              מספר הזמנה: <span className="text-on-surface font-bold">{orderId}</span>
+              מספר הזמנה: <span className="text-on-surface font-bold">#{orderId.slice(-6).toUpperCase()}</span>
             </p>
           )}
           <div className="flex flex-col gap-3 pt-4">
