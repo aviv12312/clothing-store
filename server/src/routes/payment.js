@@ -76,10 +76,32 @@ router.post('/webhook', async (req, res) => {
 
   if (event.type === 'payment_intent.succeeded') {
     const pi = event.data.object;
-    await Order.findOneAndUpdate(
+    const order = await Order.findOneAndUpdate(
       { paymentId: pi.id },
-      { paymentStatus: 'paid', orderStatus: 'בטיפול' }
+      { paymentStatus: 'paid', orderStatus: 'בטיפול' },
+      { new: true }
     );
+
+    // הורדת מלאי
+    if (order?.items) {
+      for (const item of order.items) {
+        const prod = await Product.findById(item.product);
+        if (!prod) continue;
+
+        if (item.size && prod.sizeStock?.[item.size] !== undefined) {
+          const updated = { ...prod.sizeStock };
+          updated[item.size] = Math.max(0, (updated[item.size] || 0) - item.quantity);
+          await Product.findByIdAndUpdate(item.product, {
+            sizeStock: updated,
+            stock: Math.max(0, (prod.stock || 0) - item.quantity),
+          });
+        } else {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: -item.quantity },
+          });
+        }
+      }
+    }
   }
   res.json({ received: true });
 });
@@ -190,20 +212,20 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
     // הורדת מלאי לפי מידה
     if (order?.items) {
       for (const item of order.items) {
-        const product = await Product.findById(item.productId);
-        if (!product) continue;
+        const prod = await Product.findById(item.product);
+        if (!prod) continue;
 
-        if (item.size && product.sizeStock?.[item.size] !== undefined) {
+        if (item.size && prod.sizeStock?.[item.size] !== undefined) {
           // הורד מלאי לפי מידה
-          const updated = { ...product.sizeStock };
+          const updated = { ...prod.sizeStock };
           updated[item.size] = Math.max(0, (updated[item.size] || 0) - item.quantity);
-          await Product.findByIdAndUpdate(item.productId, {
+          await Product.findByIdAndUpdate(item.product, {
             sizeStock: updated,
-            stock: Math.max(0, (product.stock || 0) - item.quantity),
+            stock: Math.max(0, (prod.stock || 0) - item.quantity),
           });
         } else {
           // הורד מלאי כללי
-          await Product.findByIdAndUpdate(item.productId, {
+          await Product.findByIdAndUpdate(item.product, {
             $inc: { stock: -item.quantity },
           });
         }
