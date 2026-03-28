@@ -1,5 +1,7 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import Coupon from '../models/Coupon.js';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const STATUS_META = {
   'בטיפול':         { emoji: '⏳', title: 'ההזמנה שלך בטיפול',      color: '#e9c349', msg: 'קיבלנו את הזמנתך ואנחנו מכינים אותה לשליחה.' },
@@ -9,22 +11,16 @@ const STATUS_META = {
   'ממתין לאישור':   { emoji: '🕐', title: 'ממתינים לאישור הזמנה',    color: '#e9c349', msg: 'הזמנתך התקבלה ואנחנו בודקים את פרטי התשלום.' },
 };
 
-const getTransporter = () => nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: { rejectUnauthorized: false },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+const sendEmail = async ({ to, subject, html }) => {
+  await resend.emails.send({
+    from: `Dream & Work <${process.env.RESEND_FROM || 'onboarding@resend.dev'}>`,
+    to,
+    subject,
+    html,
+  });
+};
 
 export const sendAdminNewOrderAlert = async (order, customerName, customerEmail) => {
-  const transporter = getTransporter();
   const itemsHTML = order.items?.map((item) =>
     `<tr>
       <td style="padding:10px 0;border-bottom:1px solid #2a2a2a;color:#e7e5e5;font-size:13px;">${item.name}</td>
@@ -98,8 +94,7 @@ export const sendAdminNewOrderAlert = async (order, customerName, customerEmail)
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work System" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: process.env.EMAIL_USER,
     subject: `✦ הזמנה חדשה #${String(order._id).slice(-6).toUpperCase()} — ${customerName} · ₪${order.totalPrice?.toFixed(2)}`,
     html,
@@ -107,7 +102,6 @@ export const sendAdminNewOrderAlert = async (order, customerName, customerEmail)
 };
 
 export const sendAdminCancellationAlert = async (order, customerName, customerEmail) => {
-  const transporter = getTransporter();
   const itemsHTML = order.items?.map((item) =>
     `<tr>
       <td style="padding:10px 0;border-bottom:1px solid #2a2a2a;color:#e7e5e5;font-size:13px;">${item.name}</td>
@@ -176,8 +170,7 @@ export const sendAdminCancellationAlert = async (order, customerName, customerEm
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work System" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: process.env.EMAIL_USER,
     subject: `⚠️ ביטול הזמנה #${String(order._id).slice(-6).toUpperCase()} — ${customerName}`,
     html,
@@ -185,7 +178,6 @@ export const sendAdminCancellationAlert = async (order, customerName, customerEm
 };
 
 export const sendStatusUpdate = async (order, userEmail, userName, newStatus) => {
-  const transporter = getTransporter();
   const meta = STATUS_META[newStatus] || { emoji: '📦', title: `סטטוס הזמנה עודכן: ${newStatus}`, color: '#e9c349', msg: '' };
 
   const html = `
@@ -235,8 +227,7 @@ export const sendStatusUpdate = async (order, userEmail, userName, newStatus) =>
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: userEmail,
     subject: `${meta.emoji} ${meta.title} — Dream & Work`,
     html,
@@ -244,7 +235,6 @@ export const sendStatusUpdate = async (order, userEmail, userName, newStatus) =>
 };
 
 export const sendNewsletterWelcome = async (email) => {
-  const transporter = getTransporter();
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
@@ -303,8 +293,7 @@ export const sendNewsletterWelcome = async (email) => {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: email,
     subject: '✦ ברוכים הבאים ל-Dream & Work',
     html,
@@ -312,7 +301,6 @@ export const sendNewsletterWelcome = async (email) => {
 };
 
 export const sendOrderConfirmation = async (order, userEmail, userName) => {
-  const transporter = getTransporter();
 
   const itemsHTML = order.items?.map((item) => `
     <tr>
@@ -420,8 +408,7 @@ export const sendOrderConfirmation = async (order, userEmail, userName) => {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: userEmail,
     subject: `✦ אישור הזמנה #${String(order._id).slice(-6).toUpperCase()} — Dream & Work`,
     html,
@@ -429,7 +416,6 @@ export const sendOrderConfirmation = async (order, userEmail, userName) => {
 };
 
 export const sendAbandonedCart = async (email, name, items, total) => {
-  const transporter = getTransporter();
 
   const itemsHTML = items.slice(0, 3).map((item) => `
     <tr>
@@ -499,8 +485,7 @@ export const sendAbandonedCart = async (email, name, items, total) => {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: email,
     subject: '🛒 שכחת משהו? הפריטים שלך מחכים — Dream & Work',
     html,
@@ -508,7 +493,6 @@ export const sendAbandonedCart = async (email, name, items, total) => {
 };
 
 export const sendAbandonedCartDiscount = async (email, name, items, total) => {
-  const transporter = getTransporter();
 
   // יצירת קוד ייחודי
   const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -607,8 +591,7 @@ export const sendAbandonedCartDiscount = async (email, name, items, total) => {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Dream & Work" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: email,
     subject: '🎁 10% הנחה מיוחדת רק בשבילך — Dream & Work',
     html,
@@ -616,7 +599,6 @@ export const sendAbandonedCartDiscount = async (email, name, items, total) => {
 };
 
 export const sendPasswordReset = async (email, userName, resetUrl) => {
-  const transporter = getTransporter();
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
@@ -670,8 +652,7 @@ export const sendPasswordReset = async (email, userName, resetUrl) => {
     </body>
     </html>
   `;
-  await transporter.sendMail({
-    from: `"Dream & Work" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to: email,
     subject: '🔑 איפוס סיסמה — Dream & Work',
     html,
