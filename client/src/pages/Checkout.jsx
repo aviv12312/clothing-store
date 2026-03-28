@@ -101,11 +101,11 @@ export default function Checkout() {
               });
               try { trackPurchase(res.data?.orderId || data.orderID, finalTotal, items); } catch {}
               clearCart();
-              navigate('/profile');
+              navigate(`/order-success?id=${res.data?.orderId || data.orderID}`);
             } catch (err) {
               console.error('Capture error:', err);
               clearCart();
-              navigate('/profile');
+              navigate('/order-success');
             }
           },
 
