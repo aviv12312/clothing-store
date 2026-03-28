@@ -1,7 +1,4 @@
-import { Resend } from 'resend';
 import Coupon from '../models/Coupon.js';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const STATUS_META = {
   'בטיפול':         { emoji: '⏳', title: 'ההזמנה שלך בטיפול',      color: '#e9c349', msg: 'קיבלנו את הזמנתך ואנחנו מכינים אותה לשליחה.' },
@@ -12,12 +9,23 @@ const STATUS_META = {
 };
 
 const sendEmail = async ({ to, subject, html }) => {
-  await resend.emails.send({
-    from: `Dream & Work <${process.env.RESEND_FROM || 'onboarding@resend.dev'}>`,
-    to,
-    subject,
-    html,
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'Dream & Work', email: process.env.BREVO_FROM || process.env.EMAIL_USER },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Brevo error: ${res.status} — ${err}`);
+  }
 };
 
 export const sendAdminNewOrderAlert = async (order, customerName, customerEmail) => {
