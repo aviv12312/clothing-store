@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
 import AIChatButton from '../components/AIChatButton';
-import heroImage from '../assets/logo.png';
+import heroImage from '../assets/hero.png';
 
 function ProductCard({ product, priority = false }) {
   return (
@@ -72,31 +72,24 @@ export default function Home() {
   return (
     <div className="editorial-shell min-h-screen bg-white">
       <main>
-        <section className="relative min-h-screen overflow-hidden bg-black">
-          <img src={heroImage} alt="Dream and Work Campaign" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16)_0%,rgba(0,0,0,0.08)_35%,rgba(0,0,0,0.62)_100%)]" />
+        <section className="relative h-screen overflow-hidden bg-black">
+          <img src={heroImage} alt="Dream and Work Campaign" className="absolute inset-0 h-full w-full object-cover object-center" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.10)_50%,rgba(0,0,0,0.0)_100%)]" />
 
-          <div className="relative z-10 flex min-h-screen items-end px-6 pb-10 md:px-10 md:pb-12 lg:px-16 lg:pb-16">
-            <div className="mx-auto w-full max-w-[1600px] text-center text-white">
-              <p className="font-['Manrope'] text-[0.72rem] uppercase tracking-[0.42rem] text-white/80">Spring Summer 2026</p>
-              <h1 className="mx-auto mt-5 max-w-5xl font-['Noto_Serif'] text-5xl leading-[0.95] tracking-[-0.06em] md:text-7xl xl:text-[7rem]">
-                Tailoring with presence
-              </h1>
-              <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-white/85 md:text-lg">
-                A quieter luxury for modern menswear. Structured silhouettes, clean ceremony dressing,
-                and elevated essentials designed to feel sharp, premium, and easy to wear.
-              </p>
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                <div className="font-['Noto_Serif'] text-2xl text-white md:text-3xl">Handbags</div>
-              </div>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-                <Link to="/shop" className="bg-white px-10 py-4 font-['Manrope'] text-[0.68rem] uppercase tracking-[0.24rem] text-[#111111] transition-transform hover:-translate-y-0.5">
-                  Shop Now
-                </Link>
-                <Link to="/shop?collection=new" className="border border-white/40 bg-white/10 px-10 py-4 font-['Manrope'] text-[0.68rem] uppercase tracking-[0.24rem] text-white backdrop-blur-sm transition-transform hover:-translate-y-0.5">
-                  New Arrivals
-                </Link>
-              </div>
+          <div className="relative z-10 flex h-full flex-col items-center justify-end pb-16 text-center text-white">
+            <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.5rem] text-white/70 mb-5">
+              Spring Summer 2026
+            </p>
+            <h1 className="font-['Noto_Serif'] text-6xl md:text-8xl xl:text-[9rem] leading-none tracking-[-0.02em] text-white mb-10">
+              Dream &amp; Work
+            </h1>
+            <div className="flex items-center gap-4">
+              <Link to="/shop?collection=new" className="bg-[#1b1c1c] px-10 py-4 font-['Manrope'] text-[0.65rem] uppercase tracking-[0.3rem] text-white transition-opacity hover:opacity-80">
+                New Arrivals
+              </Link>
+              <Link to="/shop" className="bg-white px-10 py-4 font-['Manrope'] text-[0.65rem] uppercase tracking-[0.3rem] text-[#1b1c1c] transition-opacity hover:opacity-80">
+                Shop Now
+              </Link>
             </div>
           </div>
         </section>
