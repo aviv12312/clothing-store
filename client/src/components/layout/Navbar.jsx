@@ -49,10 +49,10 @@ export default function Navbar() {
         {/* Right: Logo */}
         <Link to="/" className="flex items-center gap-2.5 cursor-pointer" dir="ltr">
           <img
-            src="/logo.jpeg"
+            src="/logo.png"
             alt="D"
             className="w-8 h-8 md:w-10 md:h-10 object-contain"
-            style={{ filter: 'contrast(50) invert(1) sepia(1) saturate(3) hue-rotate(355deg) brightness(0.85)', mixBlendMode: 'screen' }}
+            style={{ filter: 'invert(80%) sepia(50%) saturate(500%) hue-rotate(355deg) brightness(90%)' }}
           />
           <div className="flex flex-col items-center">
             <span className="text-xl md:text-2xl font-['Noto_Serif'] tracking-tighter text-[#e9c349] whitespace-nowrap leading-none">
