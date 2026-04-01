@@ -40,7 +40,7 @@ export default function Cart() {
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.2fr_0.8fr]">
             <section className="space-y-4">
               {items.map((item) => (
-                <article key={`${item.productId}-${item.size}`} className="bg-[#f7f7f7] p-5 md:p-8">
+                <article key={`--`} className="bg-[#f7f7f7] p-5 md:p-8">
                   <div className="grid gap-6 md:grid-cols-[10rem_1fr] xl:grid-cols-[12rem_1fr]">
                     <div className="aspect-[3/4] overflow-hidden bg-[#ececec]">
                       {item.image ? (
@@ -61,12 +61,12 @@ export default function Cart() {
 
                       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                         <div className="flex w-fit items-center bg-white px-3 py-2">
-                          <button onClick={() => updateQuantity(item.productId, item.size, item.quantity - 1)} className="flex h-9 w-9 items-center justify-center text-[#6e6667] hover:text-[#111111]"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>remove</span></button>
+                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity - 1)} className="flex h-9 w-9 items-center justify-center text-[#6e6667] hover:text-[#111111]"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>remove</span></button>
                           <span className="w-10 text-center font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-[#111111]">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)} disabled={item.stock && item.quantity >= item.stock} className={`flex h-9 w-9 items-center justify-center ${item.stock && item.quantity >= item.stock ? 'text-[#c6c0c1] cursor-not-allowed' : 'text-[#6e6667] hover:text-[#111111]'}`}><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span></button>
+                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity + 1)} disabled={item.stock && item.quantity >= item.stock} className={`flex h-9 w-9 items-center justify-center ${item.stock && item.quantity >= item.stock ? 'text-[#c6c0c1] cursor-not-allowed' : 'text-[#6e6667] hover:text-[#111111]'}`}><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span></button>
                         </div>
 
-                        <button onClick={() => removeItem(item.productId, item.size)} className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.24rem] text-[#6e6667] transition-colors hover:text-[#111111]">Remove Item</button>
+                        <button onClick={() => removeItem(item.productId, item.size, item.color)} className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.24rem] text-[#6e6667] transition-colors hover:text-[#111111]">Remove Item</button>
                       </div>
                     </div>
                   </div>
@@ -118,3 +118,4 @@ export default function Cart() {
     </div>
   );
 }
+

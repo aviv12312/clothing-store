@@ -11,7 +11,11 @@ const router = express.Router();
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const getAvailableStock = (product, size) => {
+const getAvailableStock = (product, size, color) => {
+  if (color && size && product.sizeStock?.[color]?.[size] !== undefined) {
+    return Number(product.sizeStock[color][size]) || 0;
+  }
+
   if (size && product.sizeStock?.[size] !== undefined) {
     return Number(product.sizeStock[size]) || 0;
   }
@@ -20,6 +24,16 @@ const getAvailableStock = (product, size) => {
 };
 
 const decrementProductStock = async (product, item) => {
+  if (item.color && item.size && product.sizeStock?.[item.color]?.[item.size] !== undefined) {
+    const updated = { ...product.sizeStock };
+    updated[item.color] = { ...updated[item.color], [item.size]: Math.max(0, (updated[item.color][item.size] || 0) - item.quantity) };
+    await Product.findByIdAndUpdate(item.product, {
+      sizeStock: updated,
+      stock: Math.max(0, (product.stock || 0) - item.quantity),
+    });
+    return;
+  }
+
   if (item.size && product.sizeStock?.[item.size] !== undefined) {
     const updated = { ...product.sizeStock };
     updated[item.size] = Math.max(0, (updated[item.size] || 0) - item.quantity);
@@ -48,7 +62,7 @@ router.post('/stripe/create-intent', protect, async (req, res) => {
   for (const item of cartItems) {
     const product = products.find((entry) => entry._id.toString() === item.productId);
     if (!product) return res.status(400).json({ error: `מוצר לא נמצא: ${item.productId}` });
-    if (getAvailableStock(product, item.size) < item.quantity) {
+    if (getAvailableStock(product, item.size, item.color) < item.quantity) {
       return res.status(400).json({ error: `אין מלאי: ${product.name}` });
     }
 
@@ -87,11 +101,7 @@ router.post('/webhook', async (req, res) => {
   const stripe = getStripe();
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      req.headers['stripe-signature'],
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET);
   } catch {
     return res.status(400).send('Invalid webhook signature');
   }
@@ -128,7 +138,7 @@ router.post('/paypal/create-order', protect, async (req, res) => {
   for (const item of cartItems) {
     const product = products.find((entry) => entry._id.toString() === item.productId);
     if (!product) return res.status(400).json({ error: `מוצר לא נמצא: ${item.productId}` });
-    if (getAvailableStock(product, item.size) < item.quantity) {
+    if (getAvailableStock(product, item.size, item.color) < item.quantity) {
       return res.status(400).json({ error: `אין מלאי: ${product.name}` });
     }
 
@@ -146,9 +156,7 @@ router.post('/paypal/create-order', protect, async (req, res) => {
   }
 
   const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
-  const paypalBase = process.env.PAYPAL_MODE === 'live'
-    ? 'https://api-m.paypal.com'
-    : 'https://api-m.sandbox.paypal.com';
+  const paypalBase = process.env.PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
 
   const tokenRes = await fetch(`${paypalBase}/v1/oauth2/token`, {
     method: 'POST',
@@ -164,10 +172,7 @@ router.post('/paypal/create-order', protect, async (req, res) => {
   const orderRes = await fetch(`${paypalBase}/v2/checkout/orders`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${tokenData.access_token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      intent: 'CAPTURE',
-      purchase_units: [{ amount: { currency_code: 'ILS', value: total.toFixed(2) } }],
-    }),
+    body: JSON.stringify({ intent: 'CAPTURE', purchase_units: [{ amount: { currency_code: 'ILS', value: total.toFixed(2) } }] }),
   });
   const paypalOrder = await orderRes.json();
   if (!paypalOrder.id) {
@@ -191,9 +196,7 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
   const { paypalOrderId, couponCode } = req.body;
 
   const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
-  const paypalBase = process.env.PAYPAL_MODE === 'live'
-    ? 'https://api-m.paypal.com'
-    : 'https://api-m.sandbox.paypal.com';
+  const paypalBase = process.env.PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
 
   const tokenRes = await fetch(`${paypalBase}/v1/oauth2/token`, {
     method: 'POST',

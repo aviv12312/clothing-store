@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+﻿/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from 'react';
 import api from '../services/api';
 
@@ -34,10 +34,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await api.post('/auth/logout');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
-    setUser(null);
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Clear the local session even if the logout request fails.
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      setUser(null);
+    }
   };
 
   return (

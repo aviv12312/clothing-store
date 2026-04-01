@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+﻿/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
@@ -14,7 +14,6 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
-  // סנכרון עגלה לשרת (לצורך Abandoned Cart)
   const syncCart = useCallback((cartItems) => {
     const token = localStorage.getItem('accessToken');
     if (!token || !cartItems) return;
@@ -22,36 +21,46 @@ export const CartProvider = ({ children }) => {
     api.post('/cart/save', { items: cartItems, total }).catch(() => {});
   }, []);
 
+  const getProductStock = (product, size, color) => {
+    if (color && size && product.sizeStock?.[color]?.[size] !== undefined) {
+      return Number(product.sizeStock[color][size]) || 0;
+    }
+
+    if (size && product.sizeStock?.[size] !== undefined) {
+      return Number(product.sizeStock[size]) || 0;
+    }
+
+    return Number(product.stock) || 0;
+  };
+
   const addItem = (product, size, color, quantity = 1) => {
-    const stock = size && product.sizeStock?.[size] !== undefined
-      ? product.sizeStock[size]
-      : product.stock;
+    const stock = getProductStock(product, size, color);
 
     setItems((prev) => {
-      const exists = prev.find((i) => i.productId === product._id && i.size === size);
+      const exists = prev.find((i) => i.productId === product._id && i.size === size && i.color === color);
       const currentQty = exists ? exists.quantity : 0;
       if (currentQty + quantity > stock) return prev;
       const next = exists
-        ? prev.map((i) => i.productId === product._id && i.size === size ? { ...i, quantity: i.quantity + quantity, stock } : i)
+        ? prev.map((i) => i.productId === product._id && i.size === size && i.color === color ? { ...i, quantity: i.quantity + quantity, stock } : i)
         : [...prev, { productId: product._id, name: product.name, price: product.salePrice || product.price, image: product.images?.[0], size, color, quantity, stock }];
       syncCart(next);
       return next;
     });
   };
 
-  const removeItem = (productId, size) =>
+  const removeItem = (productId, size, color) =>
     setItems((prev) => {
-      const next = prev.filter((i) => !(i.productId === productId && i.size === size));
+      const next = prev.filter((i) => !(i.productId === productId && i.size === size && i.color === color));
       syncCart(next);
       return next;
     });
 
-  const updateQuantity = (productId, size, quantity) => {
-    if (quantity <= 0) return removeItem(productId, size);
+  const updateQuantity = (productId, size, color, quantity) => {
+    if (quantity <= 0) return removeItem(productId, size, color);
     setItems((prev) => {
-      const item = prev.find((i) => i.productId === productId && i.size === size);
+      const item = prev.find((i) => i.productId === productId && i.size === size && i.color === color);
       if (item?.stock && quantity > item.stock) return prev;
-      const next = prev.map((i) => i.productId === productId && i.size === size ? { ...i, quantity } : i);
+      const next = prev.map((i) => i.productId === productId && i.size === size && i.color === color ? { ...i, quantity } : i);
       syncCart(next);
       return next;
     });
@@ -66,9 +75,7 @@ export const CartProvider = ({ children }) => {
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, total, count }}
-    >
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, total, count }}>
       {children}
     </CartContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
@@ -8,11 +8,11 @@ import { trackBeginCheckout, trackPurchase } from '../services/analytics';
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
 const FIELDS = [
-  { name: 'name',    placeholder: 'שם מלא',     type: 'text' },
-  { name: 'street',  placeholder: 'רחוב ומספר', type: 'text' },
-  { name: 'city',    placeholder: 'עיר',         type: 'text' },
-  { name: 'zipCode', placeholder: 'מיקוד',       type: 'text' },
-  { name: 'phone',   placeholder: 'טלפון',       type: 'tel'  },
+  { name: 'name', placeholder: 'שם מלא', type: 'text' },
+  { name: 'street', placeholder: 'רחוב ומספר', type: 'text' },
+  { name: 'city', placeholder: 'עיר', type: 'text' },
+  { name: 'zipCode', placeholder: 'מיקוד', type: 'text' },
+  { name: 'phone', placeholder: 'טלפון', type: 'tel' },
 ];
 
 let paypalPromise = null;
@@ -38,15 +38,13 @@ export default function Checkout() {
   const [step, setStep] = useState('address');
   const [error, setError] = useState('');
   const [sdkStatus, setSdkStatus] = useState('idle');
-
-  // קופון
   const [couponCode, setCouponCode] = useState('');
-  const [couponStatus, setCouponStatus] = useState(null); // null | 'loading' | 'valid' | 'error'
-  const [couponData, setCouponData] = useState(null); // { discount, discountAmount, newTotal }
+  const [couponStatus, setCouponStatus] = useState(null);
+  const [couponData, setCouponData] = useState(null);
   const [couponMsg, setCouponMsg] = useState('');
 
   const finalTotal = couponData ? parseFloat(couponData.newTotal) : total;
-  const addressFilled = FIELDS.every((f) => address[f.name].trim() !== '');
+  const addressFilled = FIELDS.every((field) => address[field.name].trim() !== '');
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -56,7 +54,7 @@ export default function Checkout() {
       const { data } = await api.post('/coupons/validate', { code: couponCode, total });
       setCouponData(data);
       setCouponStatus('valid');
-      setCouponMsg(`✓ הנחה של ${data.discount}% הופעלה!`);
+      setCouponMsg(`הנחה של ${data.discount}% הופעלה`);
     } catch (err) {
       setCouponStatus('error');
       setCouponData(null);
@@ -78,21 +76,19 @@ export default function Checkout() {
 
         paypal.Buttons({
           style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-
           createOrder: async () => {
             const { data } = await api.post('/payment/paypal/create-order', {
-              cartItems: items.map((i) => ({
-                productId: i.productId,
-                quantity: i.quantity,
-                size: i.size,
-                color: i.color,
+              cartItems: items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
               })),
               shippingAddress: address,
               couponCode: couponData ? couponCode.toUpperCase() : null,
             });
             return data.paypalOrderId;
           },
-
           onApprove: async (data) => {
             try {
               const res = await api.post('/payment/paypal/capture-order', {
@@ -112,13 +108,11 @@ export default function Checkout() {
               navigate('/order-success');
             }
           },
-
           onError: (err) => {
             console.error('PayPal error:', err);
-            setError('שגיאה ב-PayPal — נסה שוב');
+            setError('שגיאה ב-PayPal, נסה שוב');
           },
         }).render(btnRef.current);
-
       } catch (err) {
         console.error('PayPal SDK load error:', err);
         if (!cancelled) {
@@ -130,17 +124,13 @@ export default function Checkout() {
 
     initPaypal();
     return () => { cancelled = true; };
-  }, [address, clearCart, couponCode, couponData, finalTotal, items, navigate, step]);
+  }, [address, clearCart, couponCode, couponData, finalTotal, items, navigate, step, total]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <main className="flex-1 pt-28 pb-24 px-6 md:px-16 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-
-          {/* ── טופס ── */}
           <div className="lg:col-span-7 space-y-14">
-
-            {/* שלב 1 — כתובת */}
             <section>
               <div className="flex items-center gap-4 mb-8">
                 <span className="text-xs font-label uppercase tracking-widest text-outline">01</span>
@@ -149,18 +139,24 @@ export default function Checkout() {
               {step === 'address' ? (
                 <>
                   <div className="grid grid-cols-1 gap-6 mb-8">
-                    {FIELDS.map((f) => (
-                      <input key={f.name} name={f.name} type={f.type} placeholder={f.placeholder}
-                        value={address[f.name]}
-                        onChange={(e) => setAddress((p) => ({ ...p, [e.target.name]: e.target.value }))}
+                    {FIELDS.map((field) => (
+                      <input
+                        key={field.name}
+                        name={field.name}
+                        type={field.type}
+                        placeholder={field.placeholder}
+                        value={address[field.name]}
+                        onChange={(e) => setAddress((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
                         className="w-full bg-transparent border-b border-outline-variant py-3 text-on-surface placeholder-outline font-label text-sm focus:outline-none focus:border-[#1a1a1a] uppercase tracking-wider transition-colors"
                       />
                     ))}
                   </div>
-                  <button onClick={() => addressFilled && (setStep('payment'), trackBeginCheckout(items, total))}
+                  <button
+                    onClick={() => addressFilled && (setStep('payment'), trackBeginCheckout(items, total))}
                     disabled={!addressFilled}
-                    className="w-full py-5 bg-[#1a1a1a] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all">
-                    המשך לתשלום ←
+                    className="w-full py-5 bg-[#1a1a1a] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all"
+                  >
+                    המשך לתשלום
                   </button>
                 </>
               ) : (
@@ -173,30 +169,26 @@ export default function Checkout() {
               )}
             </section>
 
-            {/* שלב 2 — תשלום */}
             {step === 'payment' && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
                   <span className="text-xs font-label uppercase tracking-widest text-outline">02</span>
                   <h2 className="font-headline text-2xl text-on-surface">תשלום</h2>
                 </div>
-                {sdkStatus === 'loading' && (
-                  <p className="text-outline text-sm font-label text-center py-4">טוען PayPal...</p>
-                )}
+                {sdkStatus === 'loading' && <p className="text-outline text-sm font-label text-center py-4">טוען PayPal...</p>}
                 <div dir="ltr" ref={btnRef} className="min-h-[50px]" />
                 {error && <p className="mt-4 text-red-400 text-sm font-label text-center">{error}</p>}
               </section>
             )}
           </div>
 
-          {/* ── סיכום הזמנה ── */}
           <aside className="lg:col-span-5">
             <div className="bg-surface-container p-8 sticky top-28 border border-outline-variant/10">
               <h2 className="font-headline text-xl mb-8 pb-4 border-b border-outline-variant/20">סיכום הזמנה</h2>
 
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
-                  <div key={`${item.productId}-${item.size}`} className="flex justify-between items-start text-sm font-label gap-4">
+                  <div key={`${item.productId}-${item.size}-${item.color || ''}`} className="flex justify-between items-start text-sm font-label gap-4">
                     <div>
                       <p className="text-on-surface">{item.name}</p>
                       <p className="text-outline text-xs mt-0.5">
@@ -208,7 +200,6 @@ export default function Checkout() {
                 ))}
               </div>
 
-              {/* שדה קוד הנחה */}
               <div className="border-t border-outline-variant/20 pt-4 mb-4">
                 <p className="font-label text-[0.65rem] uppercase tracking-widest text-outline mb-3">קוד הנחה</p>
                 <div className="flex gap-2">
@@ -228,11 +219,7 @@ export default function Checkout() {
                     {couponStatus === 'loading' ? '...' : 'החל'}
                   </button>
                 </div>
-                {couponMsg && (
-                  <p className={`text-xs font-label mt-2 ${couponStatus === 'valid' ? 'text-green-400' : 'text-red-400'}`}>
-                    {couponMsg}
-                  </p>
-                )}
+                {couponMsg && <p className={`text-xs font-label mt-2 ${couponStatus === 'valid' ? 'text-green-400' : 'text-red-400'}`}>{couponMsg}</p>}
               </div>
 
               <div className="border-t border-outline-variant/20 pt-4">
@@ -258,7 +245,6 @@ export default function Checkout() {
               {items.length === 0 && <p className="text-outline text-sm font-label text-center mt-6">העגלה ריקה</p>}
             </div>
           </aside>
-
         </div>
       </main>
       <Footer />

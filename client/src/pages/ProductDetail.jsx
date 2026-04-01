@@ -89,8 +89,20 @@ export default function ProductDetail() {
     return <div className="min-h-screen bg-white flex items-center justify-center"><span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span></div>;
   }
 
-  const currentStock = selectedSize && product.sizeStock?.[selectedSize] !== undefined ? product.sizeStock[selectedSize] : product.stock;
-  const cartItem = items.find((entry) => entry.productId === product._id && entry.size === selectedSize);
+  const getProductStock = (currentProduct, size, color) => {
+    if (color && size && currentProduct.sizeStock?.[color]?.[size] !== undefined) {
+      return Number(currentProduct.sizeStock[color][size]) || 0;
+    }
+
+    if (size && currentProduct.sizeStock?.[size] !== undefined) {
+      return Number(currentProduct.sizeStock[size]) || 0;
+    }
+
+    return Number(currentProduct.stock) || 0;
+  };
+
+  const currentStock = getProductStock(product, selectedSize, selectedColor);
+  const cartItem = items.find((entry) => entry.productId === product._id && entry.size === selectedSize && entry.color === selectedColor);
   const cartQty = cartItem ? cartItem.quantity : 0;
   const canAdd = currentStock > 0 && cartQty < currentStock;
 
@@ -225,3 +237,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

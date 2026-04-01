@@ -11,6 +11,16 @@ const restoreProductStock = async (item) => {
   const product = await Product.findById(item.product);
   if (!product) return;
 
+  if (item.color && item.size && product.sizeStock?.[item.color]?.[item.size] !== undefined) {
+    const updated = { ...product.sizeStock };
+    updated[item.color] = { ...updated[item.color], [item.size]: (updated[item.color][item.size] || 0) + item.quantity };
+    await Product.findByIdAndUpdate(item.product, {
+      sizeStock: updated,
+      stock: (product.stock || 0) + item.quantity,
+    });
+    return;
+  }
+
   if (item.size && product.sizeStock?.[item.size] !== undefined) {
     const updated = { ...product.sizeStock };
     updated[item.size] = (updated[item.size] || 0) + item.quantity;

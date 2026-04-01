@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../../services/api';
 
-const CATEGORIES = ['חתן ומלווים', 'Casual', 'Formal'];
+const CATEGORIES = ['×—×ª×Ÿ ×•×ž×œ×•×•×™×', 'Casual', 'Formal'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '44', '46', '48', '50', '52', '54'];
 const EMPTY_FORM = {
   name: '', price: '', salePrice: '', category: 'Formal',
   description: '', stock: '0', sizes: [], colors: '', images: '', tags: '', featured: false,
 };
 
-// העלאת תמונות ל-Cloudinary
+// ×”×¢×œ××ª ×ª×ž×•× ×•×ª ×œ-Cloudinary
 async function uploadImages(files) {
   const urls = [];
   for (const file of files) {
@@ -22,19 +22,19 @@ async function uploadImages(files) {
   return urls;
 }
 
-const ORDER_STATUSES = ['בטיפול', 'נשלח', 'הגיע', 'בוטל'];
+const ORDER_STATUSES = ['×‘×˜×™×¤×•×œ', '× ×©×œ×—', '×”×’×™×¢', '×‘×•×˜×œ'];
 
 const STATUS_COLORS = {
-  'בטיפול': 'text-blue-400 bg-blue-400/10',
-  'נשלח':   'text-purple-400 bg-purple-400/10',
-  'הגיע':   'text-green-400 bg-green-400/10',
-  'בוטל':   'text-red-400 bg-red-400/10',
+  '×‘×˜×™×¤×•×œ': 'text-blue-400 bg-blue-400/10',
+  '× ×©×œ×—':   'text-purple-400 bg-purple-400/10',
+  '×”×’×™×¢':   'text-green-400 bg-green-400/10',
+  '×‘×•×˜×œ':   'text-red-400 bg-red-400/10',
 };
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('products');
 
-  // ── Products state ──
+  // â”€â”€ Products state â”€â”€
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editId, setEditId] = useState(null);
@@ -45,24 +45,24 @@ export default function AdminDashboard() {
   const [colorImages, setColorImages] = useState({});
   const [uploadingColor, setUploadingColor] = useState(null);
   const [sizeStock, setSizeStock] = useState({});
-  const [confirmDelete, setConfirmDelete] = useState(null); // id של מוצר למחיקה
+  const [confirmDelete, setConfirmDelete] = useState(null); // id ×©×œ ×ž×•×¦×¨ ×œ×ž×—×™×§×”
 
-  // ── Orders state ──
+  // â”€â”€ Orders state â”€â”€
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [statusUpdating, setStatusUpdating] = useState(null);
   const [orderSearch, setOrderSearch] = useState('');
-  const [orderFilter, setOrderFilter] = useState('הכל');
+  const [orderFilter, setOrderFilter] = useState('×”×›×œ');
 
-  // ── Toast ──
+  // â”€â”€ Toast â”€â”€
   const [message, setMessage] = useState({ text: '', type: '' });
   const showMessage = (text, type = 'success') => {
     setMessage({ text, type });
     setTimeout(() => setMessage({ text: '', type: '' }), 3000);
   };
 
-  // ── Fetch ──
+  // â”€â”€ Fetch â”€â”€
   const fetchProducts = async () => {
     try {
       const { data } = await api.get('/products');
@@ -82,48 +82,94 @@ export default function AdminDashboard() {
   useEffect(() => { fetchProducts(); }, []);
   useEffect(() => { if (tab === 'orders') fetchOrders(); }, [tab]);
 
-  // ── Products handlers ──
+  // â”€â”€ Products handlers â”€â”€
   const handleToggleSize = (size) =>
-    setForm((prev) => ({
-      ...prev,
-      sizes: prev.sizes.includes(size)
-        ? prev.sizes.filter((s) => s !== size)
-        : [...prev.sizes, size],
-    }));
+  setForm((prev) => ({
+    ...prev,
+    sizes: prev.sizes.includes(size)
+      ? prev.sizes.filter((s) => s !== size)
+      : [...prev.sizes, size],
+  }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setProductLoading(true);
-    try {
-      const payload = {
-        ...form,
-        price: Number(form.price),
-        salePrice: form.salePrice ? Number(form.salePrice) : undefined,
-        images: uploadedImages,
-        colorImages,
-        sizeStock,
-        stock: Object.values(sizeStock).reduce((sum, v) => sum + (Number(v) || 0), 0),
-        colors: form.colors ? form.colors.split(',').map((s) => s.trim()).filter(Boolean) : [],
-        tags: form.tags ? form.tags.split(',').map((s) => s.trim()).filter(Boolean) : [],
-      };
-      if (editId) {
-        await api.put(`/products/${editId}`, payload);
-        showMessage('✅ מוצר עודכן בהצלחה');
-        setEditId(null);
-      } else {
-        await api.post('/products', payload);
-        showMessage('✅ מוצר נוסף בהצלחה');
-      }
-      setForm(EMPTY_FORM);
-      setUploadedImages([]);
-      setColorImages({});
-      setSizeStock({});
-      setTab('products');
-      fetchProducts();
-    } catch (err) {
-      showMessage(err.response?.data?.error || '❌ שגיאה בשמירה', 'error');
-    } finally { setProductLoading(false); }
-  };
+const parseColors = (value) => value.split(',').map((s) => s.trim()).filter(Boolean);
+
+const normalizeSizeStock = (rawSizeStock, colors = []) => {
+  if (!rawSizeStock || typeof rawSizeStock !== 'object') return {};
+
+  const hasNestedColors = Object.values(rawSizeStock).some(
+    (value) => value && typeof value === 'object' && !Array.isArray(value)
+  );
+
+  if (hasNestedColors) return rawSizeStock;
+  if (!colors.length) return rawSizeStock;
+
+  return { [colors[0]]: { ...rawSizeStock } };
+};
+
+const pruneSizeStock = (stockMap, colors, sizes) => {
+  const hasNestedColors = Object.values(stockMap || {}).some(
+    (value) => value && typeof value === 'object' && !Array.isArray(value)
+  );
+
+  if (!hasNestedColors) {
+    return sizes.reduce((acc, size) => {
+      if (stockMap?.[size] !== undefined) acc[size] = Number(stockMap[size]) || 0;
+      return acc;
+    }, {});
+  }
+
+  return colors.reduce((acc, color) => {
+    const sizeMap = stockMap?.[color] || {};
+    acc[color] = sizes.reduce((sizesAcc, size) => {
+      sizesAcc[size] = Number(sizeMap[size]) || 0;
+      return sizesAcc;
+    }, {});
+    return acc;
+  }, {});
+};
+
+const getTotalStock = (stockMap) =>
+  Object.values(stockMap || {}).reduce((sum, value) => {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return sum + Object.values(value).reduce((nestedSum, qty) => nestedSum + (Number(qty) || 0), 0);
+    }
+    return sum + (Number(value) || 0);
+  }, 0);
+
+const setColorStockValue = (color, size, value) => {
+  setSizeStock((prev) => ({
+    ...prev,
+    [color]: {
+      ...(prev[color] || {}),
+      [size]: Number(value) || 0,
+    },
+  }));
+};
+
+const handleColorsChange = (value) => {
+  setForm((prev) => ({ ...prev, colors: value }));
+  const nextColors = parseColors(value);
+  setColorImages((prev) => Object.fromEntries(Object.entries(prev).filter(([color]) => nextColors.includes(color))));
+  setSizeStock((prev) => pruneSizeStock(prev, nextColors, form.sizes));
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setProductLoading(true);
+  try {
+    const parsedColors = parseColors(form.colors);
+    const normalizedSizeStock = pruneSizeStock(sizeStock, parsedColors, form.sizes);
+    const payload = {
+      ...form,
+      price: Number(form.price),
+      salePrice: form.salePrice ? Number(form.salePrice) : undefined,
+      images: uploadedImages,
+      colorImages,
+      sizeStock: normalizedSizeStock,
+      stock: getTotalStock(normalizedSizeStock),
+      colors: parsedColors,
+      tags: form.tags ? form.tags.split(',').map((s) => s.trim()).filter(Boolean) : [],
+    };
 
   const handleImageFiles = async (e) => {
     const files = Array.from(e.target.files);
@@ -132,9 +178,9 @@ export default function AdminDashboard() {
     try {
       const urls = await uploadImages(files);
       setUploadedImages((prev) => [...prev, ...urls]);
-      showMessage(`✅ ${urls.length} תמונות הועלו`);
+      showMessage(`âœ… ${urls.length} ×ª×ž×•× ×•×ª ×”×•×¢×œ×•`);
     } catch {
-      showMessage('❌ שגיאה בהעלאת תמונות', 'error');
+      showMessage('âŒ ×©×’×™××” ×‘×”×¢×œ××ª ×ª×ž×•× ×•×ª', 'error');
     } finally {
       setUploading(false);
     }
@@ -144,23 +190,24 @@ export default function AdminDashboard() {
     setUploadedImages((prev) => prev.filter((u) => u !== url));
 
   const handleEdit = (p) => {
-    setForm({
-      name: p.name, price: String(p.price),
-      salePrice: p.salePrice ? String(p.salePrice) : '',
-      category: p.category, description: p.description || '',
-      stock: String(p.stock), sizes: p.sizes || [],
-      colors: (p.colors || []).join(', '),
-      images: (p.images || []).join(', '),
-      tags: (p.tags || []).join(', '),
-      featured: p.featured || false,
-    });
-    setUploadedImages(p.images || []);
-    setColorImages(p.colorImages || {});
-    setSizeStock(p.sizeStock || {});
-    setEditId(p._id);
-    setTab('add');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const parsedColors = p.colors || [];
+  setForm({
+    name: p.name, price: String(p.price),
+    salePrice: p.salePrice ? String(p.salePrice) : '',
+    category: p.category, description: p.description || '',
+    stock: String(p.stock), sizes: p.sizes || [],
+    colors: parsedColors.join(', '),
+    images: (p.images || []).join(', '),
+    tags: (p.tags || []).join(', '),
+    featured: p.featured || false,
+  });
+  setUploadedImages(p.images || []);
+  setColorImages(p.colorImages || {});
+  setSizeStock(pruneSizeStock(normalizeSizeStock(p.sizeStock || {}, parsedColors), parsedColors, p.sizes || []));
+  setEditId(p._id);
+  setTab('add');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
   const handleDelete = async (id) => {
     setConfirmDelete(id);
@@ -170,7 +217,7 @@ export default function AdminDashboard() {
     if (!confirmDelete) return;
     await api.delete(`/products/${confirmDelete}`);
     setConfirmDelete(null);
-    showMessage('🗑️ מוצר הוסר');
+    showMessage('ðŸ—‘ï¸ ×ž×•×¦×¨ ×”×•×¡×¨');
     fetchProducts();
   };
 
@@ -181,9 +228,9 @@ export default function AdminDashboard() {
     try {
       const urls = await uploadImages(files);
       setColorImages((prev) => ({ ...prev, [color]: [...(prev[color] || []), ...urls] }));
-      showMessage(`✅ תמונות הועלו עבור ${color}`);
+      showMessage(`âœ… ×ª×ž×•× ×•×ª ×”×•×¢×œ×• ×¢×‘×•×¨ ${color}`);
     } catch {
-      showMessage('❌ שגיאה בהעלאת תמונות', 'error');
+      showMessage('âŒ ×©×’×™××” ×‘×”×¢×œ××ª ×ª×ž×•× ×•×ª', 'error');
     } finally { setUploadingColor(null); }
   };
 
@@ -197,7 +244,7 @@ export default function AdminDashboard() {
     p.category.toLowerCase().includes(search.toLowerCase())
   );
 
-  // ── Orders handlers ──
+  // â”€â”€ Orders handlers â”€â”€
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setStatusUpdating(orderId);
@@ -205,9 +252,9 @@ export default function AdminDashboard() {
       setOrders((prev) =>
         prev.map((o) => o._id === orderId ? { ...o, orderStatus: newStatus } : o)
       );
-      showMessage('✅ סטטוס עודכן');
+      showMessage('âœ… ×¡×˜×˜×•×¡ ×¢×•×“×›×Ÿ');
     } catch {
-      showMessage('❌ שגיאה בעדכון', 'error');
+      showMessage('âŒ ×©×’×™××” ×‘×¢×“×›×•×Ÿ', 'error');
     } finally { setStatusUpdating(null); }
   };
 
@@ -223,16 +270,16 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className="bg-white border border-[#e8e8e6] p-8 max-w-sm w-full mx-4 text-center">
             <span className="material-symbols-outlined text-red-400 text-4xl mb-4 block">warning</span>
-            <h3 className="font-headline text-lg mb-2">למחוק את המוצר?</h3>
-            <p className="text-[#888888] text-sm font-label mb-6">פעולה זו לא ניתנת לביטול</p>
+            <h3 className="font-headline text-lg mb-2">×œ×ž×—×•×§ ××ª ×”×ž×•×¦×¨?</h3>
+            <p className="text-[#888888] text-sm font-label mb-6">×¤×¢×•×œ×” ×–×• ×œ× × ×™×ª× ×ª ×œ×‘×™×˜×•×œ</p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => setConfirmDelete(null)}
                 className="px-6 py-2 border border-[#e8e8e6] text-[#888888] font-label text-xs uppercase tracking-widest hover:border-[#aaaaaa] transition-colors">
-                ביטול
+                ×‘×™×˜×•×œ
               </button>
               <button onClick={confirmDeleteProduct}
                 className="px-6 py-2 bg-red-500/20 border border-red-500/50 text-red-400 font-label text-xs uppercase tracking-widest hover:bg-red-500/30 transition-colors">
-                מחק
+                ×ž×—×§
               </button>
             </div>
           </div>
@@ -242,17 +289,17 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="border-b border-[#eeeeee] px-10 py-6 flex items-center justify-between">
         <div>
-          <h1 className="font-headline text-2xl tracking-tight">פאנל ניהול</h1>
-          <p className="text-[#888888] text-xs uppercase tracking-widest font-label mt-1">Dream & Work — Admin</p>
+          <h1 className="font-headline text-2xl tracking-tight">×¤×× ×œ × ×™×”×•×œ</h1>
+          <p className="text-[#888888] text-xs uppercase tracking-widest font-label mt-1">Dream & Work â€” Admin</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[#888888] text-sm font-label">{products.length} מוצרים · {orders.length} הזמנות</span>
+          <span className="text-[#888888] text-sm font-label">{products.length} ×ž×•×¦×¨×™× Â· {orders.length} ×”×–×ž× ×•×ª</span>
           <button
             onClick={() => { setEditId(null); setForm(EMPTY_FORM); setTab('add'); }}
             className="flex items-center gap-2 bg-[#1a1a1a] text-white px-5 py-2.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
           >
             <span className="material-symbols-outlined text-sm">add</span>
-            מוצר חדש
+            ×ž×•×¦×¨ ×—×“×©
           </button>
         </div>
       </div>
@@ -269,9 +316,9 @@ export default function AdminDashboard() {
       {/* Tabs */}
       <div className="flex border-b border-[#eeeeee] px-10">
         {[
-          { id: 'products', label: 'כל המוצרים' },
-          { id: 'orders',   label: 'הזמנות' },
-          { id: 'add',      label: editId ? 'עריכת מוצר' : 'הוספת מוצר' },
+          { id: 'products', label: '×›×œ ×”×ž×•×¦×¨×™×' },
+          { id: 'orders',   label: '×”×–×ž× ×•×ª' },
+          { id: 'add',      label: editId ? '×¢×¨×™×›×ª ×ž×•×¦×¨' : '×”×•×¡×¤×ª ×ž×•×¦×¨' },
         ].map((t) => (
           <button
             key={t.id}
@@ -281,9 +328,9 @@ export default function AdminDashboard() {
             }`}
           >
             {t.label}
-            {t.id === 'orders' && orders.filter(o => o.orderStatus === 'ממתין לאישור').length > 0 && (
+            {t.id === 'orders' && orders.filter(o => o.orderStatus === '×ž×ž×ª×™×Ÿ ×œ××™×©×•×¨').length > 0 && (
               <span className="mr-2 bg-[#1a1a1a] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                {orders.filter(o => o.orderStatus === 'ממתין לאישור').length}
+                {orders.filter(o => o.orderStatus === '×ž×ž×ª×™×Ÿ ×œ××™×©×•×¨').length}
               </span>
             )}
           </button>
@@ -292,14 +339,14 @@ export default function AdminDashboard() {
 
       <div className="px-10 py-10 max-w-6xl">
 
-        {/* ── טאב מוצרים ── */}
+        {/* â”€â”€ ×˜××‘ ×ž×•×¦×¨×™× â”€â”€ */}
         {tab === 'products' && (
           <div>
             <div className="mb-8 relative">
               <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#888888] text-sm">search</span>
               <input
                 type="text"
-                placeholder="חיפוש לפי שם או קטגוריה..."
+                placeholder="×—×™×¤×•×© ×œ×¤×™ ×©× ××• ×§×˜×’×•×¨×™×”..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full bg-[#f5f5f3] border border-[#eeeeee] text-[#1a1a1a] pr-12 pl-4 py-3 text-sm font-label placeholder-[#888888] focus:outline-none focus:border-[#888888]"
@@ -309,7 +356,7 @@ export default function AdminDashboard() {
             {filtered.length === 0 ? (
               <div className="text-center py-24">
                 <span className="material-symbols-outlined text-5xl text-[#333] block mb-4">inventory_2</span>
-                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">אין מוצרים</p>
+                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">××™×Ÿ ×ž×•×¦×¨×™×</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -332,29 +379,29 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex items-center gap-4 text-[#888888] text-xs font-label">
                         <span>{p.category}</span>
-                        <span>·</span>
-                        <span>מלאי: {p.stock}</span>
-                        {p.sizes?.length > 0 && <><span>·</span><span>{p.sizes.join(', ')}</span></>}
+                        <span>Â·</span>
+                        <span>×ž×œ××™: {p.stock}</span>
+                        {p.sizes?.length > 0 && <><span>Â·</span><span>{p.sizes.join(', ')}</span></>}
                       </div>
                     </div>
                     <div className="text-left flex-shrink-0">
                       {p.salePrice ? (
                         <div>
-                          <p className="text-green-400 font-body text-sm">₪{p.salePrice}</p>
-                          <p className="text-[#888888] line-through text-xs">₪{p.price}</p>
+                          <p className="text-green-400 font-body text-sm">â‚ª{p.salePrice}</p>
+                          <p className="text-[#888888] line-through text-xs">â‚ª{p.price}</p>
                         </div>
                       ) : (
-                        <p className="font-body text-sm">₪{p.price}</p>
+                        <p className="font-body text-sm">â‚ª{p.price}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                       <button onClick={() => handleEdit(p)} className="flex items-center gap-1.5 text-[#888888] hover:text-[#1a1a1a] transition-colors font-label text-xs uppercase tracking-widest">
                         <span className="material-symbols-outlined text-sm">edit</span>
-                        עריכה
+                        ×¢×¨×™×›×”
                       </button>
                       <button onClick={() => handleDelete(p._id)} className="flex items-center gap-1.5 text-[#888888] hover:text-red-500 transition-colors font-label text-xs uppercase tracking-widest">
                         <span className="material-symbols-outlined text-sm">delete</span>
-                        מחיקה
+                        ×ž×—×™×§×”
                       </button>
                     </div>
                   </div>
@@ -364,28 +411,28 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ── טאב הזמנות ── */}
+        {/* â”€â”€ ×˜××‘ ×”×–×ž× ×•×ª â”€â”€ */}
         {tab === 'orders' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-headline text-xl">כל ההזמנות</h2>
+              <h2 className="font-headline text-xl">×›×œ ×”×”×–×ž× ×•×ª</h2>
               <button onClick={fetchOrders} className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest flex items-center gap-1.5 transition-colors">
                 <span className="material-symbols-outlined text-sm">refresh</span>
-                רענן
+                ×¨×¢× ×Ÿ
               </button>
             </div>
 
-            {/* חיפוש + פילטר */}
+            {/* ×—×™×¤×•×© + ×¤×™×œ×˜×¨ */}
             <div className="flex flex-col md:flex-row gap-3 mb-6">
               <input
                 type="text"
-                placeholder="חיפוש לפי שם לקוח או מספר הזמנה..."
+                placeholder="×—×™×¤×•×© ×œ×¤×™ ×©× ×œ×§×•×— ××• ×ž×¡×¤×¨ ×”×–×ž× ×”..."
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
                 className="flex-1 bg-[#f5f5f3] border border-[#eeeeee] text-[#1a1a1a] px-4 py-2.5 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
               />
               <div className="flex gap-2 flex-wrap">
-                {['הכל', ...ORDER_STATUSES].map((s) => (
+                {['×”×›×œ', ...ORDER_STATUSES].map((s) => (
                   <button
                     key={s}
                     onClick={() => setOrderFilter(s)}
@@ -404,11 +451,11 @@ export default function AdminDashboard() {
             {ordersLoading ? (
               <div className="text-center py-24">
                 <div className="inline-block w-8 h-8 border-2 border-[#eeeeee] border-t-[#1a1a1a] rounded-full animate-spin mb-4" />
-                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">טוען הזמנות...</p>
+                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">×˜×•×¢×Ÿ ×”×–×ž× ×•×ª...</p>
               </div>
             ) : (() => {
               const filteredOrders = orders.filter((o) => {
-                const matchStatus = orderFilter === 'הכל' || o.orderStatus === orderFilter;
+                const matchStatus = orderFilter === '×”×›×œ' || o.orderStatus === orderFilter;
                 const matchSearch = !orderSearch ||
                   o.user?.name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
                   o.user?.email?.toLowerCase().includes(orderSearch.toLowerCase()) ||
@@ -418,18 +465,18 @@ export default function AdminDashboard() {
               return filteredOrders.length === 0 ? (
                 <div className="text-center py-16 bg-[#f5f5f3] border border-[#eeeeee]">
                   <span className="material-symbols-outlined text-4xl text-[#cccccc] block mb-3">search_off</span>
-                  <p className="text-[#888888] font-label text-xs uppercase tracking-widest">לא נמצאו הזמנות</p>
+                  <p className="text-[#888888] font-label text-xs uppercase tracking-widest">×œ× × ×ž×¦××• ×”×–×ž× ×•×ª</p>
                 </div>
               ) : (
                 <>
                   <p className="text-[#888888] font-label text-xs uppercase tracking-widest mb-4">
-                    {filteredOrders.length} הזמנות {orderFilter !== 'הכל' ? `· ${orderFilter}` : ''}
+                    {filteredOrders.length} ×”×–×ž× ×•×ª {orderFilter !== '×”×›×œ' ? `Â· ${orderFilter}` : ''}
                   </p>
                   <div className="flex flex-col gap-3">
                     {filteredOrders.map((order) => (
                   <div key={order._id} className="bg-[#f5f5f3] border border-[#eeeeee] hover:border-[#e8e8e6] transition-colors">
 
-                    {/* שורה ראשית */}
+                    {/* ×©×•×¨×” ×¨××©×™×ª */}
                     <button
                       onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
                       className="w-full flex items-center justify-between p-5 text-right"
@@ -438,11 +485,11 @@ export default function AdminDashboard() {
                         <span className={`px-3 py-1 font-label text-xs uppercase tracking-widest rounded-sm ${STATUS_COLORS[order.orderStatus] || 'text-[#888888] bg-[#767575]/10'}`}>
                           {order.orderStatus}
                         </span>
-                        <span className="text-[#1a1a1a] font-body text-sm">₪{order.totalPrice?.toFixed(2)}</span>
+                        <span className="text-[#1a1a1a] font-body text-sm">â‚ª{order.totalPrice?.toFixed(2)}</span>
                         <span className="text-[#888888] font-label text-xs hidden md:block">{formatDate(order.createdAt)}</span>
                         {order.user && (
                           <span className="text-[#666666] font-label text-xs">
-                            {order.user.name} · {order.user.email}
+                            {order.user.name} Â· {order.user.email}
                           </span>
                         )}
                       </div>
@@ -454,11 +501,11 @@ export default function AdminDashboard() {
                       </div>
                     </button>
 
-                    {/* פירוט */}
+                    {/* ×¤×™×¨×•×˜ */}
                     {expandedOrder === order._id && (
                       <div className="border-t border-[#eeeeee] p-5 space-y-5">
 
-                        {/* מוצרים */}
+                        {/* ×ž×•×¦×¨×™× */}
                         <div className="flex flex-col gap-3">
                           {order.items?.map((item, i) => (
                             <div key={i} className="flex items-center gap-4">
@@ -471,29 +518,29 @@ export default function AdminDashboard() {
                               <div className="flex-1">
                                 <p className="font-body text-sm">{item.name}</p>
                                 <p className="text-[#888888] text-xs font-label">
-                                  {item.size && `מידה: ${item.size}`}{item.color && ` · ${item.color}`} · כמות: {item.quantity}
+                                  {item.size && `×ž×™×“×”: ${item.size}`}{item.color && ` Â· ${item.color}`} Â· ×›×ž×•×ª: {item.quantity}
                                 </p>
                               </div>
-                              <p className="text-[#1a1a1a] font-body text-sm">₪{(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="text-[#1a1a1a] font-body text-sm">â‚ª{(item.price * item.quantity).toFixed(2)}</p>
                             </div>
                           ))}
                         </div>
 
-                        {/* כתובת + עדכון סטטוס */}
+                        {/* ×›×ª×•×‘×ª + ×¢×“×›×•×Ÿ ×¡×˜×˜×•×¡ */}
                         <div className="flex flex-col md:flex-row gap-4">
                           {order.shippingAddress && (
                             <div className="flex-1 bg-white border border-[#eeeeee] p-4">
-                              <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">כתובת משלוח</p>
+                              <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">×›×ª×•×‘×ª ×ž×©×œ×•×—</p>
                               <p className="text-sm font-body text-[#666666]">
-                                {order.shippingAddress.name} · {order.shippingAddress.street}, {order.shippingAddress.city}
-                                {order.shippingAddress.phone && ` · ${order.shippingAddress.phone}`}
+                                {order.shippingAddress.name} Â· {order.shippingAddress.street}, {order.shippingAddress.city}
+                                {order.shippingAddress.phone && ` Â· ${order.shippingAddress.phone}`}
                               </p>
                             </div>
                           )}
 
-                          {/* עדכון סטטוס */}
+                          {/* ×¢×“×›×•×Ÿ ×¡×˜×˜×•×¡ */}
                           <div className="bg-white border border-[#eeeeee] p-4">
-                            <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">עדכון סטטוס</p>
+                            <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">×¢×“×›×•×Ÿ ×¡×˜×˜×•×¡</p>
                             <div className="flex flex-wrap gap-2">
                               {ORDER_STATUSES.map((status) => (
                                 <button
@@ -524,9 +571,9 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ── טאב הוספה/עריכה ── */}
+        {/* â”€â”€ ×˜××‘ ×”×•×¡×¤×”/×¢×¨×™×›×” â”€â”€ */}
         {tab === 'add' && (
-          <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
+          <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
             <h2 className="font-headline text-xl tracking-tight">{editId ? 'עריכת מוצר' : 'מוצר חדש'}</h2>
 
             <div className="grid grid-cols-2 gap-6">
@@ -570,8 +617,24 @@ export default function AdminDashboard() {
                 placeholder="תיאור המוצר..." />
             </div>
 
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">צבעים *</label>
+                <input value={form.colors} onChange={(e) => handleColorsChange(e.target.value)}
+                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
+                  placeholder="שחור, לבן, אפור" />
+                <p className="text-[#888888] text-xs font-label mt-2">קודם מגדירים את כל הצבעים, ואז לכל צבע יופיע מלאי נפרד לפי מידה.</p>
+              </div>
+              <div>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">תגיות</label>
+                <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
+                  placeholder="חתן, חליפה, קיץ" />
+              </div>
+            </div>
+
             <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">מידות</label>
+              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">מידות זמינות</label>
               <div className="flex flex-wrap gap-2">
                 {SIZES.map((size) => (
                   <button key={size} type="button" onClick={() => handleToggleSize(size)}
@@ -582,60 +645,126 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* מלאי לפי מידה */}
-            {form.sizes?.length > 0 && (
+            {parseColors(form.colors).length > 0 && form.sizes.length > 0 && (
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">
-                  מלאי לפי מידה
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {form.sizes.map((size) => (
-                    <div key={size} className="flex items-center gap-2 bg-[#f5f5f3] border border-[#eeeeee] px-3 py-2">
-                      <span className="font-label text-xs text-[#1a1a1a] w-8 flex-shrink-0">{size}</span>
-                      <input
-                        type="number" min="0"
-                        value={sizeStock[size] ?? ''}
-                        onChange={(e) => setSizeStock((prev) => ({ ...prev, [size]: Number(e.target.value) }))}
-                        className="flex-1 bg-transparent text-[#1a1a1a] text-sm font-body focus:outline-none text-center"
-                        placeholder="0"
-                      />
-                      <span className="text-[#888888] text-xs font-label">יח'</span>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">מלאי לפי צבע ואז מידה</label>
+                <div className="flex flex-col gap-5">
+                  {parseColors(form.colors).map((color) => (
+                    <div key={color} className="border border-[#eeeeee] bg-white p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="font-headline text-lg">{color}</p>
+                        <p className="text-[#888888] text-xs font-label uppercase tracking-widest">
+                          סה"כ לצבע זה: {Object.values(sizeStock[color] || {}).reduce((sum, qty) => sum + (Number(qty) || 0), 0)}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {form.sizes.map((size) => (
+                          <div key={`${color}-${size}`} className="flex items-center gap-2 bg-[#f5f5f3] border border-[#eeeeee] px-3 py-2">
+                            <span className="font-label text-xs text-[#1a1a1a] w-8 flex-shrink-0">{size}</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={sizeStock[color]?.[size] ?? ''}
+                              onChange={(e) => setColorStockValue(color, size, e.target.value)}
+                              className="flex-1 bg-transparent text-[#1a1a1a] text-sm font-body focus:outline-none text-center"
+                              placeholder="0"
+                            />
+                            <span className="text-[#888888] text-xs font-label">יח'</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-5">
+                        <p className="font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">תמונות עבור {color}</p>
+                        {colorImages[color]?.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {colorImages[color].map((url) => (
+                              <div key={url} className="relative w-16 h-16 group">
+                                <img src={url} alt="" className="w-full h-full object-cover" />
+                                <button type="button" onClick={() => removeColorImage(color, url)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                  <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <label className={`flex items-center gap-2 border border-dashed border-[#e8e8e6] px-4 py-3 cursor-pointer hover:border-[#888888] transition-colors text-sm ${uploadingColor === color ? 'opacity-50 pointer-events-none' : ''}`}>
+                          <span className="material-symbols-outlined text-[#888888] text-base">{uploadingColor === color ? 'hourglass_empty' : 'add_photo_alternate'}</span>
+                          <span className="font-label text-xs text-[#888888]">{uploadingColor === color ? 'מעלה...' : `העלה תמונות עבור ${color}`}</span>
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleColorImageFiles(color, e)} disabled={uploadingColor === color} />
+                        </label>
+                      </div>
                     </div>
                   ))}
                 </div>
-                <p className="text-[#888888] text-xs font-label mt-2">
-                  סה"כ במלאי: {Object.values(sizeStock).reduce((s, v) => s + (Number(v) || 0), 0)} יחידות
-                </p>
+                <p className="text-[#888888] text-xs font-label mt-2">סה"כ במלאי: {getTotalStock(sizeStock)} יחידות</p>
               </div>
             )}
 
+            <div>
+              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">תמונות מוצר כלליות</label>
+              {uploadedImages.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                  {uploadedImages.map((url) => (
+                    <div key={url} className="relative w-20 h-20 group">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeUploadedImage(url)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <label className={`flex items-center gap-3 border border-dashed border-[#e8e8e6] px-5 py-4 cursor-pointer hover:border-[#888888] transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                <span className="material-symbols-outlined text-[#888888] text-xl">{uploading ? 'hourglass_empty' : 'upload'}</span>
+                <span className="font-label text-xs text-[#888888] uppercase tracking-widest">{uploading ? 'מעלה תמונות...' : 'בחר תמונות מהמחשב'}</span>
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageFiles} disabled={uploading} />
+              </label>
+              <p className="text-[#888888] text-xs font-label mt-1">עד 5 תמונות · מקסימום 5MB כל אחת</p>
+            </div>
+
+            <div className="flex items-center gap-4 pt-4 border-t border-[#eeeeee]">
+              <button type="submit" disabled={productLoading}
+                className="bg-[#1a1a1a] text-white px-10 py-3.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50">
+                {productLoading ? 'שומר...' : editId ? 'שמור שינויים' : 'הוסף מוצר'}
+              </button>
+              <button type="button" onClick={handleCancel}
+                className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest transition-colors">
+                ביטול
+              </button>
+            </div>
+          </form>
+        )}
+
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">צבעים</label>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">×¦×‘×¢×™×</label>
                 <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })}
                   className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="שחור, לבן, אפור (מופרד בפסיקים)" />
+                  placeholder="×©×—×•×¨, ×œ×‘×Ÿ, ××¤×•×¨ (×ž×•×¤×¨×“ ×‘×¤×¡×™×§×™×)" />
               </div>
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">תגיות</label>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">×ª×’×™×•×ª</label>
                 <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })}
                   className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="חתן, חליפה, קיץ (מופרד בפסיקים)" />
+                  placeholder="×—×ª×Ÿ, ×—×œ×™×¤×”, ×§×™×¥ (×ž×•×¤×¨×“ ×‘×¤×¡×™×§×™×)" />
               </div>
             </div>
 
-            {/* תמונות לפי צבע */}
+            {/* ×ª×ž×•× ×•×ª ×œ×¤×™ ×¦×‘×¢ */}
             {form.colors && (
               <div>
                 <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">
-                  תמונות לפי צבע <span className="text-[#888888] normal-case">(אופציונלי — אם לא הועלו, יוצגו התמונות הכלליות)</span>
+                  ×ª×ž×•× ×•×ª ×œ×¤×™ ×¦×‘×¢ <span className="text-[#888888] normal-case">(××•×¤×¦×™×•× ×œ×™ â€” ×× ×œ× ×”×•×¢×œ×•, ×™×•×¦×’×• ×”×ª×ž×•× ×•×ª ×”×›×œ×œ×™×•×ª)</span>
                 </label>
                 <div className="flex flex-col gap-4">
                   {form.colors.split(',').map(s => s.trim()).filter(Boolean).map((color) => (
                     <div key={color} className="bg-white border border-[#eeeeee] p-4">
                       <p className="font-label text-xs text-[#1a1a1a] mb-3">{color}</p>
 
-                      {/* תצוגה מקדימה */}
+                      {/* ×ª×¦×•×’×” ×ž×§×“×™×ž×” */}
                       {colorImages[color]?.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-3">
                           {colorImages[color].map((url) => (
@@ -655,7 +784,7 @@ export default function AdminDashboard() {
                           {uploadingColor === color ? 'hourglass_empty' : 'add_photo_alternate'}
                         </span>
                         <span className="font-label text-xs text-[#888888]">
-                          {uploadingColor === color ? 'מעלה...' : `העלה תמונות עבור ${color}`}
+                          {uploadingColor === color ? '×ž×¢×œ×”...' : `×”×¢×œ×” ×ª×ž×•× ×•×ª ×¢×‘×•×¨ ${color}`}
                         </span>
                         <input type="file" accept="image/*" multiple className="hidden"
                           onChange={(e) => handleColorImageFiles(color, e)}
@@ -667,11 +796,11 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* העלאת תמונות */}
+            {/* ×”×¢×œ××ª ×ª×ž×•× ×•×ª */}
             <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">תמונות המוצר</label>
+              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">×ª×ž×•× ×•×ª ×”×ž×•×¦×¨</label>
 
-              {/* תצוגה מקדימה */}
+              {/* ×ª×¦×•×’×” ×ž×§×“×™×ž×” */}
               {uploadedImages.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-4">
                   {uploadedImages.map((url) => (
@@ -689,13 +818,13 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* כפתור העלאה */}
+              {/* ×›×¤×ª×•×¨ ×”×¢×œ××” */}
               <label className={`flex items-center gap-3 border border-dashed border-[#e8e8e6] px-5 py-4 cursor-pointer hover:border-[#888888] transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                 <span className="material-symbols-outlined text-[#888888] text-xl">
                   {uploading ? 'hourglass_empty' : 'upload'}
                 </span>
                 <span className="font-label text-xs text-[#888888] uppercase tracking-widest">
-                  {uploading ? 'מעלה תמונות...' : 'בחר תמונות מהמחשב'}
+                  {uploading ? '×ž×¢×œ×” ×ª×ž×•× ×•×ª...' : '×‘×—×¨ ×ª×ž×•× ×•×ª ×ž×”×ž×—×©×‘'}
                 </span>
                 <input
                   type="file"
@@ -706,17 +835,17 @@ export default function AdminDashboard() {
                   disabled={uploading}
                 />
               </label>
-              <p className="text-[#888888] text-xs font-label mt-1">עד 5 תמונות · מקסימום 5MB כל אחת</p>
+              <p className="text-[#888888] text-xs font-label mt-1">×¢×“ 5 ×ª×ž×•× ×•×ª Â· ×ž×§×¡×™×ž×•× 5MB ×›×œ ××—×ª</p>
             </div>
 
             <div className="flex items-center gap-4 pt-4 border-t border-[#eeeeee]">
               <button type="submit" disabled={productLoading}
                 className="bg-[#1a1a1a] text-white px-10 py-3.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50">
-                {productLoading ? 'שומר...' : editId ? 'שמור שינויים' : 'הוסף מוצר'}
+                {productLoading ? '×©×•×ž×¨...' : editId ? '×©×ž×•×¨ ×©×™× ×•×™×™×' : '×”×•×¡×£ ×ž×•×¦×¨'}
               </button>
               <button type="button" onClick={handleCancel}
                 className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest transition-colors">
-                ביטול
+                ×‘×™×˜×•×œ
               </button>
             </div>
           </form>
@@ -726,3 +855,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
