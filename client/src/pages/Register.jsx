@@ -18,7 +18,11 @@ export default function Register() {
     try {
       await register(form.name, form.email, form.password);
       if (newsletter) {
-        try { await api.post('/newsletter/subscribe', { email: form.email }); } catch {}
+        try {
+          await api.post('/newsletter/subscribe', { email: form.email });
+        } catch (newsletterError) {
+          console.error('Newsletter subscribe failed:', newsletterError);
+        }
       }
       navigate('/');
     } catch (err) {

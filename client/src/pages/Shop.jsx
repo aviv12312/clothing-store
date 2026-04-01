@@ -34,6 +34,9 @@ export default function Shop() {
   const [allColors, setAllColors] = useState([]);
 
   useEffect(() => {
+    const collection = searchParams.get('collection');
+    const sale = searchParams.get('sale');
+
     const fetchProducts = async () => {
       setLoading(true);
       try {
@@ -41,8 +44,8 @@ export default function Shop() {
         if (category !== 'הכל') params.category = category;
         if (search)              params.search = search;
         if (sort)                params.sort = sort;
-        if (searchParams.get('collection')) params.collection = searchParams.get('collection');
-        if (searchParams.get('sale'))       params.sale = true;
+        if (collection) params.collection = collection;
+        if (sale)       params.sale = true;
 
         const { data } = await api.get('/products', { params });
         setProducts(data);
@@ -62,7 +65,7 @@ export default function Shop() {
       }
     };
     fetchProducts();
-  }, [category, search, sort]);
+  }, [category, search, searchParams, sort]);
 
   // חיפוש עם debounce
   const handleSearch = (val) => {
@@ -286,10 +289,7 @@ export default function Shop() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
               {displayedProducts.map((p) => (
-                <ProductCard key={p._id} product={p}
-                  isLiked={useWishlistStatus(p._id)}
-                  onToggleLike={(e) => { e.preventDefault(); }}
-                />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           )}
@@ -306,21 +306,17 @@ function getColorHex(name) {
   return map[name] || '#555';
 }
 
-function useWishlistStatus(id) {
-  const { isLiked } = useWishlist();
-  return isLiked(id);
-}
-
-function ProductCard({ product: p, isLiked, onToggleLike }) {
-  const { toggle } = useWishlist();
+function ProductCard({ product: p }) {
+  const { toggle, isLiked } = useWishlist();
   const { addItem } = useCart();
+  const liked = isLiked(p._id);
 
   return (
     <div className="group cursor-pointer relative">
       <button onClick={(e) => { e.preventDefault(); toggle(p); }}
         className="absolute top-3 left-3 z-10 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white transition-all opacity-0 group-hover:opacity-100">
-        <span className={`material-symbols-outlined transition-colors ${isLiked ? 'text-[#1a1a1a]' : 'text-[#666666]'}`}
-          style={{ fontSize: '18px', fontVariationSettings: isLiked ? "'FILL' 1" : "'FILL' 0" }}>
+        <span className={`material-symbols-outlined transition-colors ${liked ? 'text-[#1a1a1a]' : 'text-[#666666]'}`}
+          style={{ fontSize: '18px', fontVariationSettings: liked ? "'FILL' 1" : "'FILL' 0" }}>
           favorite
         </span>
       </button>

@@ -99,7 +99,6 @@ export default function AdminDashboard() {
         ...form,
         price: Number(form.price),
         salePrice: form.salePrice ? Number(form.salePrice) : undefined,
-        stock: Number(form.stock),
         images: uploadedImages,
         colorImages,
         sizeStock,

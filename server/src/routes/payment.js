@@ -12,6 +12,30 @@ const router = express.Router();
 // אתחול מאוחר — dotenv כבר נטען
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const getAvailableStock = (product, size) => {
+  if (size && product.sizeStock?.[size] !== undefined) {
+    return Number(product.sizeStock[size]) || 0;
+  }
+
+  return Number(product.stock) || 0;
+};
+
+const decrementProductStock = async (product, item) => {
+  if (item.size && product.sizeStock?.[item.size] !== undefined) {
+    const updated = { ...product.sizeStock };
+    updated[item.size] = Math.max(0, (updated[item.size] || 0) - item.quantity);
+    await Product.findByIdAndUpdate(item.product, {
+      sizeStock: updated,
+      stock: Math.max(0, (product.stock || 0) - item.quantity),
+    });
+    return;
+  }
+
+  await Product.findByIdAndUpdate(item.product, {
+    $inc: { stock: -item.quantity },
+  });
+};
+
 // יצירת Payment Intent
 router.post('/stripe/create-intent', protect, async (req, res) => {
   const stripe = getStripe();
@@ -26,7 +50,7 @@ router.post('/stripe/create-intent', protect, async (req, res) => {
   for (const item of cartItems) {
     const p = products.find((p) => p._id.toString() === item.productId);
     if (!p) return res.status(400).json({ error: `מוצר לא נמצא: ${item.productId}` });
-    if (p.stock < item.quantity)
+    if (getAvailableStock(p, item.size) < item.quantity)
       return res.status(400).json({ error: `אין מלאי: ${p.name}` });
     const price = p.salePrice || p.price;
     total += price * item.quantity;
@@ -88,18 +112,7 @@ router.post('/webhook', async (req, res) => {
         const prod = await Product.findById(item.product);
         if (!prod) continue;
 
-        if (item.size && prod.sizeStock?.[item.size] !== undefined) {
-          const updated = { ...prod.sizeStock };
-          updated[item.size] = Math.max(0, (updated[item.size] || 0) - item.quantity);
-          await Product.findByIdAndUpdate(item.product, {
-            sizeStock: updated,
-            stock: Math.max(0, (prod.stock || 0) - item.quantity),
-          });
-        } else {
-          await Product.findByIdAndUpdate(item.product, {
-            $inc: { stock: -item.quantity },
-          });
-        }
+        await decrementProductStock(prod, item);
       }
     }
   }
@@ -119,7 +132,7 @@ router.post('/paypal/create-order', protect, async (req, res) => {
   for (const item of cartItems) {
     const p = products.find((p) => p._id.toString() === item.productId);
     if (!p) return res.status(400).json({ error: `מוצר לא נמצא: ${item.productId}` });
-    if (p.stock < item.quantity)
+    if (getAvailableStock(p, item.size) < item.quantity)
       return res.status(400).json({ error: `אין מלאי: ${p.name}` });
     const price = p.salePrice || p.price;
     total += price * item.quantity;

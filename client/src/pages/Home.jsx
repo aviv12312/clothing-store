@@ -67,7 +67,7 @@ export default function Home() {
       try {
         const { data } = await api.get('/products', { params: { collection: 'new' } });
         setNewCollection(data.slice(0, 4));
-      } catch (err) {
+      } catch {
         // silently fail, show nothing
       }
     };

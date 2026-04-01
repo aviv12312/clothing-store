@@ -2,19 +2,34 @@ import Product from '../models/Product.js';
 import { v2 as cloudinary } from 'cloudinary';
 
 export const getProducts = async (req, res) => {
-  const { category, search, minPrice, maxPrice, size, sort = '-createdAt' } = req.query;
+  const {
+    category,
+    search,
+    minPrice,
+    maxPrice,
+    size,
+    sort = '-createdAt',
+    featured,
+    sale,
+    collection,
+  } = req.query;
   const query = { isActive: true };
 
   if (category) query.category = category;
   if (size) query.sizes = size;
+  if (featured === 'true') query.featured = true;
+  if (sale === 'true') query.salePrice = { $gt: 0 };
   if (minPrice || maxPrice) {
-    query.price = {};
-    if (minPrice) query.price.$gte = Number(minPrice);
-    if (maxPrice) query.price.$lte = Number(maxPrice);
+    const priceQuery = {};
+    if (minPrice) priceQuery.$gte = Number(minPrice);
+    if (maxPrice) priceQuery.$lte = Number(maxPrice);
+    query.$or = [{ salePrice: priceQuery }, { price: priceQuery }];
+    delete query.salePrice;
   }
   if (search) query.$text = { $search: search };
 
-  const products = await Product.find(query).sort(sort).limit(50);
+  const resolvedSort = collection === 'new' ? '-createdAt' : sort;
+  const products = await Product.find(query).sort(resolvedSort).limit(50);
   res.json(products);
 };
 

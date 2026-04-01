@@ -2,9 +2,29 @@ import express from 'express';
 import { protect, requireAdmin } from '../middleware/auth.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
+import Product from '../models/Product.js';
 import { sendStatusUpdate, sendAdminCancellationAlert } from '../services/emailService.js';
 
 const router = express.Router();
+
+const restoreProductStock = async (item) => {
+  const product = await Product.findById(item.product);
+  if (!product) return;
+
+  if (item.size && product.sizeStock?.[item.size] !== undefined) {
+    const updated = { ...product.sizeStock };
+    updated[item.size] = (updated[item.size] || 0) + item.quantity;
+    await Product.findByIdAndUpdate(item.product, {
+      sizeStock: updated,
+      stock: (product.stock || 0) + item.quantity,
+    });
+    return;
+  }
+
+  await Product.findByIdAndUpdate(item.product, {
+    $inc: { stock: item.quantity },
+  });
+};
 
 // קבל הזמנות של המשתמש המחובר
 router.get('/my', protect, async (req, res) => {

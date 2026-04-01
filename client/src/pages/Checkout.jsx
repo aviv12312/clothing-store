@@ -99,7 +99,11 @@ export default function Checkout() {
                 paypalOrderId: data.orderID,
                 couponCode: couponData ? couponCode.toUpperCase() : null,
               });
-              try { trackPurchase(res.data?.orderId || data.orderID, finalTotal, items); } catch {}
+              try {
+                trackPurchase(res.data?.orderId || data.orderID, finalTotal, items);
+              } catch (trackError) {
+                console.error('Purchase tracking failed:', trackError);
+              }
               clearCart();
               navigate(`/order-success?id=${res.data?.orderId || data.orderID}`);
             } catch (err) {
@@ -126,7 +130,7 @@ export default function Checkout() {
 
     initPaypal();
     return () => { cancelled = true; };
-  }, [step]);
+  }, [address, clearCart, couponCode, couponData, finalTotal, items, navigate, step]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

@@ -12,6 +12,7 @@ api.interceptors.request.use((config) => {
 });
 
 let isRefreshing = false;
+let refreshPromise = null;
 
 api.interceptors.response.use(
   (res) => res,
@@ -21,20 +22,24 @@ api.interceptors.response.use(
       original._retry = true;
       if (!isRefreshing) {
         isRefreshing = true;
+        refreshPromise = axios.post(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
         try {
-          const { data } = await axios.post(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
-            {},
-            { withCredentials: true }
-          );
+          const { data } = await refreshPromise;
           localStorage.setItem('accessToken', data.accessToken);
-          isRefreshing = false;
         } catch {
-          isRefreshing = false;
           localStorage.removeItem('accessToken');
           window.location.href = '/login';
           return Promise.reject(error);
+        } finally {
+          isRefreshing = false;
+          refreshPromise = null;
         }
+      } else if (refreshPromise) {
+        await refreshPromise;
       }
       original.headers.Authorization = `Bearer ${localStorage.getItem('accessToken')}`;
       return api(original);

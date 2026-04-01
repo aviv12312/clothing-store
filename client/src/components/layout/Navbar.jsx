@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -21,7 +21,6 @@ export default function Navbar() {
   const { count } = useCart();
   const { count: wishlistCount } = useWishlist();
   const navigate = useNavigate();
-  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -31,14 +30,13 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // סגור תפריט בניווט
-  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
-
   const handleLogout = async () => {
     await logout();
     navigate('/');
     setMenuOpen(false);
   };
+
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <>
@@ -70,13 +68,13 @@ export default function Navbar() {
         {/* Center: nav links — desktop only */}
         <div className="hidden md:flex gap-8">
           {NAV_LINKS.map((link) => (
-            <Link key={link.to} to={link.to}
+            <Link key={link.to} to={link.to} onClick={closeMenu}
               className="font-['Noto_Serif'] uppercase tracking-[0.1rem] text-xs text-[#666666] hover:text-[#000000] transition-colors duration-200">
               {link.label}
             </Link>
           ))}
           {user?.role === 'admin' && (
-            <Link to="/admin"
+            <Link to="/admin" onClick={closeMenu}
               className="font-['Manrope'] uppercase tracking-[0.1rem] text-xs text-[#1a1a1a] hover:text-[#000000] transition-colors duration-200 font-semibold">
               ADMIN
             </Link>
@@ -114,7 +112,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             {user ? (
               <div className="flex items-center gap-4">
-                <Link to="/profile" className="text-[#666666] hover:text-[#000000] transition-colors duration-200">
+                <Link to="/profile" onClick={closeMenu} className="text-[#666666] hover:text-[#000000] transition-colors duration-200">
                   <span className="material-symbols-outlined">person</span>
                 </Link>
                 <button onClick={handleLogout}
@@ -123,7 +121,7 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="text-[#666666] hover:text-[#000000] transition-colors duration-200">
+              <Link to="/login" onClick={closeMenu} className="text-[#666666] hover:text-[#000000] transition-colors duration-200">
                 <span className="material-symbols-outlined">person</span>
               </Link>
             )}
@@ -163,8 +161,8 @@ export default function Navbar() {
           {/* Links */}
           <div className="flex-1 overflow-y-auto py-6 px-6 space-y-1">
             {NAV_LINKS.map((link) => (
-              <Link key={link.to} to={link.to}
-                className="block py-4 font-['Noto_Serif'] text-sm uppercase tracking-widest text-[#666666] hover:text-[#000000] border-b border-[#eeeeee] transition-colors">
+              <Link key={link.to} to={link.to} onClick={closeMenu}
+              className="block py-4 font-['Noto_Serif'] text-sm uppercase tracking-widest text-[#666666] hover:text-[#000000] border-b border-[#eeeeee] transition-colors">
                 {link.label}
               </Link>
             ))}
@@ -172,7 +170,7 @@ export default function Navbar() {
             <div className="pt-4 pb-2">
               <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.2em] text-[#888888] mb-3">קטגוריות</p>
               {SUB_CATEGORIES.map((cat) => (
-                <Link key={cat.to} to={cat.to}
+                <Link key={cat.to} to={cat.to} onClick={closeMenu}
                   className="block py-3 font-['Manrope'] text-xs uppercase tracking-widest text-[#888888] hover:text-[#000000] border-b border-[#eeeeee]/50 transition-colors">
                   {cat.label}
                 </Link>
@@ -180,7 +178,7 @@ export default function Navbar() {
             </div>
 
             {user?.role === 'admin' && (
-              <Link to="/admin"
+              <Link to="/admin" onClick={closeMenu}
                 className="block py-4 font-['Manrope'] text-sm uppercase tracking-widest text-[#1a1a1a] font-semibold border-b border-[#eeeeee] transition-colors">
                 ADMIN
               </Link>
@@ -191,7 +189,7 @@ export default function Navbar() {
           <div className="px-6 py-6 border-t border-[#eeeeee] space-y-3">
             {user ? (
               <>
-                <Link to="/profile"
+                <Link to="/profile" onClick={closeMenu}
                   className="flex items-center gap-3 text-[#666666] hover:text-[#000000] transition-colors font-['Manrope'] text-sm">
                   <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>person</span>
                   פרופיל
@@ -203,7 +201,7 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <Link to="/login"
+              <Link to="/login" onClick={closeMenu}
                 className="flex items-center gap-3 text-[#666666] hover:text-[#000000] transition-colors font-['Manrope'] text-sm">
                 <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>person</span>
                 התחבר / הירשם
@@ -221,8 +219,8 @@ export default function Navbar() {
         style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(232,232,230,0.8)' }}
       >
         {SUB_CATEGORIES.map((cat) => (
-          <Link key={cat.to} to={cat.to}
-            className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.15rem] text-[#666666] hover:text-[#000000] transition-colors duration-200">
+          <Link key={cat.to} to={cat.to} onClick={closeMenu}
+                  className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.15rem] text-[#666666] hover:text-[#000000] transition-colors duration-200">
             {cat.label}
           </Link>
         ))}
