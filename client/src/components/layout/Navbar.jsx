@@ -47,15 +47,23 @@ export default function Navbar() {
         style={{ background: 'rgba(19,19,19,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
       >
         {/* Right: Logo */}
-        <Link to="/" className="flex flex-col items-center cursor-pointer" dir="ltr">
-          <span className="text-xl md:text-2xl font-['Noto_Serif'] tracking-tighter text-[#e9c349] whitespace-nowrap leading-none">
-            Dream &amp; Work
-          </span>
-          <div className="relative w-full flex justify-center mt-0.5">
-            <span className="font-['Manrope'] text-[0.5rem] md:text-[0.55rem] uppercase tracking-[0.2em] text-[#e9c349] relative z-10 bg-[#131313] px-1 leading-none">
-              Line
+        <Link to="/" className="flex items-center gap-2.5 cursor-pointer" dir="ltr">
+          <img
+            src="/logo.jpeg"
+            alt="D"
+            className="w-8 h-8 md:w-10 md:h-10 object-contain invert brightness-[0.85] sepia saturate-[3] hue-rotate-[5deg]"
+            style={{ filter: 'invert(80%) sepia(40%) saturate(400%) hue-rotate(5deg) brightness(95%)' }}
+          />
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-['Noto_Serif'] tracking-tighter text-[#e9c349] whitespace-nowrap leading-none">
+              Dream &amp; Work
             </span>
-            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-[#e9c349]/40 z-0"></div>
+            <div className="relative w-full flex justify-center mt-0.5">
+              <span className="font-['Manrope'] text-[0.5rem] md:text-[0.55rem] uppercase tracking-[0.2em] text-[#e9c349] relative z-10 bg-[#131313] px-1 leading-none">
+                Line
+              </span>
+              <div className="absolute top-1/2 left-0 w-full h-[1px] bg-[#e9c349]/40 z-0"></div>
+            </div>
           </div>
         </Link>
 
