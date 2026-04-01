@@ -51,8 +51,8 @@ export default function Navbar() {
           <img
             src="/logo.jpeg"
             alt="D"
-            className="w-8 h-8 md:w-10 md:h-10 object-contain invert brightness-[0.85] sepia saturate-[3] hue-rotate-[5deg]"
-            style={{ filter: 'invert(80%) sepia(40%) saturate(400%) hue-rotate(5deg) brightness(95%)' }}
+            className="w-8 h-8 md:w-10 md:h-10 object-contain"
+            style={{ filter: 'invert(1) sepia(1) saturate(3) hue-rotate(355deg) brightness(0.9)', mixBlendMode: 'screen' }}
           />
           <div className="flex flex-col items-center">
             <span className="text-xl md:text-2xl font-['Noto_Serif'] tracking-tighter text-[#e9c349] whitespace-nowrap leading-none">
