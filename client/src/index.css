@@ -6,12 +6,12 @@
 
 :root {
   color-scheme: light;
-  --surface: #fbf9f8;
-  --surface-low: #f5f3f2;
-  --surface-high: #e4e2e1;
+  --surface: #ffffff;
+  --surface-low: #f7f7f7;
+  --surface-high: #efefef;
   --ink: #1b1c1c;
   --muted: #6e6667;
-  --ghost: rgba(126, 117, 118, 0.2);
+  --ghost: rgba(17, 17, 17, 0.12);
   --navy: #3a6472;
 }
 
@@ -27,9 +27,7 @@ body {
   font-family: 'Manrope', sans-serif;
   direction: rtl;
   margin: 0;
-  background:
-    radial-gradient(circle at top right, rgba(58, 100, 114, 0.08), transparent 26%),
-    linear-gradient(180deg, #fdfbfa 0%, var(--surface) 24%, #f7f3f0 100%);
+  background: #ffffff;
   color: var(--ink);
   min-height: 100vh;
 }
@@ -59,7 +57,7 @@ a {
 }
 
 ::selection {
-  background: rgba(58, 100, 114, 0.18);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .material-symbols-outlined {
@@ -72,7 +70,7 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface-low);
+  background: #f5f5f5;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -84,12 +82,12 @@ a {
   position: fixed;
   width: 420px;
   height: 420px;
-  background: radial-gradient(circle, rgba(58, 100, 114, 0.09) 0%, rgba(58, 100, 114, 0.035) 26%, transparent 72%);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.035) 0%, rgba(0, 0, 0, 0.015) 30%, transparent 72%);
   transform: translate(-50%, -50%);
   transition: left 0.14s ease, top 0.14s ease;
   z-index: 1;
   mix-blend-mode: multiply;
-  opacity: 0.8;
+  opacity: 0.45;
 }
 
 @media (max-width: 768px) {
@@ -108,7 +106,7 @@ a {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, transparent 18%, transparent 82%, rgba(0, 0, 0, 0.03) 100%);
+  background: none;
   z-index: -1;
 }
 
@@ -149,14 +147,14 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: rgba(251, 249, 248, 0.78);
+  background: #ffffff;
   color: var(--ink);
   text-transform: uppercase;
   letter-spacing: 0.22rem;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 1rem 1.5rem;
-  border: 1px solid var(--ghost);
+  border: 1px solid rgba(17, 17, 17, 0.12);
   transition: transform 200ms ease, border-color 200ms ease;
 }
 

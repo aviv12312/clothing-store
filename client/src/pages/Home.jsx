@@ -8,7 +8,7 @@ import heroBg from '../assets/logo.png';
 function ProductCard({ product, priority = false }) {
   return (
     <Link to={`/product/${product._id}`} className={`group block ${priority ? 'md:col-span-2' : ''}`}>
-      <div className={`relative overflow-hidden bg-[#f5f3f2] ${priority ? 'aspect-[5/4]' : 'aspect-[3/4]'}`}>
+      <div className={`relative overflow-hidden bg-[#f6f6f6] ${priority ? 'aspect-[5/4]' : 'aspect-[3/4]'}`}>
         {product.images?.[0] ? (
           <img
             src={product.images[0]}
@@ -70,60 +70,57 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="editorial-shell min-h-screen bg-[#fbf9f8]">
+    <div className="editorial-shell min-h-screen bg-white">
       <main>
-        <section className="relative min-h-screen overflow-hidden px-6 pb-16 pt-32 md:px-12 lg:px-20 lg:pt-36">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(58,100,114,0.14),transparent_28%),linear-gradient(180deg,rgba(251,249,248,0.2)_0%,rgba(251,249,248,0.72)_68%,#fbf9f8_100%)]" />
-          <div className="relative mx-auto grid max-w-[1680px] items-end gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="relative overflow-hidden bg-[#f5f3f2] min-h-[34rem] md:min-h-[44rem]">
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,17,0.2)_0%,rgba(17,17,17,0)_40%)]" />
-              <img src={heroBg} alt="Dream and Work" className="h-full w-full object-cover opacity-80" />
-            </div>
+        <section className="px-6 pb-20 pt-32 md:px-12 lg:px-20 lg:pt-40">
+          <div className="mx-auto max-w-[1600px]">
+            <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] xl:gap-16">
+              <div className="max-w-[34rem]">
+                <p className="editorial-kicker text-[#7b7475]">Spring Summer 2026</p>
+                <h1 className="mt-6 font-['Noto_Serif'] text-[3.6rem] leading-[0.98] tracking-[-0.06em] text-[#111111] md:text-[5.5rem] xl:text-[6.4rem]">
+                  Tailoring with presence.
+                </h1>
+                <p className="mt-8 max-w-xl text-base leading-8 text-[#5d5657]">
+                  A quieter luxury for modern menswear. Structured silhouettes, clean ceremony dressing,
+                  and elevated essentials designed to feel sharp, premium, and easy to wear.
+                </p>
+                <div className="mt-10 flex flex-wrap gap-4">
+                  <Link to="/shop" className="editorial-button">
+                    Explore the Collection
+                  </Link>
+                  <Link to="/shop?collection=new" className="editorial-button-secondary">
+                    New Arrivals
+                  </Link>
+                </div>
+              </div>
 
-            <div className="relative z-10 pb-2 lg:-mr-24 lg:max-w-[36rem]">
-              <p className="editorial-kicker text-[#6e6667]">Spring Summer 2026</p>
-              <h1 className="editorial-title mt-6 text-5xl text-[#111111] md:text-7xl lg:text-[6.25rem]">
-                Tailoring with
-                <br />
-                presence.
-              </h1>
-              <p className="mt-8 max-w-md text-sm leading-7 text-[#5c5556] md:text-base">
-                A quieter luxury for modern menswear. Structured silhouettes, clean ceremony dressing,
-                and editorial essentials designed to feel collected rather than mass-produced.
-              </p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Link to="/shop" className="editorial-button">
-                  Explore the Collection
-                </Link>
-                <Link to="/shop?collection=new" className="editorial-button-secondary">
-                  New Arrivals
-                </Link>
+              <div className="overflow-hidden bg-[#f6f6f6]">
+                <img src={heroBg} alt="Dream and Work" className="h-[26rem] w-full object-cover md:h-[36rem] xl:h-[44rem]" />
               </div>
             </div>
           </div>
         </section>
 
         <section className="px-6 py-24 md:px-12 lg:px-20">
-          <div className="mx-auto grid max-w-[1680px] gap-10 lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="bg-[#f5f3f2] p-8 md:p-12 lg:sticky lg:top-28 lg:h-fit">
+          <div className="mx-auto grid max-w-[1600px] gap-10 lg:grid-cols-[0.82fr_1.18fr]">
+            <div className="bg-[#f6f6f6] p-8 md:p-12 lg:sticky lg:top-28 lg:h-fit">
               <p className="editorial-kicker text-[#6e6667]">The House Edit</p>
               <h2 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl">
                 Ceremony, everyday, and the space between.
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-[#5d5657]">
-                We shaped the landing page around wide breathing room, soft tonal depth, and the same
-                editorial rhythm from the Stitch references so the store feels curated from the first scroll.
+                Clean white surfaces, balanced spacing, and a calmer layout that keeps the focus on the brand and the products.
               </p>
               <div className="mt-10 flex flex-col gap-4 text-sm text-[#111111]">
-                <Link to="/shop?category=חתן ומלווים" className="flex items-center justify-between bg-[#fbf9f8] px-5 py-4">
+                <Link to="/shop?category=חתן ומלווים" className="flex items-center justify-between bg-white px-5 py-4">
                   <span className="font-['Manrope'] uppercase tracking-[0.2rem]">Groom &amp; Groomsmen</span>
                   <span className="material-symbols-outlined">north_west</span>
                 </Link>
-                <Link to="/shop?category=Formal" className="flex items-center justify-between bg-[#fbf9f8] px-5 py-4">
+                <Link to="/shop?category=Formal" className="flex items-center justify-between bg-white px-5 py-4">
                   <span className="font-['Manrope'] uppercase tracking-[0.2rem]">Formal Wardrobe</span>
                   <span className="material-symbols-outlined">north_west</span>
                 </Link>
-                <Link to="/shop?category=Casual" className="flex items-center justify-between bg-[#fbf9f8] px-5 py-4">
+                <Link to="/shop?category=Casual" className="flex items-center justify-between bg-white px-5 py-4">
                   <span className="font-['Manrope'] uppercase tracking-[0.2rem]">Casual Essentials</span>
                   <span className="material-symbols-outlined">north_west</span>
                 </Link>
@@ -135,7 +132,7 @@ export default function Home() {
                 <ProductCard key={product._id} product={product} priority={index === 0} />
               ))}
               {!loadingFeatured && featured.length === 0 && (
-                <div className="md:col-span-2 bg-[#f5f3f2] p-10 text-center">
+                <div className="md:col-span-2 bg-[#f6f6f6] p-10 text-center">
                   <p className="editorial-kicker text-[#6e6667]">No featured items yet</p>
                   <Link to="/shop" className="mt-6 inline-flex font-['Noto_Serif'] text-2xl text-[#111111]">
                     Enter the full collection
@@ -147,11 +144,11 @@ export default function Home() {
         </section>
 
         <section className="px-6 py-24 md:px-12 lg:px-20">
-          <div className="mx-auto max-w-[1680px] bg-[#f5f3f2] px-8 py-16 md:px-14 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-16">
+          <div className="mx-auto max-w-[1600px] bg-[#f6f6f6] px-8 py-16 md:px-14 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-16">
             <div>
               <p className="editorial-kicker text-[#6e6667]">Editorial Note</p>
               <h2 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl">
-                Clothing that lands like architecture.
+                Clothing that lands with clarity.
               </h2>
             </div>
             <blockquote className="mt-8 max-w-3xl font-['Noto_Serif'] text-2xl leading-snug text-[#111111] md:text-4xl">
@@ -161,12 +158,12 @@ export default function Home() {
         </section>
 
         <section className="px-6 py-24 md:px-12 lg:px-20">
-          <div className="mx-auto max-w-[1680px]">
+          <div className="mx-auto max-w-[1600px]">
             <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="editorial-kicker text-[#6e6667]">New Collection</p>
                 <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl">
-                  Fresh arrivals in an editorial grid.
+                  Fresh arrivals in a cleaner grid.
                 </h2>
               </div>
               <Link to="/shop?collection=new" className="font-['Manrope'] text-[0.66rem] uppercase tracking-[0.24rem] text-[#111111]">

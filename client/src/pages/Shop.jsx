@@ -10,11 +10,11 @@ const ALL_CATEGORY = 'הכל';
 const CATEGORIES = [ALL_CATEGORY, 'חתן ומלווים', 'Casual', 'Formal'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const SORT_OPTIONS = [
-  { value: '', label: 'Editorial Order' },
+  { value: '', label: 'Recommended' },
   { value: 'price_asc', label: 'Price: Low to High' },
   { value: 'price_desc', label: 'Price: High to Low' },
   { value: 'newest', label: 'Newest First' },
-  { value: 'sale', label: 'On Sale First' },
+  { value: 'sale', label: 'Sale First' },
 ];
 
 const categoryTitle = {
@@ -27,7 +27,7 @@ const categoryTitle = {
 function getColorHex(name) {
   const map = {
     'שחור': '#1a1a1a',
-    'לבן': '#f2f0ee',
+    'לבן': '#f2f2f2',
     'אפור': '#8a8485',
     'כחול': '#3a6472',
     'נייבי': '#243642',
@@ -52,7 +52,7 @@ function ProductCard({ product }) {
     <article className="group relative">
       <button
         onClick={() => toggle(product)}
-        className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center bg-[rgba(251,249,248,0.74)] backdrop-blur-md transition-all hover:bg-white"
+        className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center bg-white shadow-[0_8px_24px_rgba(17,17,17,0.06)] transition-all hover:bg-[#f7f7f7]"
       >
         <span
           className={`material-symbols-outlined ${liked ? 'text-[#111111]' : 'text-[#6e6667]'}`}
@@ -69,12 +69,12 @@ function ProductCard({ product }) {
       )}
 
       <Link to={`/product/${product._id}`}>
-        <div className="relative overflow-hidden bg-[#f5f3f2] aspect-[3/4]">
+        <div className="relative overflow-hidden bg-[#f7f7f7] aspect-[3/4]">
           {product.images?.[0] ? (
             <img
               src={product.images[0]}
               alt={product.name}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
@@ -167,7 +167,7 @@ export default function Shop() {
         setAllColors(colors);
         const nextMax = Math.max(...data.map((entry) => entry.salePrice || entry.price || 0), 1000);
         setMaxPrice(nextMax);
-        setPriceRange((prev) => [Math.min(prev[0], nextMax), Math.min(Math.max(prev[1], nextMax), nextMax)]);
+        setPriceRange((prev) => [Math.min(prev[0], nextMax), Math.max(Math.min(prev[1], nextMax), 0)]);
       } catch (error) {
         console.error(error);
       } finally {
@@ -225,16 +225,10 @@ export default function Shop() {
   const collectionLabel = searchParams.get('collection') === 'new' ? 'New Arrivals' : categoryTitle[category] || 'Curated Wardrobe';
 
   const Sidebar = () => (
-    <div className="flex flex-col gap-10 p-8 md:p-10">
+    <div className="flex flex-col gap-10 p-7 md:p-8">
       <div>
         <p className="editorial-kicker text-[#6e6667]">Search</p>
-        <input
-          type="text"
-          value={draftSearch}
-          onChange={(event) => handleSearch(event.target.value)}
-          placeholder="Search by product"
-          className="editorial-input mt-3"
-        />
+        <input type="text" value={draftSearch} onChange={(event) => handleSearch(event.target.value)} placeholder="Search by product" className="editorial-input mt-3" />
       </div>
 
       <div>
@@ -244,9 +238,7 @@ export default function Shop() {
             <button
               key={item}
               onClick={() => setCategory(item)}
-              className={`flex items-center justify-between text-sm uppercase tracking-[0.18rem] transition-colors ${
-                category === item ? 'text-[#111111]' : 'text-[#6e6667] hover:text-[#111111]'
-              }`}
+              className={`flex items-center justify-between text-sm uppercase tracking-[0.18rem] transition-colors ${category === item ? 'text-[#111111]' : 'text-[#6e6667] hover:text-[#111111]'}`}
             >
               <span>{categoryTitle[item] || item}</span>
               {category === item && <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>north_west</span>}
@@ -259,13 +251,7 @@ export default function Shop() {
         <p className="editorial-kicker text-[#6e6667]">Size</p>
         <div className="mt-4 grid grid-cols-3 gap-2">
           {SIZES.map((size) => (
-            <button
-              key={size}
-              onClick={() => setSelectedSize(selectedSize === size ? '' : size)}
-              className={`px-3 py-3 text-xs uppercase tracking-[0.18rem] transition-colors ${
-                selectedSize === size ? 'bg-[#111111] text-white' : 'bg-[#fbf9f8] text-[#111111] hover:bg-[#ede9e7]'
-              }`}
-            >
+            <button key={size} onClick={() => setSelectedSize(selectedSize === size ? '' : size)} className={`px-3 py-3 text-xs uppercase tracking-[0.18rem] transition-colors ${selectedSize === size ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>
               {size}
             </button>
           ))}
@@ -277,13 +263,7 @@ export default function Shop() {
           <p className="editorial-kicker text-[#6e6667]">Color</p>
           <div className="mt-4 flex flex-wrap gap-3">
             {allColors.map((color) => (
-              <button
-                key={color}
-                onClick={() => setSelectedColor(selectedColor === color ? '' : color)}
-                title={color}
-                className={`h-7 w-7 transition-transform ${selectedColor === color ? 'scale-110 ring-1 ring-[#111111] ring-offset-2' : ''}`}
-                style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }}
-              />
+              <button key={color} onClick={() => setSelectedColor(selectedColor === color ? '' : color)} title={color} className={`h-7 w-7 transition-transform ${selectedColor === color ? 'scale-110 ring-1 ring-[#111111] ring-offset-2' : ''}`} style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }} />
             ))}
           </div>
         </div>
@@ -296,22 +276,8 @@ export default function Shop() {
           <span>₪{priceRange[1]}</span>
         </div>
         <div className="mt-4 space-y-3">
-          <input
-            type="range"
-            min={0}
-            max={maxPrice}
-            value={priceRange[0]}
-            onChange={(event) => setPriceRange([Math.min(Number(event.target.value), priceRange[1]), priceRange[1]])}
-            className="w-full accent-[#111111]"
-          />
-          <input
-            type="range"
-            min={0}
-            max={maxPrice}
-            value={priceRange[1]}
-            onChange={(event) => setPriceRange([priceRange[0], Math.max(Number(event.target.value), priceRange[0])])}
-            className="w-full accent-[#111111]"
-          />
+          <input type="range" min={0} max={maxPrice} value={priceRange[0]} onChange={(event) => setPriceRange([Math.min(Number(event.target.value), priceRange[1]), priceRange[1]])} className="w-full accent-[#111111]" />
+          <input type="range" min={0} max={maxPrice} value={priceRange[1]} onChange={(event) => setPriceRange([priceRange[0], Math.max(Number(event.target.value), priceRange[0])])} className="w-full accent-[#111111]" />
         </div>
       </div>
 
@@ -319,53 +285,35 @@ export default function Shop() {
         <p className="editorial-kicker text-[#6e6667]">Sort</p>
         <select value={sort} onChange={(event) => setSort(event.target.value)} className="editorial-select mt-3 bg-transparent">
           {SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
+            <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </div>
 
-      <div className="flex items-center justify-between bg-[#fbf9f8] px-5 py-4">
-        <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">
-          {loading ? 'Loading' : `${displayedProducts.length} Products`}
-        </p>
-        <button onClick={resetAll} className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">
-          Reset
-        </button>
+      <div className="flex items-center justify-between bg-white px-5 py-4">
+        <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{loading ? 'Loading' : `${displayedProducts.length} Products`}</p>
+        <button onClick={resetAll} className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">Reset</button>
       </div>
     </div>
   );
 
   return (
-    <div className="editorial-shell min-h-screen bg-[#fbf9f8]">
-      <div className="px-6 pb-10 pt-32 md:px-12 lg:px-20 lg:pt-36">
-        <div className="mx-auto max-w-[1680px]">
+    <div className="editorial-shell min-h-screen bg-white">
+      <div className="px-6 pb-10 pt-32 md:px-12 lg:px-20 lg:pt-40">
+        <div className="mx-auto max-w-[1600px]">
           <p className="editorial-kicker text-[#6e6667]">Catalog</p>
           <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#111111] md:text-7xl">
-                {collectionLabel}
-              </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5d5657] md:text-base">
-                A sharper, quieter shop experience with tonal layering, oversized typography, and room for the product imagery to feel collected rather than crowded.
-              </p>
+              <h1 className="font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#111111] md:text-7xl">{collectionLabel}</h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5d5657] md:text-base">A clean catalog layout with more white space, lighter surfaces, and simpler filtering so the products stay in focus.</p>
             </div>
-            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary lg:hidden">
-              Filters
-            </button>
+            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary lg:hidden">Filters</button>
           </div>
 
           {activeFilters.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-3">
               {activeFilters.map((filter) => (
-                <button
-                  key={filter.key}
-                  onClick={filter.clear}
-                  className="bg-[#f5f3f2] px-4 py-2 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#111111]"
-                >
-                  {filter.label}
-                </button>
+                <button key={filter.key} onClick={filter.clear} className="bg-[#f5f5f5] px-4 py-2 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#111111]">{filter.label}</button>
               ))}
             </div>
           )}
@@ -373,22 +321,20 @@ export default function Shop() {
       </div>
 
       <div className="px-6 pb-24 md:px-12 lg:px-20">
-        <div className="mx-auto flex max-w-[1680px] gap-10">
-          <aside className="hidden w-[18rem] shrink-0 bg-[#f5f3f2] lg:block lg:sticky lg:top-28 lg:self-start">
+        <div className="mx-auto flex max-w-[1600px] gap-10">
+          <aside className="hidden w-[18rem] shrink-0 bg-[#f7f7f7] lg:block lg:sticky lg:top-28 lg:self-start">
             <Sidebar />
           </aside>
 
           <main className="flex-1">
             {loading ? (
-              <div className="flex h-72 items-center justify-center bg-[#f5f3f2]">
+              <div className="flex h-72 items-center justify-center bg-[#f7f7f7]">
                 <span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span>
               </div>
             ) : displayedProducts.length === 0 ? (
-              <div className="bg-[#f5f3f2] px-8 py-20 text-center">
-                <p className="editorial-kicker text-[#6e6667]">Nothing matched the current edit</p>
-                <button onClick={resetAll} className="editorial-button mt-8">
-                  Clear Filters
-                </button>
+              <div className="bg-[#f7f7f7] px-8 py-20 text-center">
+                <p className="editorial-kicker text-[#6e6667]">Nothing matched the current filters</p>
+                <button onClick={resetAll} className="editorial-button mt-8">Clear Filters</button>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
@@ -404,10 +350,10 @@ export default function Shop() {
       {mobileFilter && (
         <div className="fixed inset-0 z-[60] lg:hidden">
           <div className="absolute inset-0 bg-[rgba(17,17,17,0.24)]" onClick={() => setMobileFilter(false)} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto bg-[#fbf9f8] shadow-[0_24px_60px_rgba(27,28,28,0.08)]">
+          <div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto bg-white shadow-[0_24px_60px_rgba(27,28,28,0.08)]">
             <div className="flex items-center justify-between px-6 pt-24">
               <p className="editorial-kicker text-[#6e6667]">Filters</p>
-              <button onClick={() => setMobileFilter(false)} className="flex h-10 w-10 items-center justify-center bg-[#f5f3f2]">
+              <button onClick={() => setMobileFilter(false)} className="flex h-10 w-10 items-center justify-center bg-[#f5f5f5]">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>

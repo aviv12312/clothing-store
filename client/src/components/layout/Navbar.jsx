@@ -55,8 +55,8 @@ export default function Navbar() {
         <div
           className={`mx-auto flex max-w-[1920px] items-center justify-between transition-all duration-500 ${
             scrolled
-              ? 'bg-[rgba(251,249,248,0.82)] backdrop-blur-[20px] px-5 py-4 md:px-10 shadow-[0_24px_60px_rgba(27,28,28,0.04)]'
-              : 'bg-transparent px-5 py-5 md:px-12 md:py-8'
+              ? 'bg-[rgba(255,255,255,0.94)] backdrop-blur-[20px] px-5 py-4 md:px-10 shadow-[0_12px_36px_rgba(17,17,17,0.05)]'
+              : 'bg-[rgba(255,255,255,0.88)] backdrop-blur-[16px] px-5 py-5 md:px-12 md:py-6'
           }`}
         >
           <div className="flex items-center gap-6 md:gap-10">
@@ -90,7 +90,7 @@ export default function Navbar() {
             <Link
               to="/wishlist"
               onClick={closeMenu}
-              className="relative flex h-10 w-10 items-center justify-center bg-[rgba(251,249,248,0.62)] backdrop-blur-sm transition-colors hover:bg-white"
+              className="relative flex h-10 w-10 items-center justify-center bg-white transition-colors hover:bg-[#f6f6f6]"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '21px' }}>favorite</span>
               {wishlistCount > 0 && (
@@ -103,7 +103,7 @@ export default function Navbar() {
             <Link
               to="/cart"
               onClick={closeMenu}
-              className="relative flex h-10 w-10 items-center justify-center bg-[rgba(251,249,248,0.62)] backdrop-blur-sm transition-colors hover:bg-white"
+              className="relative flex h-10 w-10 items-center justify-center bg-white transition-colors hover:bg-[#f6f6f6]"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '21px' }}>shopping_bag</span>
               {count > 0 && (
@@ -119,7 +119,7 @@ export default function Navbar() {
                   <Link
                     to="/profile"
                     onClick={closeMenu}
-                    className="flex h-10 w-10 items-center justify-center bg-[rgba(251,249,248,0.62)] backdrop-blur-sm transition-colors hover:bg-white"
+                    className="flex h-10 w-10 items-center justify-center bg-white transition-colors hover:bg-[#f6f6f6]"
                   >
                     <span className="material-symbols-outlined">person</span>
                   </Link>
@@ -171,7 +171,7 @@ export default function Navbar() {
           onClick={closeMenu}
         />
         <div
-          className={`absolute right-0 top-0 h-full w-[84vw] max-w-sm bg-[#fbf9f8] px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(27,28,28,0.08)] transition-transform duration-300 ${
+          className={`absolute right-0 top-0 h-full w-[84vw] max-w-sm bg-white px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(27,28,28,0.08)] transition-transform duration-300 ${
             menuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
@@ -188,7 +188,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="mt-12 space-y-4 bg-[#f5f3f2] p-5">
+          <div className="mt-12 space-y-4 bg-[#f7f7f7] p-5">
             <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Collections</p>
             {SUB_CATEGORIES.map((cat) => (
               <Link
@@ -231,7 +231,7 @@ export default function Navbar() {
           scrolled ? 'translate-y-0 opacity-100' : '-translate-y-3 opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex gap-8 bg-[rgba(251,249,248,0.78)] px-8 py-3 backdrop-blur-[18px]">
+        <div className="flex gap-8 bg-[rgba(255,255,255,0.96)] px-8 py-3 backdrop-blur-[18px] shadow-[0_10px_24px_rgba(17,17,17,0.04)]">
           {SUB_CATEGORIES.map((cat) => (
             <Link
               key={cat.to}
