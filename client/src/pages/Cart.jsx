@@ -40,7 +40,7 @@ export default function Cart() {
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.2fr_0.8fr]">
             <section className="space-y-4">
               {items.map((item) => (
-                <article key={`--`} className="bg-[#f7f7f7] p-5 md:p-8">
+                <article key={`${item.productId}-${item.size}-${item.color}`} className="bg-[#f7f7f7] p-5 md:p-8">
                   <div className="grid gap-6 md:grid-cols-[10rem_1fr] xl:grid-cols-[12rem_1fr]">
                     <div className="aspect-[3/4] overflow-hidden bg-[#ececec]">
                       {item.image ? (
