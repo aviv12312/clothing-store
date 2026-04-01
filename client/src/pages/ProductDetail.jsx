@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
@@ -8,26 +8,52 @@ import { trackViewProduct, trackAddToCart } from '../services/analytics';
 
 function AccordionItem({ title, children }) {
   const [open, setOpen] = useState(false);
+
   return (
-    <div className="border-t border-[#e8e8e6]/40">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center py-5 text-left"
-      >
-        <span className="font-['Noto_Serif'] text-sm text-[#1a1a1a] uppercase tracking-widest">{title}</span>
+    <div className="bg-[#f5f3f2] px-6 py-5 md:px-8">
+      <button onClick={() => setOpen((value) => !value)} className="flex w-full items-center justify-between text-right">
+        <span className="font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] text-[#111111]">{title}</span>
         <span
-          className="material-symbols-outlined text-[#666666] transition-transform duration-300"
+          className="material-symbols-outlined text-[#6e6667] transition-transform duration-300"
           style={{ fontSize: '18px', transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
         >
           add
         </span>
       </button>
-      {open && (
-        <div className="pb-6 font-['Manrope'] text-sm text-[#666666] leading-relaxed">
-          {children}
-        </div>
-      )}
+      {open && <div className="pt-5 text-sm leading-7 text-[#5d5657]">{children}</div>}
     </div>
+  );
+}
+
+function RelatedCard({ product }) {
+  return (
+    <Link to={`/product/${product._id}`} className="group block">
+      <div className="aspect-[3/4] overflow-hidden bg-[#f5f3f2]">
+        {product.images?.[0] ? (
+          <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '42px' }}>checkroom</span>
+          </div>
+        )}
+      </div>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">{product.category}</p>
+          <p className="mt-2 font-['Noto_Serif'] text-lg tracking-[-0.04em] text-[#111111]">{product.name}</p>
+        </div>
+        <div className="text-left">
+          {product.salePrice ? (
+            <>
+              <p className="font-['Noto_Serif'] text-base text-[#111111]">₪{product.salePrice}</p>
+              <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.16rem] text-[#9d9596] line-through">₪{product.price}</p>
+            </>
+          ) : (
+            <p className="font-['Noto_Serif'] text-base text-[#111111]">₪{product.price}</p>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -44,33 +70,37 @@ export default function ProductDetail() {
   const [related, setRelated] = useState([]);
 
   useEffect(() => {
-    api.get(`/products/${id}`).then(({ data }) => {
+    const fetchProduct = async () => {
+      const { data } = await api.get(`/products/${id}`);
       setProduct(data);
       trackViewProduct(data);
-      if (data.sizes?.length)  setSelectedSize(data.sizes[0]);
+      if (data.sizes?.length) setSelectedSize(data.sizes[0]);
       if (data.colors?.length) setSelectedColor(data.colors[0]);
 
-      // טען מוצרים דומים — אותה קטגוריה, ללא המוצר הנוכחי
-      api.get('/products', { params: { category: data.category, limit: 4 } })
-        .then(({ data: rel }) => setRelated(rel.filter((p) => p._id !== id).slice(0, 4)))
+      api
+        .get('/products', { params: { category: data.category, limit: 4 } })
+        .then(({ data: relatedData }) => setRelated(relatedData.filter((entry) => entry._id !== id).slice(0, 4)))
         .catch(() => {});
-    });
+    };
+
+    fetchProduct();
   }, [id]);
+
+  const images = useMemo(() => {
+    if (!product) return [];
+    return (product.colorImages?.[selectedColor]?.length ? product.colorImages[selectedColor] : product.images) || [];
+  }, [product, selectedColor]);
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <span className="material-symbols-outlined text-[#bbbbbb] animate-spin" style={{ fontSize: '36px' }}>progress_activity</span>
+      <div className="min-h-screen bg-[#fbf9f8] flex items-center justify-center">
+        <span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span>
       </div>
     );
   }
 
-  // מלאי לפי מידה נבחרת
-  const currentStock = selectedSize && product.sizeStock?.[selectedSize] !== undefined
-    ? product.sizeStock[selectedSize]
-    : product.stock;
-
-  const cartItem = items.find((i) => i.productId === product._id && i.size === selectedSize);
+  const currentStock = selectedSize && product.sizeStock?.[selectedSize] !== undefined ? product.sizeStock[selectedSize] : product.stock;
+  const cartItem = items.find((entry) => entry.productId === product._id && entry.size === selectedSize);
   const cartQty = cartItem ? cartItem.quantity : 0;
   const canAdd = currentStock > 0 && cartQty < currentStock;
 
@@ -79,279 +109,172 @@ export default function ProductDetail() {
     addItem(product, selectedSize, selectedColor);
     trackAddToCart(product, selectedSize, selectedColor);
     setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    setTimeout(() => setAddedToCart(false), 1800);
   };
 
-  // תמונות לפי צבע נבחר — נפילה לתמונות כלליות
-  const images = (product.colorImages?.[selectedColor]?.length
-    ? product.colorImages[selectedColor]
-    : product.images) || [];
-
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <main className="flex-1 pt-24 pb-16">
-        {/* Breadcrumb */}
-        <div className="px-8 md:px-16 mb-8">
-          <div className="flex items-center gap-2 font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#666666]">
-            <Link to="/" className="hover:text-[#000000] transition-colors">בית</Link>
-            <span className="text-[#bbbbbb]">/</span>
-            <Link to="/shop" className="hover:text-[#000000] transition-colors">חנות</Link>
-            <span className="text-[#bbbbbb]">/</span>
-            <span className="text-[#1a1a1a]">{product.name}</span>
+    <div className="editorial-shell min-h-screen bg-[#fbf9f8]">
+      <main className="px-6 pb-24 pt-28 md:px-12 lg:px-20 lg:pt-36">
+        <div className="mx-auto max-w-[1680px]">
+          <div className="mb-8 flex items-center gap-2 font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">
+            <Link to="/">Home</Link>
+            <span>/</span>
+            <Link to="/shop">Shop</Link>
+            <span>/</span>
+            <span className="text-[#111111]">{product.name}</span>
           </div>
-        </div>
 
-        <div className="px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
-          {/* ── Left: Image Grid ─────────────────────────────────── */}
-          <div className="flex gap-4">
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="flex flex-col gap-3 w-16 flex-shrink-0">
-                {images.slice(0, 4).map((img, i) => (
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] xl:gap-20">
+            <div className="grid gap-4 md:grid-cols-[6rem_1fr] xl:grid-cols-[7rem_1fr]">
+              <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col">
+                {images.slice(0, 5).map((image, index) => (
                   <button
-                    key={i}
-                    onClick={() => setActiveImage(i)}
-                    className={`aspect-[3/4] overflow-hidden border transition-all ${
-                      activeImage === i ? 'border-[#1a1a1a]' : 'border-[#e8e8e6]/40 opacity-60 hover:opacity-100'
+                    key={image + index}
+                    onClick={() => setActiveImage(index)}
+                    className={`aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#f5f3f2] transition-opacity md:w-full ${
+                      activeImage === index ? 'opacity-100' : 'opacity-55 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={image} alt="" className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
-            )}
 
-            {/* Main Image */}
-            <div className="flex-1">
-              <div className="aspect-[3/4] overflow-hidden bg-[#f5f5f3] w-full relative">
+              <div className="order-1 bg-[#f5f3f2] md:order-2">
                 {images.length > 0 ? (
-                  <img
-                    src={images[activeImage] || images[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={images[activeImage] || images[0]} alt={product.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[#bbbbbb]" style={{ fontSize: '64px' }}>checkroom</span>
-                  </div>
-                )}
-                {product.salePrice && (
-                  <div className="absolute top-4 right-4 gold-shimmer text-[0.6rem] uppercase tracking-widest font-['Manrope'] font-bold px-3 py-1">
-                    Sale
+                  <div className="flex aspect-[4/5] items-center justify-center">
+                    <span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '60px' }}>checkroom</span>
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Secondary images below */}
-              {images.length > 1 && (
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  {images.slice(1, 3).map((img, i) => (
-                    <div key={i} className="aspect-[3/4] overflow-hidden bg-[#f5f5f3] cursor-pointer" onClick={() => setActiveImage(i + 1)}>
-                      <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <div className="bg-[#f5f3f2] p-7 md:p-10 xl:p-12">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{product.category}</p>
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">AW26 / Editorial Edit</p>
+                </div>
+
+                <h1 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl xl:text-6xl">
+                  {product.name}
+                </h1>
+
+                <div className="mt-6 flex items-baseline gap-4">
+                  {product.salePrice ? (
+                    <>
+                      <span className="font-['Noto_Serif'] text-3xl text-[#111111]">₪{product.salePrice}</span>
+                      <span className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-[#9d9596] line-through">₪{product.price}</span>
+                    </>
+                  ) : (
+                    <span className="font-['Noto_Serif'] text-3xl text-[#111111]">₪{product.price}</span>
+                  )}
+                </div>
+
+                {product.description && <p className="mt-8 max-w-2xl text-sm leading-7 text-[#5d5657]">{product.description}</p>}
+
+                {product.colors?.length > 0 && (
+                  <div className="mt-10">
+                    <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">
+                      Color <span className="text-[#111111]">{selectedColor}</span>
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {product.colors.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => { setSelectedColor(color); setActiveImage(0); }}
+                          className={`px-4 py-3 text-xs uppercase tracking-[0.18rem] transition-colors ${
+                            selectedColor === color ? 'bg-[#111111] text-white' : 'bg-[#fbf9f8] text-[#111111] hover:bg-[#ece8e6]'
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                )}
+
+                {product.sizes?.length > 0 && (
+                  <div className="mt-10">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">
+                        Size <span className="text-[#111111]">{selectedSize}</span>
+                      </p>
+                      <span className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.24rem] text-[#6e6667]">Size guide on request</span>
+                    </div>
+                    <div className="mt-4 grid grid-cols-3 gap-2 md:grid-cols-4">
+                      {product.sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`px-4 py-4 text-xs uppercase tracking-[0.18rem] transition-colors ${
+                            selectedSize === size ? 'bg-[#111111] text-white' : 'bg-[#fbf9f8] text-[#111111] hover:bg-[#ece8e6]'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-8 space-y-3">
+                  {currentStock === 0 && selectedSize && (
+                    <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#9b2c2c]">Size {selectedSize} is out of stock</p>
+                  )}
+                  {currentStock > 0 && isAdmin && (
+                    <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">{currentStock} units left in size {selectedSize}</p>
+                  )}
+                  {currentStock > 0 && !isAdmin && currentStock < 10 && (
+                    <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">Low stock available</p>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
 
-          {/* ── Right: Product Info (sticky) ──────────────────────── */}
-          <div className="lg:sticky lg:top-28 lg:self-start flex flex-col gap-7">
-            {/* Collection label */}
-            <div className="flex items-center gap-3">
-              <span className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.25rem] text-[#1a1a1a]">AW25 Collection</span>
-              <span className="text-[#bbbbbb]">—</span>
-              <span className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.15rem] text-[#666666]">{product.category}</span>
-            </div>
-
-            {/* Name */}
-            <h1 className="font-['Noto_Serif'] text-4xl md:text-5xl text-[#1a1a1a] leading-tight">
-              {product.name}
-            </h1>
-
-            {/* Price */}
-            <div className="flex items-baseline gap-4">
-              {product.salePrice ? (
-                <>
-                  <span className="font-['Noto_Serif'] text-3xl text-[#1a1a1a]">₪{product.salePrice}</span>
-                  <span className="font-['Manrope'] text-lg text-[#bbbbbb] line-through">₪{product.price}</span>
-                </>
-              ) : (
-                <span className="font-['Noto_Serif'] text-3xl text-[#1a1a1a]">₪{product.price}</span>
-              )}
-            </div>
-
-            {/* Description */}
-            {product.description && (
-              <p className="font-['Manrope'] text-sm text-[#666666] leading-relaxed border-t border-[#e8e8e6]/30 pt-5">
-                {product.description}
-              </p>
-            )}
-
-            {/* Colors */}
-            {product.colors?.length > 0 && (
-              <div>
-                <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.2rem] text-[#666666] mb-3">
-                  צבע: <span className="text-[#1a1a1a]">{selectedColor}</span>
-                </p>
-                <div className="flex gap-3">
-                  {product.colors.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => { setSelectedColor(c); setActiveImage(0); }}
-                      className={`px-4 py-1.5 border text-xs font-['Manrope'] uppercase tracking-wider transition-all ${
-                        selectedColor === c
-                          ? 'border-[#1a1a1a] text-[#1a1a1a] bg-[#1a1a1a]/5'
-                          : 'border-[#e8e8e6]/50 text-[#666666] hover:border-[#1a1a1a]/50 hover:text-[#1a1a1a]'
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Sizes */}
-            {product.sizes?.length > 0 && (
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.2rem] text-[#666666]">
-                    מידה: <span className="text-[#1a1a1a]">{selectedSize}</span>
-                  </p>
-                  <button className="font-['Manrope'] text-[0.6rem] uppercase tracking-wider text-[#1a1a1a] hover:text-[#000000] transition-colors">
-                    מדריך מידות
+                <div className="mt-10 flex flex-col gap-3">
+                  <button onClick={handleAddToCart} disabled={!canAdd} className={`py-5 text-center font-['Manrope'] text-[0.66rem] uppercase tracking-[0.28rem] transition-all ${!canAdd ? 'bg-[#e7e2df] text-[#9d9596] cursor-not-allowed' : addedToCart ? 'bg-[#3a6472] text-white' : 'gold-shimmer hover:opacity-95'}`}>
+                    {currentStock === 0 ? 'Out of Stock' : !canAdd ? 'Stock Limit Reached' : addedToCart ? 'Added to Cart' : 'Add to Cart'}
                   </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {product.sizes.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedSize(s)}
-                      className={`w-12 h-12 border text-xs font-['Manrope'] uppercase tracking-wide transition-all ${
-                        selectedSize === s
-                          ? 'border-[#1a1a1a] text-[#1a1a1a] bg-[#1a1a1a]/5'
-                          : 'border-[#e8e8e6]/50 text-[#666666] hover:border-[#1a1a1a]/50 hover:text-[#1a1a1a]'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  <Link to="/cart" className="editorial-button-secondary w-full">
+                    View Cart
+                  </Link>
                 </div>
               </div>
-            )}
 
-            {/* Stock warning לפי מידה */}
-            {currentStock === 0 && selectedSize && (
-              <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-wider text-red-500">
-                מידה {selectedSize} — אזלה מהמלאי
-              </p>
-            )}
-            {currentStock > 0 && isAdmin && (
-              <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-wider text-[#1a1a1a]">
-                נותרו {currentStock} פריטים במידה {selectedSize}
-              </p>
-            )}
-            {currentStock > 0 && !isAdmin && currentStock < 10 && (
-              <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-wider text-[#1a1a1a]">
-                כמות מלאי נמוכה
-              </p>
-            )}
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-3 pt-2">
-              <button
-                onClick={handleAddToCart}
-                disabled={!canAdd}
-                className={`w-full py-4 text-xs font-['Manrope'] uppercase tracking-[0.2em] font-bold transition-all ${
-                  !canAdd
-                    ? 'bg-[#f5f5f3] text-[#bbbbbb] cursor-not-allowed border border-[#e8e8e6]/40'
-                    : addedToCart
-                    ? 'bg-[#f5f5f3] text-[#1a1a1a] border border-[#1a1a1a]/60'
-                    : 'gold-shimmer hover:opacity-80'
-                }`}
-              >
-                {currentStock === 0 ? 'אזל המלאי' : !canAdd ? 'הגעת למקסימום המלאי' : addedToCart ? 'נוסף לעגלה ✓' : 'הוסף לעגלה'}
-              </button>
-              <button className="w-full py-4 text-xs font-['Manrope'] uppercase tracking-[0.2em] font-semibold border border-[#e8e8e6]/60 text-[#666666] hover:border-[#1a1a1a]/40 hover:text-[#1a1a1a] transition-all">
-                שאלה על מידה מותאמת
-              </button>
+              <div className="mt-4 space-y-2">
+                <AccordionItem title="Fabric & Care">
+                  <p>Premium construction for occasionwear and formal dressing. Dry clean only and store on a structured hanger to preserve the silhouette.</p>
+                </AccordionItem>
+                <AccordionItem title="Shipping & Returns">
+                  <p>Complimentary shipping on qualifying orders and returns within 14 days, subject to the original condition of the item.</p>
+                </AccordionItem>
+                <AccordionItem title="Fit & Styling">
+                  <p>Designed with a clean editorial line. If you are between sizes, choose the larger option for a softer drape.</p>
+                </AccordionItem>
+              </div>
             </div>
-
-            {/* Accordions */}
-            <div className="mt-4">
-              <AccordionItem title="הרכב וטיפול">
-                <p>100% צמר מרינו Super 150s. ניקוי יבש בלבד. אחסן בשקית אריג. אל תחשוף לאור שמש ישיר.</p>
-              </AccordionItem>
-              <AccordionItem title="משלוח והחזרות">
-                <p>משלוח חינם לכל הארץ בהזמנות מעל ₪500. החזרה תוך 14 יום. המוצר חייב להיות במצב המקורי עם תגיות.</p>
-              </AccordionItem>
-              <AccordionItem title="מידות ומדריך">
-                <p>המוצר מיוצר לפי מידות סטנדרטיות ישראליות. במקרה של ספק, פנה לצוות שירות הלקוחות שלנו לייעוץ מידה אישי.</p>
-              </AccordionItem>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Philosophy Section ────────────────────────────────── */}
-        <div className="mt-24 px-8 md:px-16 py-20 bg-[#f5f5f3]">
-          <div className="max-w-3xl">
-            <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.3rem] text-[#1a1a1a] mb-6">Philosophy</p>
-            <h2 className="font-['Noto_Serif'] text-3xl md:text-4xl text-[#1a1a1a] leading-snug mb-6">
-              כל פריט הוא הצהרה שקטה של זהות
-            </h2>
-            <p className="font-['Manrope'] text-sm text-[#666666] leading-relaxed max-w-xl">
-              אנחנו מאמינים שלבוש טוב אינו אמירה, הוא מהות. Dream &amp; Work מתמחה בלבוש גברים שמשלב מסורת תפירה אירופאית עם חינה ים-תיכונית מודרנית.
-            </p>
           </div>
         </div>
       </main>
 
-      {/* ── נצפה גם ── */}
       {related.length > 0 && (
-        <section className="px-8 md:px-16 py-20 border-t border-[#e8e8e6]/20">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.3rem] text-[#1a1a1a] mb-2">You May Also Like</p>
-              <h2 className="font-['Noto_Serif'] text-3xl text-[#1a1a1a]">נצפה גם</h2>
-            </div>
-            <Link to={`/shop?category=${product.category}`}
-              className="font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#666666] hover:text-[#000000] transition-colors border-b border-[#e8e8e6]/40 pb-0.5">
-              לכל הקולקציה ←
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {related.map((p) => (
-              <Link to={`/product/${p._id}`} key={p._id} className="group">
-                <div className="relative overflow-hidden aspect-[3/4] bg-[#f5f5f3] mb-4">
-                  {p.images?.[0] ? (
-                    <img src={p.images[0]} alt={p.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="material-symbols-outlined text-[#bbbbbb]" style={{ fontSize: '36px' }}>checkroom</span>
-                    </div>
-                  )}
-                  {p.salePrice && (
-                    <div className="absolute top-2 right-2 bg-[#1a1a1a] text-white px-2 py-0.5 text-[0.55rem] font-['Manrope'] font-bold uppercase tracking-widest">
-                      SALE
-                    </div>
-                  )}
-                </div>
-                <p className="font-['Noto_Serif'] text-sm text-[#1a1a1a] mb-1 group-hover:text-[#000000] transition-colors">{p.name}</p>
-                <div className="flex items-center gap-2">
-                  {p.salePrice ? (
-                    <>
-                      <span className="font-['Manrope'] text-sm text-[#1a1a1a]">₪{p.salePrice}</span>
-                      <span className="font-['Manrope'] text-xs text-[#bbbbbb] line-through">₪{p.price}</span>
-                    </>
-                  ) : (
-                    <span className="font-['Manrope'] text-sm text-[#1a1a1a]">₪{p.price}</span>
-                  )}
-                </div>
+        <section className="px-6 pb-24 md:px-12 lg:px-20">
+          <div className="mx-auto max-w-[1680px]">
+            <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="editorial-kicker text-[#6e6667]">You May Also Like</p>
+                <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111]">Related pieces from the same edit.</h2>
+              </div>
+              <Link to={`/shop?category=${product.category}`} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#111111]">
+                View full category
               </Link>
-            ))}
+            </div>
+            <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+              {related.map((item) => (
+                <RelatedCard key={item._id} product={item} />
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -360,3 +283,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

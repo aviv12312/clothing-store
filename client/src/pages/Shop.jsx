@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
@@ -6,32 +6,146 @@ import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { trackSearch } from '../services/analytics';
 
-const CATEGORIES = ['הכל', 'חתן ומלווים', 'Casual', 'Formal'];
+const ALL_CATEGORY = 'הכל';
+const CATEGORIES = [ALL_CATEGORY, 'חתן ומלווים', 'Casual', 'Formal'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const SORT_OPTIONS = [
-  { value: '',           label: 'ברירת מחדל'       },
-  { value: 'price_asc',  label: 'מחיר: נמוך לגבוה' },
-  { value: 'price_desc', label: 'מחיר: גבוה לנמוך' },
-  { value: 'newest',     label: 'החדשים ביותר'     },
-  { value: 'sale',       label: 'מבצע קודם'        },
+  { value: '', label: 'Editorial Order' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'sale', label: 'On Sale First' },
 ];
+
+const categoryTitle = {
+  [ALL_CATEGORY]: 'All Collections',
+  'חתן ומלווים': 'Groom & Groomsmen',
+  Casual: 'Casual',
+  Formal: 'Formal',
+};
+
+function getColorHex(name) {
+  const map = {
+    'שחור': '#1a1a1a',
+    'לבן': '#f2f0ee',
+    'אפור': '#8a8485',
+    'כחול': '#3a6472',
+    'נייבי': '#243642',
+    'חאקי': '#84725f',
+    'בורדו': '#6b232c',
+    'ירוק': '#345347',
+    'בז\'': '#d1ba9f',
+    'חום': '#70543f',
+    'כתום': '#b76531',
+    'צהוב': '#caa55d',
+  };
+
+  return map[name] || name || '#555555';
+}
+
+function ProductCard({ product }) {
+  const { toggle, isLiked } = useWishlist();
+  const { addItem } = useCart();
+  const liked = isLiked(product._id);
+
+  return (
+    <article className="group relative">
+      <button
+        onClick={() => toggle(product)}
+        className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center bg-[rgba(251,249,248,0.74)] backdrop-blur-md transition-all hover:bg-white"
+      >
+        <span
+          className={`material-symbols-outlined ${liked ? 'text-[#111111]' : 'text-[#6e6667]'}`}
+          style={{ fontVariationSettings: liked ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}
+        >
+          favorite
+        </span>
+      </button>
+
+      {product.salePrice && (
+        <div className="absolute right-4 top-4 z-10 bg-[#111111] px-3 py-1 font-['Manrope'] text-[0.55rem] uppercase tracking-[0.22rem] text-white">
+          Sale
+        </div>
+      )}
+
+      <Link to={`/product/${product._id}`}>
+        <div className="relative overflow-hidden bg-[#f5f3f2] aspect-[3/4]">
+          {product.images?.[0] ? (
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '54px' }}>checkroom</span>
+            </div>
+          )}
+
+          <div className="absolute inset-x-0 bottom-0 flex translate-y-8 items-center justify-center bg-[linear-gradient(180deg,transparent_0%,rgba(17,17,17,0.84)_100%)] px-5 py-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <button
+              onClick={(event) => {
+                event.preventDefault();
+                addItem(product, product.sizes?.[0] || '', product.colors?.[0] || '');
+              }}
+              className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.25rem] text-white"
+            >
+              Quick Add
+            </button>
+          </div>
+        </div>
+      </Link>
+
+      <div className="mt-5 flex items-start justify-between gap-4">
+        <div>
+          <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{product.category}</p>
+          <Link to={`/product/${product._id}`}>
+            <h3 className="mt-2 font-['Noto_Serif'] text-xl tracking-[-0.04em] text-[#111111]">{product.name}</h3>
+          </Link>
+          {product.colors?.length > 0 && (
+            <div className="mt-3 flex gap-2">
+              {product.colors.slice(0, 4).map((color) => (
+                <span
+                  key={color}
+                  title={color}
+                  className="inline-block h-3 w-3 border border-[rgba(27,28,28,0.08)]"
+                  style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="text-left">
+          {product.salePrice ? (
+            <>
+              <p className="font-['Noto_Serif'] text-lg text-[#111111]">₪{product.salePrice}</p>
+              <p className="font-['Manrope'] text-xs uppercase tracking-[0.15rem] text-[#9d9596] line-through">₪{product.price}</p>
+            </>
+          ) : (
+            <p className="font-['Noto_Serif'] text-lg text-[#111111]">₪{product.price}</p>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default function Shop() {
   const [searchParams] = useSearchParams();
-  const [products, setProducts]       = useState([]);
-  const [category, setCategory]       = useState(() => searchParams.get('category') || 'הכל');
-  const [search, setSearch]           = useState('');
-  const [sort, setSort]               = useState('');
+  const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState(() => searchParams.get('category') || ALL_CATEGORY);
+  const [search, setSearch] = useState('');
+  const [draftSearch, setDraftSearch] = useState('');
+  const [sort, setSort] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
-  const [priceRange, setPriceRange]   = useState([0, 5000]);
-  const [maxPrice, setMaxPrice]       = useState(5000);
-  const [loading, setLoading]         = useState(true);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [maxPrice, setMaxPrice] = useState(5000);
+  const [allColors, setAllColors] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [mobileFilter, setMobileFilter] = useState(false);
   const searchTimer = useRef(null);
-
-  // צבעים ייחודיים מכל המוצרים
-  const [allColors, setAllColors] = useState([]);
 
   useEffect(() => {
     const collection = searchParams.get('collection');
@@ -41,336 +155,268 @@ export default function Shop() {
       setLoading(true);
       try {
         const params = {};
-        if (category !== 'הכל') params.category = category;
-        if (search)              params.search = search;
-        if (sort)                params.sort = sort;
+        if (category !== ALL_CATEGORY) params.category = category;
+        if (search) params.search = search;
+        if (sort) params.sort = sort;
         if (collection) params.collection = collection;
-        if (sale)       params.sale = true;
+        if (sale) params.sale = true;
 
         const { data } = await api.get('/products', { params });
         setProducts(data);
-
-        // חלץ צבעים ייחודיים
-        const colors = [...new Set(data.flatMap((p) => p.colors || []))].filter(Boolean);
+        const colors = [...new Set(data.flatMap((entry) => entry.colors || []))].filter(Boolean);
         setAllColors(colors);
-
-        // קבע מחיר מקסימום
-        const max = Math.max(...data.map((p) => p.salePrice || p.price || 0), 1000);
-        setMaxPrice(max);
-        setPriceRange((prev) => [prev[0], Math.max(prev[1], max)]);
-      } catch (err) {
-        console.error(err);
+        const nextMax = Math.max(...data.map((entry) => entry.salePrice || entry.price || 0), 1000);
+        setMaxPrice(nextMax);
+        setPriceRange((prev) => [Math.min(prev[0], nextMax), Math.min(Math.max(prev[1], nextMax), nextMax)]);
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
   }, [category, search, searchParams, sort]);
 
-  // חיפוש עם debounce
-  const handleSearch = (val) => {
+  const handleSearch = (value) => {
+    setDraftSearch(value);
     clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
-      setSearch(val);
-      if (val) trackSearch(val);
-    }, 400);
+      setSearch(value);
+      if (value) trackSearch(value);
+    }, 350);
   };
 
-  // פילטור בצד לקוח (מחיר, מידה, צבע)
-  const displayedProducts = products.filter((p) => {
-    const price = p.salePrice || p.price || 0;
-    if (price < priceRange[0] || price > priceRange[1]) return false;
-    if (selectedSize  && (!p.sizes  || !p.sizes.includes(selectedSize)))   return false;
-    if (selectedColor && (!p.colors || !p.colors.includes(selectedColor))) return false;
-    return true;
-  });
+  useEffect(() => () => clearTimeout(searchTimer.current), []);
 
-  // פילטרים פעילים
+  const displayedProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const price = product.salePrice || product.price || 0;
+        if (price < priceRange[0] || price > priceRange[1]) return false;
+        if (selectedSize && (!product.sizes || !product.sizes.includes(selectedSize))) return false;
+        if (selectedColor && (!product.colors || !product.colors.includes(selectedColor))) return false;
+        return true;
+      }),
+    [priceRange, products, selectedColor, selectedSize]
+  );
+
   const activeFilters = [
-    category !== 'הכל'   && { key: 'category', label: category,        clear: () => setCategory('הכל') },
-    selectedSize         && { key: 'size',     label: `מידה: ${selectedSize}`,  clear: () => setSelectedSize('') },
-    selectedColor        && { key: 'color',    label: selectedColor,    clear: () => setSelectedColor('') },
+    category !== ALL_CATEGORY && { key: 'category', label: categoryTitle[category] || category, clear: () => setCategory(ALL_CATEGORY) },
+    selectedSize && { key: 'size', label: `Size ${selectedSize}`, clear: () => setSelectedSize('') },
+    selectedColor && { key: 'color', label: selectedColor, clear: () => setSelectedColor('') },
     (priceRange[0] > 0 || priceRange[1] < maxPrice) && {
-      key: 'price', label: `₪${priceRange[0]}–₪${priceRange[1]}`,
+      key: 'price',
+      label: `₪${priceRange[0]} - ₪${priceRange[1]}`,
       clear: () => setPriceRange([0, maxPrice]),
     },
   ].filter(Boolean);
 
   const resetAll = () => {
-    setCategory('הכל');
+    setCategory(ALL_CATEGORY);
     setSelectedSize('');
     setSelectedColor('');
     setPriceRange([0, maxPrice]);
     setSearch('');
+    setDraftSearch('');
     setSort('');
   };
 
-  const categoryLabel =
-    category === 'הכל' ? 'All Collections' :
-    category === 'חתן ומלווים' ? 'Groom & Groomsmen' : category;
+  const collectionLabel = searchParams.get('collection') === 'new' ? 'New Arrivals' : categoryTitle[category] || 'Curated Wardrobe';
 
   const Sidebar = () => (
-    <div className="flex flex-col gap-8 py-10 px-8">
-      {/* Search */}
+    <div className="flex flex-col gap-10 p-8 md:p-10">
       <div>
-        <p className="font-['Manrope'] text-[0.6rem] tracking-[0.2rem] uppercase text-[#666666] mb-3">חיפוש</p>
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="חפש מוצר..."
-            defaultValue={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full bg-white border border-[#e8e8e6]/50 text-[#1a1a1a] px-3 py-2 pr-8 text-xs font-['Manrope'] placeholder-[#bbbbbb] focus:outline-none focus:border-[#1a1a1a]/60 transition-colors"
-          />
-          <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[#bbbbbb]" style={{ fontSize: '16px' }}>search</span>
-        </div>
+        <p className="editorial-kicker text-[#6e6667]">Search</p>
+        <input
+          type="text"
+          value={draftSearch}
+          onChange={(event) => handleSearch(event.target.value)}
+          placeholder="Search by product"
+          className="editorial-input mt-3"
+        />
       </div>
 
-      {/* Categories */}
       <div>
-        <p className="font-['Manrope'] text-[0.6rem] tracking-[0.2rem] uppercase text-[#666666] mb-4">קטגוריה</p>
-        <div className="flex flex-col gap-2.5">
-          {CATEGORIES.map((cat) => (
-            <button key={cat} onClick={() => setCategory(cat)}
-              className={`text-right text-xs tracking-wider uppercase font-['Manrope'] transition-colors flex items-center gap-2 group ${category === cat ? 'text-[#1a1a1a]' : 'text-[#666666] hover:text-[#1a1a1a]'}`}>
-              <span className={`w-1 h-1 rounded-full flex-shrink-0 transition-all ${category === cat ? 'bg-[#1a1a1a]' : 'bg-transparent group-hover:bg-[#bbbbbb]'}`} />
-              {cat}
+        <p className="editorial-kicker text-[#6e6667]">Category</p>
+        <div className="mt-4 flex flex-col gap-3">
+          {CATEGORIES.map((item) => (
+            <button
+              key={item}
+              onClick={() => setCategory(item)}
+              className={`flex items-center justify-between text-sm uppercase tracking-[0.18rem] transition-colors ${
+                category === item ? 'text-[#111111]' : 'text-[#6e6667] hover:text-[#111111]'
+              }`}
+            >
+              <span>{categoryTitle[item] || item}</span>
+              {category === item && <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>north_west</span>}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Sizes */}
       <div>
-        <p className="font-['Manrope'] text-[0.6rem] tracking-[0.2rem] uppercase text-[#666666] mb-4">מידה</p>
-        <div className="flex flex-wrap gap-2">
+        <p className="editorial-kicker text-[#6e6667]">Size</p>
+        <div className="mt-4 grid grid-cols-3 gap-2">
           {SIZES.map((size) => (
-            <button key={size} onClick={() => setSelectedSize(selectedSize === size ? '' : size)}
-              className={`w-9 h-9 text-[0.65rem] font-['Manrope'] uppercase tracking-wide border transition-all ${selectedSize === size ? 'border-[#1a1a1a] text-[#1a1a1a] bg-[#1a1a1a]/5' : 'border-[#e8e8e6]/50 text-[#666666] hover:border-[#1a1a1a]/50'}`}>
+            <button
+              key={size}
+              onClick={() => setSelectedSize(selectedSize === size ? '' : size)}
+              className={`px-3 py-3 text-xs uppercase tracking-[0.18rem] transition-colors ${
+                selectedSize === size ? 'bg-[#111111] text-white' : 'bg-[#fbf9f8] text-[#111111] hover:bg-[#ede9e7]'
+              }`}
+            >
               {size}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Colors */}
       {allColors.length > 0 && (
         <div>
-          <p className="font-['Manrope'] text-[0.6rem] tracking-[0.2rem] uppercase text-[#666666] mb-4">צבע</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="editorial-kicker text-[#6e6667]">Color</p>
+          <div className="mt-4 flex flex-wrap gap-3">
             {allColors.map((color) => (
-              <button key={color} onClick={() => setSelectedColor(selectedColor === color ? '' : color)}
+              <button
+                key={color}
+                onClick={() => setSelectedColor(selectedColor === color ? '' : color)}
                 title={color}
-                className={`relative w-7 h-7 rounded-full border-2 transition-all ${selectedColor === color ? 'border-[#1a1a1a] scale-110' : 'border-transparent hover:border-[#888888]'}`}
-                style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }}>
-                {selectedColor === color && (
-                  <span className="absolute inset-0 flex items-center justify-center text-white text-[10px]">✓</span>
-                )}
-              </button>
+                className={`h-7 w-7 transition-transform ${selectedColor === color ? 'scale-110 ring-1 ring-[#111111] ring-offset-2' : ''}`}
+                style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }}
+              />
             ))}
           </div>
         </div>
       )}
 
-      {/* Price Range */}
       <div>
-        <p className="font-['Manrope'] text-[0.6rem] tracking-[0.2rem] uppercase text-[#666666] mb-4">טווח מחיר</p>
-        <div className="flex justify-between text-xs font-['Manrope'] text-[#1a1a1a] mb-3">
+        <p className="editorial-kicker text-[#6e6667]">Price</p>
+        <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.18rem] text-[#111111]">
           <span>₪{priceRange[0]}</span>
           <span>₪{priceRange[1]}</span>
         </div>
-        <input type="range" min={0} max={maxPrice} value={priceRange[0]}
-          onChange={(e) => setPriceRange([Math.min(Number(e.target.value), priceRange[1] - 100), priceRange[1]])}
-          className="w-full accent-[#1a1a1a] mb-2" />
-        <input type="range" min={0} max={maxPrice} value={priceRange[1]}
-          onChange={(e) => setPriceRange([priceRange[0], Math.max(Number(e.target.value), priceRange[0] + 100)])}
-          className="w-full accent-[#1a1a1a]" />
+        <div className="mt-4 space-y-3">
+          <input
+            type="range"
+            min={0}
+            max={maxPrice}
+            value={priceRange[0]}
+            onChange={(event) => setPriceRange([Math.min(Number(event.target.value), priceRange[1]), priceRange[1]])}
+            className="w-full accent-[#111111]"
+          />
+          <input
+            type="range"
+            min={0}
+            max={maxPrice}
+            value={priceRange[1]}
+            onChange={(event) => setPriceRange([priceRange[0], Math.max(Number(event.target.value), priceRange[0])])}
+            className="w-full accent-[#111111]"
+          />
+        </div>
       </div>
 
-      {/* Sort */}
       <div>
-        <p className="font-['Manrope'] text-[0.6rem] tracking-[0.2rem] uppercase text-[#666666] mb-3">מיון</p>
-        <select value={sort} onChange={(e) => setSort(e.target.value)}
-          className="w-full bg-white border border-[#e8e8e6]/50 text-[#1a1a1a] px-3 py-2 text-xs font-['Manrope'] focus:outline-none focus:border-[#1a1a1a]/60 appearance-none cursor-pointer">
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+        <p className="editorial-kicker text-[#6e6667]">Sort</p>
+        <select value={sort} onChange={(event) => setSort(event.target.value)} className="editorial-select mt-3 bg-transparent">
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
           ))}
         </select>
       </div>
 
-      <div className="mt-auto pt-6 border-t border-[#e8e8e6]/30 flex justify-between items-center">
-        <p className="font-['Manrope'] text-[0.6rem] tracking-[0.15rem] uppercase text-[#bbbbbb]">
-          {loading ? 'טוען...' : `${displayedProducts.length} מוצרים`}
+      <div className="flex items-center justify-between bg-[#fbf9f8] px-5 py-4">
+        <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">
+          {loading ? 'Loading' : `${displayedProducts.length} Products`}
         </p>
-        {activeFilters.length > 0 && (
-          <button onClick={resetAll} className="font-['Manrope'] text-[0.6rem] uppercase tracking-widest text-[#1a1a1a] hover:text-[#000000] transition-colors">
-            נקה הכל
-          </button>
-        )}
+        <button onClick={resetAll} className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">
+          Reset
+        </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* Header */}
-      <div className="pt-32 pb-10 px-8 md:px-16 border-b border-[#e8e8e6]/30">
-        <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.25rem] text-[#1a1a1a] mb-3">
-          Dream &amp; Work — Catalog
-        </p>
-        <div className="flex items-end justify-between">
-          <h1 className="font-['Noto_Serif'] text-5xl md:text-7xl tracking-tight text-[#1a1a1a]" dir="ltr">
-            MENSWEAR<br />
-            <em className="text-[#1a1a1a] not-italic">{categoryLabel}</em>
-          </h1>
-          {/* Mobile filter button */}
-          <button onClick={() => setMobileFilter(true)}
-            className="lg:hidden flex items-center gap-2 font-['Manrope'] text-xs uppercase tracking-widest text-[#666666] border border-[#e8e8e6]/50 px-4 py-2 hover:border-[#1a1a1a]/50 transition-colors">
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>tune</span>
-            פילטר
-            {activeFilters.length > 0 && (
-              <span className="bg-[#1a1a1a] text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center font-bold">{activeFilters.length}</span>
-            )}
-          </button>
-        </div>
-
-        {/* Active Filters Chips */}
-        {activeFilters.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-5">
-            {activeFilters.map((f) => (
-              <button key={f.key} onClick={f.clear}
-                className="flex items-center gap-1.5 font-['Manrope'] text-[0.65rem] uppercase tracking-wider border border-[#1a1a1a]/50 text-[#1a1a1a] px-3 py-1 hover:bg-[#1a1a1a]/5 transition-colors">
-                {f.label}
-                <span style={{ fontSize: '14px' }} className="material-symbols-outlined">close</span>
-              </button>
-            ))}
+    <div className="editorial-shell min-h-screen bg-[#fbf9f8]">
+      <div className="px-6 pb-10 pt-32 md:px-12 lg:px-20 lg:pt-36">
+        <div className="mx-auto max-w-[1680px]">
+          <p className="editorial-kicker text-[#6e6667]">Catalog</p>
+          <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#111111] md:text-7xl">
+                {collectionLabel}
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5d5657] md:text-base">
+                A sharper, quieter shop experience with tonal layering, oversized typography, and room for the product imagery to feel collected rather than crowded.
+              </p>
+            </div>
+            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary lg:hidden">
+              Filters
+            </button>
           </div>
-        )}
-      </div>
 
-      <div className="flex flex-1">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex flex-col w-64 bg-[#f5f5f3] border-l border-[#e8e8e6]/30 sticky top-[72px] self-start max-h-[calc(100vh-72px)] overflow-y-auto">
-          <Sidebar />
-        </aside>
-
-        {/* Mobile Sidebar Overlay */}
-        {mobileFilter && (
-          <div className="fixed inset-0 z-50 flex lg:hidden">
-            <div className="absolute inset-0 bg-black/20" onClick={() => setMobileFilter(false)} />
-            <div className="relative mr-auto w-80 max-w-full bg-white h-full overflow-y-auto">
-              <div className="flex justify-between items-center px-6 pt-6">
-                <p className="font-['Manrope'] text-xs uppercase tracking-widest text-[#1a1a1a]">פילטרים</p>
-                <button onClick={() => setMobileFilter(false)}>
-                  <span className="material-symbols-outlined text-[#666666]">close</span>
+          {activeFilters.length > 0 && (
+            <div className="mt-8 flex flex-wrap gap-3">
+              {activeFilters.map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={filter.clear}
+                  className="bg-[#f5f3f2] px-4 py-2 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#111111]"
+                >
+                  {filter.label}
                 </button>
-              </div>
-              <Sidebar />
-            </div>
-          </div>
-        )}
-
-        {/* Product Grid */}
-        <main className="flex-1 px-6 md:px-12 py-12">
-          {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <span className="material-symbols-outlined text-[#bbbbbb] animate-spin" style={{ fontSize: '36px' }}>progress_activity</span>
-            </div>
-          ) : displayedProducts.length === 0 ? (
-            <div className="text-center py-32">
-              <span className="material-symbols-outlined text-[#bbbbbb] mb-6 block" style={{ fontSize: '64px' }}>search_off</span>
-              <p className="text-[#666666] font-['Manrope'] uppercase tracking-widest text-xs mb-4">לא נמצאו מוצרים</p>
-              {activeFilters.length > 0 && (
-                <button onClick={resetAll} className="font-['Manrope'] text-xs uppercase tracking-widest text-[#1a1a1a] border border-[#1a1a1a]/40 px-6 py-2 hover:bg-[#1a1a1a]/5 transition-colors">
-                  נקה פילטרים
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
-              {displayedProducts.map((p) => (
-                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           )}
-        </main>
+        </div>
       </div>
-      <Footer />
-    </div>
-  );
-}
 
-// helper — hex לצבעים נפוצים בעברית
-function getColorHex(name) {
-  const map = { 'שחור': '#1a1a1a', 'לבן': '#f5f5f5', 'אפור': '#888', 'כחול': '#2563eb', 'נייבי': '#1e3a5f', 'חאקי': '#8b7355', 'בורדו': '#7c1d1d', 'ירוק': '#166534', 'בז\'': '#d4b896', 'חום': '#6b4226', 'כתום': '#ea580c', 'צהוב': '#ca8a04' };
-  return map[name] || '#555';
-}
+      <div className="px-6 pb-24 md:px-12 lg:px-20">
+        <div className="mx-auto flex max-w-[1680px] gap-10">
+          <aside className="hidden w-[18rem] shrink-0 bg-[#f5f3f2] lg:block lg:sticky lg:top-28 lg:self-start">
+            <Sidebar />
+          </aside>
 
-function ProductCard({ product: p }) {
-  const { toggle, isLiked } = useWishlist();
-  const { addItem } = useCart();
-  const liked = isLiked(p._id);
-
-  return (
-    <div className="group cursor-pointer relative">
-      <button onClick={(e) => { e.preventDefault(); toggle(p); }}
-        className="absolute top-3 left-3 z-10 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white transition-all opacity-0 group-hover:opacity-100">
-        <span className={`material-symbols-outlined transition-colors ${liked ? 'text-[#1a1a1a]' : 'text-[#666666]'}`}
-          style={{ fontSize: '18px', fontVariationSettings: liked ? "'FILL' 1" : "'FILL' 0" }}>
-          favorite
-        </span>
-      </button>
-
-      {/* Sale Badge */}
-      {p.salePrice && (
-        <div className="absolute top-3 right-3 z-10 bg-[#1a1a1a] text-white px-2 py-0.5 text-[0.6rem] font-['Manrope'] font-bold uppercase tracking-widest">
-          SALE
-        </div>
-      )}
-
-      <Link to={`/product/${p._id}`}>
-        <div className="relative overflow-hidden aspect-[3/4] bg-[#f5f5f3] mb-5">
-          {p.images?.[0] ? (
-            <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#bbbbbb]" style={{ fontSize: '48px' }}>checkroom</span>
-            </div>
-          )}
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-6 gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-white/75 via-white/10 to-transparent">
-            <button onClick={(e) => { e.preventDefault(); addItem(p, p.sizes?.[0] || '', p.colors?.[0] || ''); }}
-              className="gold-shimmer px-8 py-2.5 text-[0.65rem] uppercase tracking-widest font-['Manrope'] font-semibold hover:opacity-80 transition-opacity">
-              הוסף לעגלה
-            </button>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-start px-0.5">
-          <div>
-            <p className="font-['Noto_Serif'] text-base text-[#1a1a1a] mb-0.5">{p.name}</p>
-            <p className="text-[#666666] text-[0.65rem] font-['Manrope'] uppercase tracking-widest">{p.category}</p>
-            {p.colors?.length > 0 && (
-              <div className="flex gap-1.5 mt-2">
-                {p.colors.slice(0, 4).map((color) => (
-                  <span key={color} title={color}
-                    className="w-3 h-3 rounded-full border border-[#e8e8e6]/60 inline-block"
-                    style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }} />
+          <main className="flex-1">
+            {loading ? (
+              <div className="flex h-72 items-center justify-center bg-[#f5f3f2]">
+                <span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span>
+              </div>
+            ) : displayedProducts.length === 0 ? (
+              <div className="bg-[#f5f3f2] px-8 py-20 text-center">
+                <p className="editorial-kicker text-[#6e6667]">Nothing matched the current edit</p>
+                <button onClick={resetAll} className="editorial-button mt-8">
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
+                {displayedProducts.map((product) => (
+                  <ProductCard key={product._id} product={product} />
                 ))}
               </div>
             )}
-          </div>
-          <div className="text-right">
-            {p.salePrice ? (
-              <>
-                <p className="font-['Manrope'] text-base text-[#1a1a1a]">₪{p.salePrice}</p>
-                <p className="text-[#bbbbbb] line-through text-xs font-['Manrope']">₪{p.price}</p>
-              </>
-            ) : (
-              <p className="font-['Manrope'] text-base text-[#1a1a1a]">₪{p.price}</p>
-            )}
+          </main>
+        </div>
+      </div>
+
+      {mobileFilter && (
+        <div className="fixed inset-0 z-[60] lg:hidden">
+          <div className="absolute inset-0 bg-[rgba(17,17,17,0.24)]" onClick={() => setMobileFilter(false)} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto bg-[#fbf9f8] shadow-[0_24px_60px_rgba(27,28,28,0.08)]">
+            <div className="flex items-center justify-between px-6 pt-24">
+              <p className="editorial-kicker text-[#6e6667]">Filters</p>
+              <button onClick={() => setMobileFilter(false)} className="flex h-10 w-10 items-center justify-center bg-[#f5f3f2]">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <Sidebar />
           </div>
         </div>
-      </Link>
+      )}
+
+      <Footer />
     </div>
   );
 }
