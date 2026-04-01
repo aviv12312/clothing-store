@@ -217,18 +217,18 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#e7e5e5] pt-20">
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-20">
 
       {/* Confirm Delete Dialog */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-[#111] border border-[#333] p-8 max-w-sm w-full mx-4 text-center">
+          <div className="bg-white border border-[#e8e8e6] p-8 max-w-sm w-full mx-4 text-center">
             <span className="material-symbols-outlined text-red-400 text-4xl mb-4 block">warning</span>
             <h3 className="font-headline text-lg mb-2">למחוק את המוצר?</h3>
-            <p className="text-[#767575] text-sm font-label mb-6">פעולה זו לא ניתנת לביטול</p>
+            <p className="text-[#888888] text-sm font-label mb-6">פעולה זו לא ניתנת לביטול</p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => setConfirmDelete(null)}
-                className="px-6 py-2 border border-[#333] text-[#767575] font-label text-xs uppercase tracking-widest hover:border-[#555] transition-colors">
+                className="px-6 py-2 border border-[#e8e8e6] text-[#888888] font-label text-xs uppercase tracking-widest hover:border-[#aaaaaa] transition-colors">
                 ביטול
               </button>
               <button onClick={confirmDeleteProduct}
@@ -241,16 +241,16 @@ export default function AdminDashboard() {
       )}
 
       {/* Header */}
-      <div className="border-b border-[#222] px-10 py-6 flex items-center justify-between">
+      <div className="border-b border-[#eeeeee] px-10 py-6 flex items-center justify-between">
         <div>
           <h1 className="font-headline text-2xl tracking-tight">פאנל ניהול</h1>
-          <p className="text-[#767575] text-xs uppercase tracking-widest font-label mt-1">Dream & Work — Admin</p>
+          <p className="text-[#888888] text-xs uppercase tracking-widest font-label mt-1">Dream & Work — Admin</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[#767575] text-sm font-label">{products.length} מוצרים · {orders.length} הזמנות</span>
+          <span className="text-[#888888] text-sm font-label">{products.length} מוצרים · {orders.length} הזמנות</span>
           <button
             onClick={() => { setEditId(null); setForm(EMPTY_FORM); setTab('add'); }}
-            className="flex items-center gap-2 bg-[#e7e5e5] text-[#0a0a0a] px-5 py-2.5 font-label text-xs uppercase tracking-widest hover:bg-white transition-colors"
+            className="flex items-center gap-2 bg-[#1a1a1a] text-white px-5 py-2.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
           >
             <span className="material-symbols-outlined text-sm">add</span>
             מוצר חדש
@@ -261,14 +261,14 @@ export default function AdminDashboard() {
       {/* Toast */}
       {message.text && (
         <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-8 py-3 text-sm font-label tracking-wide shadow-xl ${
-          message.type === 'error' ? 'bg-red-900 text-red-200' : 'bg-[#1a2a1a] text-green-300'
+          message.type === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'
         }`}>
           {message.text}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex border-b border-[#222] px-10">
+      <div className="flex border-b border-[#eeeeee] px-10">
         {[
           { id: 'products', label: 'כל המוצרים' },
           { id: 'orders',   label: 'הזמנות' },
@@ -278,12 +278,12 @@ export default function AdminDashboard() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`px-6 py-4 font-label text-xs uppercase tracking-widest border-b-2 transition-colors ${
-              tab === t.id ? 'border-[#e7e5e5] text-[#e7e5e5]' : 'border-transparent text-[#767575] hover:text-[#e7e5e5]'
+              tab === t.id ? 'border-[#1a1a1a] text-[#1a1a1a]' : 'border-transparent text-[#888888] hover:text-[#1a1a1a]'
             }`}
           >
             {t.label}
             {t.id === 'orders' && orders.filter(o => o.orderStatus === 'ממתין לאישור').length > 0 && (
-              <span className="mr-2 bg-yellow-500 text-[#0a0a0a] text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              <span className="mr-2 bg-[#1a1a1a] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                 {orders.filter(o => o.orderStatus === 'ממתין לאישור').length}
               </span>
             )}
@@ -297,41 +297,41 @@ export default function AdminDashboard() {
         {tab === 'products' && (
           <div>
             <div className="mb-8 relative">
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#767575] text-sm">search</span>
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#888888] text-sm">search</span>
               <input
                 type="text"
                 placeholder="חיפוש לפי שם או קטגוריה..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#111] border border-[#222] text-[#e7e5e5] pr-12 pl-4 py-3 text-sm font-label placeholder-[#767575] focus:outline-none focus:border-[#767575]"
+                className="w-full bg-[#f5f5f3] border border-[#eeeeee] text-[#1a1a1a] pr-12 pl-4 py-3 text-sm font-label placeholder-[#888888] focus:outline-none focus:border-[#888888]"
               />
             </div>
 
             {filtered.length === 0 ? (
               <div className="text-center py-24">
                 <span className="material-symbols-outlined text-5xl text-[#333] block mb-4">inventory_2</span>
-                <p className="text-[#767575] font-label text-xs uppercase tracking-widest">אין מוצרים</p>
+                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">אין מוצרים</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {filtered.map((p) => (
-                  <div key={p._id} className="flex items-center gap-5 bg-[#111] border border-[#1e1e1e] p-4 hover:border-[#333] transition-colors group">
+                  <div key={p._id} className="flex items-center gap-5 bg-[#f5f5f3] border border-[#eeeeee] p-4 hover:border-[#cccccc] transition-colors group">
                     <div className="w-14 flex-shrink-0 overflow-hidden" style={{ height: '3.5rem' }}>
                       {p.images?.[0] ? (
                         <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-[#1a1a1a] flex items-center justify-center">
-                          <span className="material-symbols-outlined text-xl text-[#333]">checkroom</span>
+                        <div className="w-full h-full bg-[#eeeeee] flex items-center justify-center">
+                          <span className="material-symbols-outlined text-xl text-[#cccccc]">checkroom</span>
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
                         <p className="font-headline text-base truncate">{p.name}</p>
-                        {p.featured && <span className="text-[0.6rem] font-label uppercase tracking-widest bg-[#2a2a1a] text-yellow-500 px-2 py-0.5">Featured</span>}
-                        {p.salePrice && <span className="text-[0.6rem] font-label uppercase tracking-widest bg-[#1a2a1a] text-green-400 px-2 py-0.5">Sale</span>}
+                        {p.featured && <span className="text-[0.6rem] font-label uppercase tracking-widest bg-amber-50 text-amber-700 px-2 py-0.5">Featured</span>}
+                        {p.salePrice && <span className="text-[0.6rem] font-label uppercase tracking-widest bg-green-50 text-green-700 px-2 py-0.5">Sale</span>}
                       </div>
-                      <div className="flex items-center gap-4 text-[#767575] text-xs font-label">
+                      <div className="flex items-center gap-4 text-[#888888] text-xs font-label">
                         <span>{p.category}</span>
                         <span>·</span>
                         <span>מלאי: {p.stock}</span>
@@ -342,18 +342,18 @@ export default function AdminDashboard() {
                       {p.salePrice ? (
                         <div>
                           <p className="text-green-400 font-body text-sm">₪{p.salePrice}</p>
-                          <p className="text-[#767575] line-through text-xs">₪{p.price}</p>
+                          <p className="text-[#888888] line-through text-xs">₪{p.price}</p>
                         </div>
                       ) : (
                         <p className="font-body text-sm">₪{p.price}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                      <button onClick={() => handleEdit(p)} className="flex items-center gap-1.5 text-[#767575] hover:text-[#e7e5e5] transition-colors font-label text-xs uppercase tracking-widest">
+                      <button onClick={() => handleEdit(p)} className="flex items-center gap-1.5 text-[#888888] hover:text-[#1a1a1a] transition-colors font-label text-xs uppercase tracking-widest">
                         <span className="material-symbols-outlined text-sm">edit</span>
                         עריכה
                       </button>
-                      <button onClick={() => handleDelete(p._id)} className="flex items-center gap-1.5 text-[#767575] hover:text-red-400 transition-colors font-label text-xs uppercase tracking-widest">
+                      <button onClick={() => handleDelete(p._id)} className="flex items-center gap-1.5 text-[#888888] hover:text-red-500 transition-colors font-label text-xs uppercase tracking-widest">
                         <span className="material-symbols-outlined text-sm">delete</span>
                         מחיקה
                       </button>
@@ -370,7 +370,7 @@ export default function AdminDashboard() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-headline text-xl">כל ההזמנות</h2>
-              <button onClick={fetchOrders} className="text-[#767575] hover:text-[#e7e5e5] font-label text-xs uppercase tracking-widest flex items-center gap-1.5 transition-colors">
+              <button onClick={fetchOrders} className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest flex items-center gap-1.5 transition-colors">
                 <span className="material-symbols-outlined text-sm">refresh</span>
                 רענן
               </button>
@@ -383,7 +383,7 @@ export default function AdminDashboard() {
                 placeholder="חיפוש לפי שם לקוח או מספר הזמנה..."
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
-                className="flex-1 bg-[#111] border border-[#222] text-[#e7e5e5] px-4 py-2.5 font-body text-sm focus:outline-none focus:border-[#767575] placeholder-[#444]"
+                className="flex-1 bg-[#f5f5f3] border border-[#eeeeee] text-[#1a1a1a] px-4 py-2.5 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
               />
               <div className="flex gap-2 flex-wrap">
                 {['הכל', ...ORDER_STATUSES].map((s) => (
@@ -392,8 +392,8 @@ export default function AdminDashboard() {
                     onClick={() => setOrderFilter(s)}
                     className={`px-3 py-2 font-label text-xs uppercase tracking-widest transition-colors ${
                       orderFilter === s
-                        ? 'bg-[#e9c349] text-[#0a0a0a]'
-                        : 'border border-[#333] text-[#767575] hover:border-[#767575]'
+                        ? 'bg-[#1a1a1a] text-white'
+                        : 'border border-[#e8e8e6] text-[#888888] hover:border-[#888888]'
                     }`}
                   >
                     {s}
@@ -404,8 +404,8 @@ export default function AdminDashboard() {
 
             {ordersLoading ? (
               <div className="text-center py-24">
-                <div className="inline-block w-8 h-8 border-2 border-[#333] border-t-[#e9c349] rounded-full animate-spin mb-4" />
-                <p className="text-[#767575] font-label text-xs uppercase tracking-widest">טוען הזמנות...</p>
+                <div className="inline-block w-8 h-8 border-2 border-[#eeeeee] border-t-[#1a1a1a] rounded-full animate-spin mb-4" />
+                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">טוען הזמנות...</p>
               </div>
             ) : (() => {
               const filteredOrders = orders.filter((o) => {
@@ -417,18 +417,18 @@ export default function AdminDashboard() {
                 return matchStatus && matchSearch;
               });
               return filteredOrders.length === 0 ? (
-                <div className="text-center py-16 bg-[#111] border border-[#1e1e1e]">
-                  <span className="material-symbols-outlined text-4xl text-[#333] block mb-3">search_off</span>
-                  <p className="text-[#767575] font-label text-xs uppercase tracking-widest">לא נמצאו הזמנות</p>
+                <div className="text-center py-16 bg-[#f5f5f3] border border-[#eeeeee]">
+                  <span className="material-symbols-outlined text-4xl text-[#cccccc] block mb-3">search_off</span>
+                  <p className="text-[#888888] font-label text-xs uppercase tracking-widest">לא נמצאו הזמנות</p>
                 </div>
               ) : (
                 <>
-                  <p className="text-[#555] font-label text-xs uppercase tracking-widest mb-4">
+                  <p className="text-[#888888] font-label text-xs uppercase tracking-widest mb-4">
                     {filteredOrders.length} הזמנות {orderFilter !== 'הכל' ? `· ${orderFilter}` : ''}
                   </p>
                   <div className="flex flex-col gap-3">
                     {filteredOrders.map((order) => (
-                  <div key={order._id} className="bg-[#111] border border-[#1e1e1e] hover:border-[#2a2a2a] transition-colors">
+                  <div key={order._id} className="bg-[#f5f5f3] border border-[#eeeeee] hover:border-[#e8e8e6] transition-colors">
 
                     {/* שורה ראשית */}
                     <button
@@ -436,20 +436,20 @@ export default function AdminDashboard() {
                       className="w-full flex items-center justify-between p-5 text-right"
                     >
                       <div className="flex items-center gap-5 flex-wrap">
-                        <span className={`px-3 py-1 font-label text-xs uppercase tracking-widest rounded-sm ${STATUS_COLORS[order.orderStatus] || 'text-[#767575] bg-[#767575]/10'}`}>
+                        <span className={`px-3 py-1 font-label text-xs uppercase tracking-widest rounded-sm ${STATUS_COLORS[order.orderStatus] || 'text-[#888888] bg-[#767575]/10'}`}>
                           {order.orderStatus}
                         </span>
-                        <span className="text-[#e9c349] font-body text-sm">₪{order.totalPrice?.toFixed(2)}</span>
-                        <span className="text-[#767575] font-label text-xs hidden md:block">{formatDate(order.createdAt)}</span>
+                        <span className="text-[#1a1a1a] font-body text-sm">₪{order.totalPrice?.toFixed(2)}</span>
+                        <span className="text-[#888888] font-label text-xs hidden md:block">{formatDate(order.createdAt)}</span>
                         {order.user && (
-                          <span className="text-[#b0b0b0] font-label text-xs">
+                          <span className="text-[#666666] font-label text-xs">
                             {order.user.name} · {order.user.email}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[#767575] font-label text-xs">#{order._id.slice(-6).toUpperCase()}</span>
-                        <span className="material-symbols-outlined text-[#767575] text-sm">
+                        <span className="text-[#888888] font-label text-xs">#{order._id.slice(-6).toUpperCase()}</span>
+                        <span className="material-symbols-outlined text-[#888888] text-sm">
                           {expandedOrder === order._id ? 'expand_less' : 'expand_more'}
                         </span>
                       </div>
@@ -457,13 +457,13 @@ export default function AdminDashboard() {
 
                     {/* פירוט */}
                     {expandedOrder === order._id && (
-                      <div className="border-t border-[#1e1e1e] p-5 space-y-5">
+                      <div className="border-t border-[#eeeeee] p-5 space-y-5">
 
                         {/* מוצרים */}
                         <div className="flex flex-col gap-3">
                           {order.items?.map((item, i) => (
                             <div key={i} className="flex items-center gap-4">
-                              <div className="w-12 h-12 bg-[#1a1a1a] flex-shrink-0 overflow-hidden">
+                              <div className="w-12 h-12 bg-[#eeeeee] flex-shrink-0 overflow-hidden">
                                 {item.image
                                   ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                   : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-[#333]">checkroom</span></div>
@@ -471,11 +471,11 @@ export default function AdminDashboard() {
                               </div>
                               <div className="flex-1">
                                 <p className="font-body text-sm">{item.name}</p>
-                                <p className="text-[#767575] text-xs font-label">
+                                <p className="text-[#888888] text-xs font-label">
                                   {item.size && `מידה: ${item.size}`}{item.color && ` · ${item.color}`} · כמות: {item.quantity}
                                 </p>
                               </div>
-                              <p className="text-[#e9c349] font-body text-sm">₪{(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="text-[#1a1a1a] font-body text-sm">₪{(item.price * item.quantity).toFixed(2)}</p>
                             </div>
                           ))}
                         </div>
@@ -483,9 +483,9 @@ export default function AdminDashboard() {
                         {/* כתובת + עדכון סטטוס */}
                         <div className="flex flex-col md:flex-row gap-4">
                           {order.shippingAddress && (
-                            <div className="flex-1 bg-[#0d0d0d] border border-[#1a1a1a] p-4">
-                              <p className="font-label text-[10px] uppercase tracking-widest text-[#767575] mb-2">כתובת משלוח</p>
-                              <p className="text-sm font-body text-[#b0b0b0]">
+                            <div className="flex-1 bg-white border border-[#eeeeee] p-4">
+                              <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">כתובת משלוח</p>
+                              <p className="text-sm font-body text-[#666666]">
                                 {order.shippingAddress.name} · {order.shippingAddress.street}, {order.shippingAddress.city}
                                 {order.shippingAddress.phone && ` · ${order.shippingAddress.phone}`}
                               </p>
@@ -493,8 +493,8 @@ export default function AdminDashboard() {
                           )}
 
                           {/* עדכון סטטוס */}
-                          <div className="bg-[#0d0d0d] border border-[#1a1a1a] p-4">
-                            <p className="font-label text-[10px] uppercase tracking-widest text-[#767575] mb-2">עדכון סטטוס</p>
+                          <div className="bg-white border border-[#eeeeee] p-4">
+                            <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">עדכון סטטוס</p>
                             <div className="flex flex-wrap gap-2">
                               {ORDER_STATUSES.map((status) => (
                                 <button
@@ -503,8 +503,8 @@ export default function AdminDashboard() {
                                   onClick={() => handleStatusChange(order._id, status)}
                                   className={`px-3 py-1.5 font-label text-xs transition-colors disabled:opacity-40 ${
                                     order.orderStatus === status
-                                      ? 'bg-[#e9c349] text-[#0a0a0a]'
-                                      : 'border border-[#333] text-[#767575] hover:border-[#767575] hover:text-[#e7e5e5]'
+                                      ? 'bg-[#1a1a1a] text-white'
+                                      : 'border border-[#e8e8e6] text-[#888888] hover:border-[#888888] hover:text-[#1a1a1a]'
                                   }`}
                                 >
                                   {statusUpdating === order._id ? '...' : status}
@@ -532,15 +532,15 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-2 gap-6">
               <div className="col-span-2">
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">שם המוצר *</label>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">שם המוצר *</label>
                 <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#333] text-[#e7e5e5] py-3 font-body text-sm focus:outline-none focus:border-[#767575] placeholder-[#444]"
+                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
                   placeholder="לדוגמה: חליפת חתן קלאסית" />
               </div>
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">קטגוריה *</label>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">קטגוריה *</label>
                 <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full bg-[#111] border border-[#333] text-[#e7e5e5] px-3 py-3 font-body text-sm focus:outline-none focus:border-[#767575]">
+                  className="w-full bg-[#f5f5f3] border border-[#e8e8e6] text-[#1a1a1a] px-3 py-3 font-body text-sm focus:outline-none focus:border-[#888888]">
                   {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
@@ -548,36 +548,36 @@ export default function AdminDashboard() {
                 <input type="checkbox" id="featured" checked={form.featured}
                   onChange={(e) => setForm({ ...form, featured: e.target.checked })}
                   className="accent-yellow-500 w-4 h-4" />
-                <label htmlFor="featured" className="font-label text-sm text-[#767575] cursor-pointer">Featured (מוצג בדף הבית)</label>
+                <label htmlFor="featured" className="font-label text-sm text-[#888888] cursor-pointer">Featured (מוצג בדף הבית)</label>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
               {[['מחיר ₪ *', 'price', true], ['מחיר מבצע ₪', 'salePrice', false]].map(([label, field, req]) => (
                 <div key={field}>
-                  <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">{label}</label>
+                  <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">{label}</label>
                   <input required={req} type="number" min="1"
                     value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                    className="w-full bg-transparent border-b border-[#333] text-[#e7e5e5] py-3 font-body text-sm focus:outline-none focus:border-[#767575]"
+                    className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888]"
                     placeholder={field === 'salePrice' ? 'ריק = אין מבצע' : '0'} />
                 </div>
               ))}
             </div>
 
             <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">תיאור</label>
+              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">תיאור</label>
               <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3} className="w-full bg-[#111] border border-[#333] text-[#e7e5e5] px-4 py-3 font-body text-sm focus:outline-none focus:border-[#767575] resize-none placeholder-[#444]"
+                rows={3} className="w-full bg-[#f5f5f3] border border-[#e8e8e6] text-[#1a1a1a] px-4 py-3 font-body text-sm focus:outline-none focus:border-[#888888] resize-none placeholder-[#aaaaaa]"
                 placeholder="תיאור המוצר..." />
             </div>
 
             <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-3">מידות</label>
+              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">מידות</label>
               <div className="flex flex-wrap gap-2">
                 {SIZES.map((size) => (
                   <button key={size} type="button" onClick={() => handleToggleSize(size)}
                     className={`px-3 py-1.5 font-label text-xs border transition-colors ${
-                      form.sizes.includes(size) ? 'bg-[#e7e5e5] text-[#0a0a0a] border-[#e7e5e5]' : 'bg-transparent text-[#767575] border-[#333] hover:border-[#767575]'
+                      form.sizes.includes(size) ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'bg-transparent text-[#888888] border-[#e8e8e6] hover:border-[#888888]'
                     }`}>{size}</button>
                 ))}
               </div>
@@ -586,25 +586,25 @@ export default function AdminDashboard() {
             {/* מלאי לפי מידה */}
             {form.sizes?.length > 0 && (
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-3">
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">
                   מלאי לפי מידה
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {form.sizes.map((size) => (
-                    <div key={size} className="flex items-center gap-2 bg-[#111] border border-[#222] px-3 py-2">
-                      <span className="font-label text-xs text-[#e9c349] w-8 flex-shrink-0">{size}</span>
+                    <div key={size} className="flex items-center gap-2 bg-[#f5f5f3] border border-[#eeeeee] px-3 py-2">
+                      <span className="font-label text-xs text-[#1a1a1a] w-8 flex-shrink-0">{size}</span>
                       <input
                         type="number" min="0"
                         value={sizeStock[size] ?? ''}
                         onChange={(e) => setSizeStock((prev) => ({ ...prev, [size]: Number(e.target.value) }))}
-                        className="flex-1 bg-transparent text-[#e7e5e5] text-sm font-body focus:outline-none text-center"
+                        className="flex-1 bg-transparent text-[#1a1a1a] text-sm font-body focus:outline-none text-center"
                         placeholder="0"
                       />
-                      <span className="text-[#555] text-xs font-label">יח'</span>
+                      <span className="text-[#888888] text-xs font-label">יח'</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-[#555] text-xs font-label mt-2">
+                <p className="text-[#888888] text-xs font-label mt-2">
                   סה"כ במלאי: {Object.values(sizeStock).reduce((s, v) => s + (Number(v) || 0), 0)} יחידות
                 </p>
               </div>
@@ -612,15 +612,15 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">צבעים</label>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">צבעים</label>
                 <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#333] text-[#e7e5e5] py-3 font-body text-sm focus:outline-none focus:border-[#767575] placeholder-[#444]"
+                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
                   placeholder="שחור, לבן, אפור (מופרד בפסיקים)" />
               </div>
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">תגיות</label>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">תגיות</label>
                 <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#333] text-[#e7e5e5] py-3 font-body text-sm focus:outline-none focus:border-[#767575] placeholder-[#444]"
+                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
                   placeholder="חתן, חליפה, קיץ (מופרד בפסיקים)" />
               </div>
             </div>
@@ -628,13 +628,13 @@ export default function AdminDashboard() {
             {/* תמונות לפי צבע */}
             {form.colors && (
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-3">
-                  תמונות לפי צבע <span className="text-[#555] normal-case">(אופציונלי — אם לא הועלו, יוצגו התמונות הכלליות)</span>
+                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">
+                  תמונות לפי צבע <span className="text-[#888888] normal-case">(אופציונלי — אם לא הועלו, יוצגו התמונות הכלליות)</span>
                 </label>
                 <div className="flex flex-col gap-4">
                   {form.colors.split(',').map(s => s.trim()).filter(Boolean).map((color) => (
-                    <div key={color} className="bg-[#0d0d0d] border border-[#1a1a1a] p-4">
-                      <p className="font-label text-xs text-[#e7e5e5] mb-3">{color}</p>
+                    <div key={color} className="bg-white border border-[#eeeeee] p-4">
+                      <p className="font-label text-xs text-[#1a1a1a] mb-3">{color}</p>
 
                       {/* תצוגה מקדימה */}
                       {colorImages[color]?.length > 0 && (
@@ -651,11 +651,11 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      <label className={`flex items-center gap-2 border border-dashed border-[#333] px-4 py-3 cursor-pointer hover:border-[#767575] transition-colors text-sm ${uploadingColor === color ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <span className="material-symbols-outlined text-[#767575] text-base">
+                      <label className={`flex items-center gap-2 border border-dashed border-[#e8e8e6] px-4 py-3 cursor-pointer hover:border-[#888888] transition-colors text-sm ${uploadingColor === color ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <span className="material-symbols-outlined text-[#888888] text-base">
                           {uploadingColor === color ? 'hourglass_empty' : 'add_photo_alternate'}
                         </span>
-                        <span className="font-label text-xs text-[#767575]">
+                        <span className="font-label text-xs text-[#888888]">
                           {uploadingColor === color ? 'מעלה...' : `העלה תמונות עבור ${color}`}
                         </span>
                         <input type="file" accept="image/*" multiple className="hidden"
@@ -670,7 +670,7 @@ export default function AdminDashboard() {
 
             {/* העלאת תמונות */}
             <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#767575] mb-3">תמונות המוצר</label>
+              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">תמונות המוצר</label>
 
               {/* תצוגה מקדימה */}
               {uploadedImages.length > 0 && (
@@ -691,11 +691,11 @@ export default function AdminDashboard() {
               )}
 
               {/* כפתור העלאה */}
-              <label className={`flex items-center gap-3 border border-dashed border-[#333] px-5 py-4 cursor-pointer hover:border-[#767575] transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                <span className="material-symbols-outlined text-[#767575] text-xl">
+              <label className={`flex items-center gap-3 border border-dashed border-[#e8e8e6] px-5 py-4 cursor-pointer hover:border-[#888888] transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                <span className="material-symbols-outlined text-[#888888] text-xl">
                   {uploading ? 'hourglass_empty' : 'upload'}
                 </span>
-                <span className="font-label text-xs text-[#767575] uppercase tracking-widest">
+                <span className="font-label text-xs text-[#888888] uppercase tracking-widest">
                   {uploading ? 'מעלה תמונות...' : 'בחר תמונות מהמחשב'}
                 </span>
                 <input
@@ -707,16 +707,16 @@ export default function AdminDashboard() {
                   disabled={uploading}
                 />
               </label>
-              <p className="text-[#555] text-xs font-label mt-1">עד 5 תמונות · מקסימום 5MB כל אחת</p>
+              <p className="text-[#888888] text-xs font-label mt-1">עד 5 תמונות · מקסימום 5MB כל אחת</p>
             </div>
 
-            <div className="flex items-center gap-4 pt-4 border-t border-[#1e1e1e]">
+            <div className="flex items-center gap-4 pt-4 border-t border-[#eeeeee]">
               <button type="submit" disabled={productLoading}
-                className="bg-[#e7e5e5] text-[#0a0a0a] px-10 py-3.5 font-label text-xs uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50">
+                className="bg-[#1a1a1a] text-white px-10 py-3.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50">
                 {productLoading ? 'שומר...' : editId ? 'שמור שינויים' : 'הוסף מוצר'}
               </button>
               <button type="button" onClick={handleCancel}
-                className="text-[#767575] hover:text-[#e7e5e5] font-label text-xs uppercase tracking-widest transition-colors">
+                className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest transition-colors">
                 ביטול
               </button>
             </div>

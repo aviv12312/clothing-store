@@ -23,10 +23,10 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#131313] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-12">
-          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#e9c349]">
+          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#1a1a1a]">
             DREAM & WORK
           </Link>
         </div>
@@ -34,53 +34,53 @@ export default function ForgotPassword() {
         {sent ? (
           <div className="text-center">
             <div className="text-5xl mb-6">📧</div>
-            <h2 className="font-['Noto_Serif'] text-2xl text-[#e2e2e2] mb-4">הקישור נשלח!</h2>
-            <p className="font-['Manrope'] text-sm text-[#767575] leading-relaxed mb-8">
+            <h2 className="font-['Noto_Serif'] text-2xl text-[#1a1a1a] mb-4">הקישור נשלח!</h2>
+            <p className="font-['Manrope'] text-sm text-[#888888] leading-relaxed mb-8">
               אם האימייל קיים במערכת — שלחנו קישור לאיפוס סיסמה.<br />
               תקף ל-30 דקות בלבד.
             </p>
-            <Link to="/login" className="font-['Manrope'] text-xs uppercase tracking-widest text-[#e9c349] hover:opacity-70 transition-opacity">
+            <Link to="/login" className="font-['Manrope'] text-xs uppercase tracking-widest text-[#1a1a1a] hover:opacity-70 transition-opacity">
               חזור להתחברות
             </Link>
           </div>
         ) : (
           <>
-            <h1 className="font-['Noto_Serif'] text-3xl text-[#e2e2e2] text-center mb-2">שכחתי סיסמה</h1>
-            <p className="font-['Manrope'] text-sm text-[#767575] text-center mb-10">
+            <h1 className="font-['Noto_Serif'] text-3xl text-[#1a1a1a] text-center mb-2">שכחתי סיסמה</h1>
+            <p className="font-['Manrope'] text-sm text-[#888888] text-center mb-10">
               הכנס את האימייל שלך ונשלח לך קישור לאיפוס
             </p>
 
             {error && (
-              <div className="bg-red-900/20 border border-red-500/30 text-red-400 text-sm font-['Manrope'] px-4 py-3 mb-6 text-center">
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm font-['Manrope'] px-4 py-3 mb-6 text-center">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
-                <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">
+                <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">
                   אימייל
                 </label>
                 <input
                   type="email" required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border-b border-[#333] text-[#e7e5e5] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#767575] transition-colors"
+                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#888888] transition-colors"
                   placeholder="your@email.com"
                 />
               </div>
 
               <button
                 type="submit" disabled={loading}
-                className="w-full py-4 gold-shimmer text-[#131313] font-['Manrope'] text-xs uppercase tracking-[0.2em] font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="w-full py-4 gold-shimmer font-['Manrope'] text-xs uppercase tracking-[0.2em] font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
               >
                 {loading ? 'שולח...' : 'שלח קישור לאיפוס'}
               </button>
             </form>
 
-            <p className="text-center font-['Manrope'] text-xs text-[#555] mt-8">
+            <p className="text-center font-['Manrope'] text-xs text-[#888888] mt-8">
               נזכרת?{' '}
-              <Link to="/login" className="text-[#e9c349] hover:opacity-70 transition-opacity">
+              <Link to="/login" className="text-[#1a1a1a] hover:opacity-70 transition-opacity">
                 התחבר
               </Link>
             </p>

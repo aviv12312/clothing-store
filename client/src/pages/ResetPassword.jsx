@@ -27,21 +27,21 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#131313] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-12">
-          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#e9c349]">
+          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#1a1a1a]">
             DREAM & WORK
           </Link>
         </div>
 
-        <h1 className="font-['Noto_Serif'] text-3xl text-[#e2e2e2] text-center mb-2">סיסמה חדשה</h1>
-        <p className="font-['Manrope'] text-sm text-[#767575] text-center mb-10">
+        <h1 className="font-['Noto_Serif'] text-3xl text-[#1a1a1a] text-center mb-2">סיסמה חדשה</h1>
+        <p className="font-['Manrope'] text-sm text-[#888888] text-center mb-10">
           הכנס סיסמה חדשה לחשבונך
         </p>
 
         {error && (
-          <div className="bg-red-900/20 border border-red-500/30 text-red-400 text-sm font-['Manrope'] px-4 py-3 mb-6 text-center">
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm font-['Manrope'] px-4 py-3 mb-6 text-center">
             {error}{' '}
             {error.includes('פג תוקף') && (
               <Link to="/forgot-password" className="underline">שלח שוב</Link>
@@ -55,14 +55,14 @@ export default function ResetPassword() {
             ['אימות סיסמה', confirm, setConfirm],
           ].map(([label, val, setter]) => (
             <div key={label}>
-              <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#767575] mb-2">
+              <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">
                 {label}
               </label>
               <input
                 type="password" required minLength={8}
                 value={val}
                 onChange={(e) => setter(e.target.value)}
-                className="w-full bg-transparent border-b border-[#333] text-[#e7e5e5] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#767575] transition-colors"
+                className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#888888] transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -70,7 +70,7 @@ export default function ResetPassword() {
 
           <button
             type="submit" disabled={loading}
-            className="w-full py-4 gold-shimmer text-[#131313] font-['Manrope'] text-xs uppercase tracking-[0.2em] font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full py-4 gold-shimmer font-['Manrope'] text-xs uppercase tracking-[0.2em] font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
           >
             {loading ? 'מאפס...' : 'אפס סיסמה'}
           </button>

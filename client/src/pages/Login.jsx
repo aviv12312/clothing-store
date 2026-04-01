@@ -28,7 +28,7 @@ export default function Login() {
       <main className="flex-1 flex items-center justify-center pt-20 px-6 py-12">
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white shadow-2xl overflow-hidden border border-surface-container-high">
           {/* Image side */}
-          <div className="relative hidden md:block bg-[#0e0e0e]">
+          <div className="relative hidden md:block bg-[#f5f5f3]">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-50"
               style={{ backgroundImage: `url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80')` }}
@@ -68,7 +68,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#0e0e0e] text-white py-4 font-label text-xs tracking-[0.2em] uppercase hover:bg-primary transition-colors disabled:opacity-50"
+                className="w-full bg-[#1a1a1a] text-white py-4 font-label text-xs tracking-[0.2em] uppercase hover:bg-black transition-colors disabled:opacity-50"
               >
                 {loading ? 'מתחבר...' : 'כניסה'}
               </button>
@@ -82,7 +82,7 @@ export default function Login() {
                 </Link>
               </p>
               <p className="text-outline text-sm font-body">
-                <Link to="/forgot-password" className="text-[#e9c349]/70 hover:text-[#e9c349] transition-colors font-['Manrope'] text-xs">
+                <Link to="/forgot-password" className="text-[#888888] hover:text-[#1a1a1a] transition-colors font-['Manrope'] text-xs">
                   שכחתי סיסמה
                 </Link>
               </p>

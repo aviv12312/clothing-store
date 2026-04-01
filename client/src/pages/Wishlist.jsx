@@ -8,7 +8,7 @@ export default function Wishlist() {
   const { addItem } = useCart();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcf9f8]">
+    <div className="min-h-screen flex flex-col bg-white">
       <main className="flex-1 pt-32 pb-24 px-8 md:px-16 max-w-7xl mx-auto w-full">
 
         {/* Header */}
@@ -30,7 +30,7 @@ export default function Wishlist() {
             </p>
             <Link
               to="/shop"
-              className="bg-[#0e0e0e] text-[#e7e5e5] px-10 py-4 font-label text-xs uppercase tracking-widest hover:bg-[#2a2a2a] transition-colors"
+              className="bg-[#1a1a1a] text-white px-10 py-4 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
             >
               גלה את הקולקציה
             </Link>
@@ -43,7 +43,7 @@ export default function Wishlist() {
                 {/* Heart Button */}
                 <button
                   onClick={() => toggle(p)}
-                  className="absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-[#0e0e0e]/60 backdrop-blur-sm hover:bg-[#0e0e0e]/80 transition-all"
+                  className="absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
                   title="הסר מהמועדפים"
                 >
                   <span className="material-symbols-outlined text-red-400 text-xl"
@@ -62,7 +62,7 @@ export default function Wishlist() {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a]">
+                      <div className="w-full h-full flex items-center justify-center bg-[#f5f5f3]">
                         <span className="material-symbols-outlined text-5xl text-outline">checkroom</span>
                       </div>
                     )}
@@ -90,7 +90,7 @@ export default function Wishlist() {
                 {/* Add to Cart */}
                 <button
                   onClick={() => addItem(p, p.sizes?.[0] || 'M', p.colors?.[0] || '')}
-                  className="w-full mt-4 bg-[#0e0e0e] text-[#e7e5e5] py-3 font-label text-xs uppercase tracking-widest hover:bg-[#2a2a2a] transition-colors opacity-0 group-hover:opacity-100"
+                  className="w-full mt-4 bg-[#1a1a1a] text-white py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors opacity-0 group-hover:opacity-100"
                 >
                   הוסף לעגלה
                 </button>

@@ -33,7 +33,7 @@ export default function Register() {
       <main className="flex-1 flex items-center justify-center pt-20 px-6 py-12">
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white shadow-2xl overflow-hidden border border-surface-container-high">
           {/* Image side */}
-          <div className="relative hidden md:block bg-[#0e0e0e]">
+          <div className="relative hidden md:block bg-[#f5f5f3]">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-50"
               style={{ backgroundImage: `url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80')` }}
@@ -86,7 +86,7 @@ export default function Register() {
                     onChange={(e) => setNewsletter(e.target.checked)}
                     className="sr-only"
                   />
-                  <div className={`w-4 h-4 border transition-colors ${newsletter ? 'bg-[#0e0e0e] border-[#0e0e0e]' : 'bg-white border-gray-400'} flex items-center justify-center`}>
+                  <div className={`w-4 h-4 border transition-colors ${newsletter ? 'bg-[#1a1a1a] border-[#1a1a1a]' : 'bg-white border-gray-300'} flex items-center justify-center`}>
                     {newsletter && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
                   </div>
                 </div>
@@ -99,7 +99,7 @@ export default function Register() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#0e0e0e] text-white py-4 font-label text-xs tracking-[0.2em] uppercase hover:bg-primary transition-colors disabled:opacity-50"
+                className="w-full bg-[#1a1a1a] text-white py-4 font-label text-xs tracking-[0.2em] uppercase hover:bg-black transition-colors disabled:opacity-50"
               >
                 {loading ? 'נרשם...' : 'הצטרף עכשיו'}
               </button>
