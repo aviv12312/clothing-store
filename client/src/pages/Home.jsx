@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
 import AIChatButton from '../components/AIChatButton';
-import heroBg from '../assets/logo.png';
+import heroImage from '../assets/logo.png';
 
 function ProductCard({ product, priority = false }) {
   return (
@@ -72,30 +72,30 @@ export default function Home() {
   return (
     <div className="editorial-shell min-h-screen bg-white">
       <main>
-        <section className="px-6 pb-20 pt-32 md:px-12 lg:px-20 lg:pt-40">
-          <div className="mx-auto max-w-[1600px]">
-            <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] xl:gap-16">
-              <div className="max-w-[34rem]">
-                <p className="editorial-kicker text-[#7b7475]">Spring Summer 2026</p>
-                <h1 className="mt-6 font-['Noto_Serif'] text-[3.6rem] leading-[0.98] tracking-[-0.06em] text-[#111111] md:text-[5.5rem] xl:text-[6.4rem]">
-                  Tailoring with presence.
-                </h1>
-                <p className="mt-8 max-w-xl text-base leading-8 text-[#5d5657]">
-                  A quieter luxury for modern menswear. Structured silhouettes, clean ceremony dressing,
-                  and elevated essentials designed to feel sharp, premium, and easy to wear.
-                </p>
-                <div className="mt-10 flex flex-wrap gap-4">
-                  <Link to="/shop" className="editorial-button">
-                    Explore the Collection
-                  </Link>
-                  <Link to="/shop?collection=new" className="editorial-button-secondary">
-                    New Arrivals
-                  </Link>
-                </div>
-              </div>
+        <section className="relative min-h-screen overflow-hidden bg-black">
+          <img src={heroImage} alt="Dream and Work Campaign" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16)_0%,rgba(0,0,0,0.08)_35%,rgba(0,0,0,0.62)_100%)]" />
 
-              <div className="overflow-hidden bg-[#f6f6f6]">
-                <img src={heroBg} alt="Dream and Work" className="h-[26rem] w-full object-cover md:h-[36rem] xl:h-[44rem]" />
+          <div className="relative z-10 flex min-h-screen items-end px-6 pb-10 md:px-10 md:pb-12 lg:px-16 lg:pb-16">
+            <div className="mx-auto w-full max-w-[1600px] text-center text-white">
+              <p className="font-['Manrope'] text-[0.72rem] uppercase tracking-[0.42rem] text-white/80">Spring Summer 2026</p>
+              <h1 className="mx-auto mt-5 max-w-5xl font-['Noto_Serif'] text-5xl leading-[0.95] tracking-[-0.06em] md:text-7xl xl:text-[7rem]">
+                Tailoring with presence
+              </h1>
+              <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-white/85 md:text-lg">
+                A quieter luxury for modern menswear. Structured silhouettes, clean ceremony dressing,
+                and elevated essentials designed to feel sharp, premium, and easy to wear.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                <div className="font-['Noto_Serif'] text-2xl text-white md:text-3xl">Handbags</div>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+                <Link to="/shop" className="bg-white px-10 py-4 font-['Manrope'] text-[0.68rem] uppercase tracking-[0.24rem] text-[#111111] transition-transform hover:-translate-y-0.5">
+                  Shop Now
+                </Link>
+                <Link to="/shop?collection=new" className="border border-white/40 bg-white/10 px-10 py-4 font-['Manrope'] text-[0.68rem] uppercase tracking-[0.24rem] text-white backdrop-blur-sm transition-transform hover:-translate-y-0.5">
+                  New Arrivals
+                </Link>
               </div>
             </div>
           </div>
