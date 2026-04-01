@@ -171,7 +171,25 @@ const handleSubmit = async (e) => {
       tags: form.tags ? form.tags.split(',').map((s) => s.trim()).filter(Boolean) : [],
     };
 
-  const handleImageFiles = async (e) => {
+    if (editId) {
+      await api.put(`/products/${editId}`, payload);
+      showMessage('המוצר עודכן בהצלחה');
+    } else {
+      await api.post('/products', payload);
+      showMessage('המוצר נוסף בהצלחה');
+    }
+
+    handleCancel();
+    fetchProducts();
+  } catch (err) {
+    console.error(err);
+    showMessage('שגיאה בשמירת המוצר', 'error');
+  } finally {
+    setProductLoading(false);
+  }
+};
+
+const handleImageFiles = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
     setUploading(true);
@@ -737,123 +755,10 @@ const handleSubmit = async (e) => {
             </div>
           </form>
         )}
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">×¦×‘×¢×™×</label>
-                <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="×©×—×•×¨, ×œ×‘×Ÿ, ××¤×•×¨ (×ž×•×¤×¨×“ ×‘×¤×¡×™×§×™×)" />
-              </div>
-              <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">×ª×’×™×•×ª</label>
-                <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="×—×ª×Ÿ, ×—×œ×™×¤×”, ×§×™×¥ (×ž×•×¤×¨×“ ×‘×¤×¡×™×§×™×)" />
-              </div>
-            </div>
-
-            {/* ×ª×ž×•× ×•×ª ×œ×¤×™ ×¦×‘×¢ */}
-            {form.colors && (
-              <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">
-                  ×ª×ž×•× ×•×ª ×œ×¤×™ ×¦×‘×¢ <span className="text-[#888888] normal-case">(××•×¤×¦×™×•× ×œ×™ â€” ×× ×œ× ×”×•×¢×œ×•, ×™×•×¦×’×• ×”×ª×ž×•× ×•×ª ×”×›×œ×œ×™×•×ª)</span>
-                </label>
-                <div className="flex flex-col gap-4">
-                  {form.colors.split(',').map(s => s.trim()).filter(Boolean).map((color) => (
-                    <div key={color} className="bg-white border border-[#eeeeee] p-4">
-                      <p className="font-label text-xs text-[#1a1a1a] mb-3">{color}</p>
-
-                      {/* ×ª×¦×•×’×” ×ž×§×“×™×ž×” */}
-                      {colorImages[color]?.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {colorImages[color].map((url) => (
-                            <div key={url} className="relative w-16 h-16 group">
-                              <img src={url} alt="" className="w-full h-full object-cover" />
-                              <button type="button" onClick={() => removeColorImage(color, url)}
-                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <label className={`flex items-center gap-2 border border-dashed border-[#e8e8e6] px-4 py-3 cursor-pointer hover:border-[#888888] transition-colors text-sm ${uploadingColor === color ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <span className="material-symbols-outlined text-[#888888] text-base">
-                          {uploadingColor === color ? 'hourglass_empty' : 'add_photo_alternate'}
-                        </span>
-                        <span className="font-label text-xs text-[#888888]">
-                          {uploadingColor === color ? '×ž×¢×œ×”...' : `×”×¢×œ×” ×ª×ž×•× ×•×ª ×¢×‘×•×¨ ${color}`}
-                        </span>
-                        <input type="file" accept="image/*" multiple className="hidden"
-                          onChange={(e) => handleColorImageFiles(color, e)}
-                          disabled={uploadingColor === color} />
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ×”×¢×œ××ª ×ª×ž×•× ×•×ª */}
-            <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">×ª×ž×•× ×•×ª ×”×ž×•×¦×¨</label>
-
-              {/* ×ª×¦×•×’×” ×ž×§×“×™×ž×” */}
-              {uploadedImages.length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {uploadedImages.map((url) => (
-                    <div key={url} className="relative w-20 h-20 group">
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeUploadedImage(url)}
-                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                      >
-                        <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* ×›×¤×ª×•×¨ ×”×¢×œ××” */}
-              <label className={`flex items-center gap-3 border border-dashed border-[#e8e8e6] px-5 py-4 cursor-pointer hover:border-[#888888] transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                <span className="material-symbols-outlined text-[#888888] text-xl">
-                  {uploading ? 'hourglass_empty' : 'upload'}
-                </span>
-                <span className="font-label text-xs text-[#888888] uppercase tracking-widest">
-                  {uploading ? '×ž×¢×œ×” ×ª×ž×•× ×•×ª...' : '×‘×—×¨ ×ª×ž×•× ×•×ª ×ž×”×ž×—×©×‘'}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleImageFiles}
-                  disabled={uploading}
-                />
-              </label>
-              <p className="text-[#888888] text-xs font-label mt-1">×¢×“ 5 ×ª×ž×•× ×•×ª Â· ×ž×§×¡×™×ž×•× 5MB ×›×œ ××—×ª</p>
-            </div>
-
-            <div className="flex items-center gap-4 pt-4 border-t border-[#eeeeee]">
-              <button type="submit" disabled={productLoading}
-                className="bg-[#1a1a1a] text-white px-10 py-3.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50">
-                {productLoading ? '×©×•×ž×¨...' : editId ? '×©×ž×•×¨ ×©×™× ×•×™×™×' : '×”×•×¡×£ ×ž×•×¦×¨'}
-              </button>
-              <button type="button" onClick={handleCancel}
-                className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest transition-colors">
-                ×‘×™×˜×•×œ
-              </button>
-            </div>
-          </form>
-        )}
-
       </div>
     </div>
   );
 }
+
 
 
