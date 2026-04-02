@@ -1,4 +1,4 @@
-﻿import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 const generateTokens = (userId) => ({
@@ -23,7 +23,7 @@ const setRefreshCookie = (res, token) => {
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
   if (await User.findOne({ email })) {
-    return res.status(409).json({ error: '××™×ž×™×™×œ ×›×‘×¨ ×§×™×™×' });
+    return res.status(409).json({ error: 'אימייל כבר קיים' });
   }
   const user = await User.create({ name, email, password });
   const { accessToken, refreshToken } = generateTokens(user._id);
@@ -38,7 +38,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.comparePassword(password))) {
-    return res.status(401).json({ error: '××™×ž×™×™×œ ××• ×¡×™×¡×ž×” ×©×’×•×™×™×' });
+    return res.status(401).json({ error: 'אימייל או סיסמה שגויים' });
   }
   const { accessToken, refreshToken } = generateTokens(user._id);
   setRefreshCookie(res, refreshToken);
@@ -50,7 +50,7 @@ export const login = async (req, res) => {
 
 export const refreshToken = (req, res) => {
   const token = req.cookies.refreshToken;
-  if (!token) return res.status(401).json({ error: '×œ× ×ž×—×•×‘×¨' });
+  if (!token) return res.status(401).json({ error: 'לא מחובר' });
   try {
     const { id } = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const accessToken = jwt.sign({ id }, process.env.JWT_ACCESS_SECRET, {
@@ -58,7 +58,7 @@ export const refreshToken = (req, res) => {
     });
     res.json({ accessToken });
   } catch {
-    res.status(401).json({ error: '× × ×œ×”×ª×—×‘×¨ ×ž×—×“×©' });
+    res.status(401).json({ error: 'נא להתחבר מחדש' });
   }
 };
 
@@ -70,6 +70,5 @@ export const me = async (req, res) => {
 
 export const logout = (req, res) => {
   res.clearCookie('refreshToken');
-  res.json({ message: '×”×ª× ×ª×§×ª ×‘×”×¦×œ×—×”' });
+  res.json({ message: 'התנתקות בהצלחה' });
 };
-
