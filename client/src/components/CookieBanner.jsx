@@ -1,60 +1,68 @@
-import { useState, useEffect } from 'react';
+﻿import { useState } from 'react';
 
 const COOKIE_KEY = 'dw_cookie_consent';
 
+const buildConsentPayload = (marketingEnabled) => ({
+  essential: true,
+  marketing: marketingEnabled,
+  analytics: marketingEnabled,
+  ts: new Date().toISOString(),
+});
+
+const shouldShowBanner = () => !localStorage.getItem(COOKIE_KEY);
+
 export default function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(shouldShowBanner);
   const [showDetails, setShowDetails] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem(COOKIE_KEY);
-    if (!saved) setVisible(true);
-  }, []);
-
-  const accept = () => {
-    localStorage.setItem(COOKIE_KEY, JSON.stringify({ essential: true, marketing: true, analytics: true, ts: Date.now() }));
-    setVisible(false);
-    enableMarketingScripts();
-  };
-
-  const acceptEssentialOnly = () => {
-    localStorage.setItem(COOKIE_KEY, JSON.stringify({ essential: true, marketing: false, analytics: false, ts: Date.now() }));
-    setVisible(false);
-    blockMarketingScripts();
-  };
-
   const enableMarketingScripts = () => {
-    // Google Analytics — מופעל רק לאחר הסכמה
     if (window.gtag) {
       window.gtag('consent', 'update', {
         analytics_storage: 'granted',
         ad_storage: 'granted',
       });
     }
-    // Meta Pixel — מופעל רק לאחר הסכמה
+
     if (window.fbq) {
       window.fbq('consent', 'grant');
     }
-    // הפעלת סקריפטים שסומנו כ-data-consent-required
+
     document.querySelectorAll('script[data-consent-required]').forEach((el) => {
+      const src = el.getAttribute('data-src');
+      if (!src) return;
+
+      const alreadyLoaded = document.querySelector(`script[src="${src}"]`);
+      if (alreadyLoaded) return;
+
       const newScript = document.createElement('script');
-      newScript.src = el.getAttribute('data-src');
+      newScript.src = src;
       document.head.appendChild(newScript);
     });
   };
 
   const blockMarketingScripts = () => {
-    // ביטול Google Analytics
     if (window.gtag) {
       window.gtag('consent', 'update', {
         analytics_storage: 'denied',
         ad_storage: 'denied',
       });
     }
-    // ביטול Meta Pixel
+
     if (window.fbq) {
       window.fbq('consent', 'revoke');
     }
+  };
+
+  const accept = () => {
+    localStorage.setItem(COOKIE_KEY, JSON.stringify(buildConsentPayload(true)));
+    setVisible(false);
+    enableMarketingScripts();
+  };
+
+  const acceptEssentialOnly = () => {
+    localStorage.setItem(COOKIE_KEY, JSON.stringify(buildConsentPayload(false)));
+    setVisible(false);
+    blockMarketingScripts();
   };
 
   if (!visible) return null;
@@ -93,7 +101,7 @@ export default function CookieBanner() {
             <h3 className="font-['Noto_Serif'] text-lg">הגדרות עוגיות</h3>
             <div className="grid gap-3 md:grid-cols-3">
               {[
-                { title: 'עוגיות הכרחיות', desc: 'נדרשות לתפעול האתר — כניסה, עגלת קניות, אבטחה.', required: true },
+                { title: 'עוגיות הכרחיות', desc: 'נדרשות לתפעול האתר - כניסה, עגלת קניות ואבטחה.', required: true },
                 { title: 'עוגיות אנליטיקה', desc: 'עוזרות לנו להבין כיצד המשתמשים מנווטים באתר.', required: false },
                 { title: 'עוגיות שיווקיות', desc: 'מאפשרות פרסום ממוקד ומעקב המרות.', required: false },
               ].map((item) => (

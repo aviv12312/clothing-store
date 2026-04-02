@@ -1,29 +1,34 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import api from '../services/api';
 
 export default function Unsubscribe() {
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState('loading'); // loading | success | error
-  const [msg, setMsg] = useState('');
+  const token = useMemo(() => searchParams.get('token'), [searchParams]);
+  const [status, setStatus] = useState(() => (token ? 'loading' : 'error'));
+  const [msg, setMsg] = useState(() => (token ? '' : 'קישור לא תקין - לא נמצא טוקן הסרה.'));
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    if (!token) {
-      setStatus('error');
-      setMsg('קישור לא תקין — לא נמצא טוקן הסרה.');
-      return;
-    }
+    if (!token) return;
+
+    let cancelled = false;
+
     api.get(`/newsletter/unsubscribe?token=${token}`)
       .then(() => {
+        if (cancelled) return;
         setStatus('success');
         setMsg('הוסרת בהצלחה מרשימת התפוצה של Dream & Work.');
       })
       .catch((err) => {
+        if (cancelled) return;
         setStatus('error');
         setMsg(err.response?.data?.error || 'הקישור אינו תקין או שכבר בוצעה הסרה.');
       });
-  }, [searchParams]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-6" dir="rtl">
@@ -46,7 +51,7 @@ export default function Unsubscribe() {
 
         {status === 'error' && (
           <>
-            <p className="text-4xl mb-6">✗</p>
+            <p className="text-4xl mb-6">✕</p>
             <h1 className="font-['Noto_Serif'] text-2xl text-[#111]">שגיאה בהסרה</h1>
             <p className="mt-3 font-['Manrope'] text-sm text-[#666]">{msg}</p>
             <Link to="/" className="mt-8 inline-block font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#111] px-6 py-3 hover:bg-[#111] hover:text-white transition-colors">

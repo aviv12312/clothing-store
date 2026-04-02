@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+﻿import { useState } from 'react';
 
 const COOKIE_KEY = 'dw_cookie_consent';
 
-export function useCookieConsent() {
-  const [consent, setConsent] = useState(null);
+const readConsent = () => {
+  const saved = localStorage.getItem(COOKIE_KEY);
+  if (!saved) return null;
 
-  useEffect(() => {
-    const saved = localStorage.getItem(COOKIE_KEY);
-    if (saved) {
-      try { setConsent(JSON.parse(saved)); } catch { setConsent(null); }
-    }
-  }, []);
+  try {
+    return JSON.parse(saved);
+  } catch {
+    return null;
+  }
+};
+
+export function useCookieConsent() {
+  const [consent] = useState(readConsent);
 
   const hasMarketing = consent?.marketing === true;
   const hasAnalytics = consent?.analytics === true;
