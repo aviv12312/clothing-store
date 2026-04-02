@@ -239,10 +239,71 @@ export default function ProductDetail() {
               </div>
 
               <div className="mt-4 space-y-2">
-                <AccordionItem title="Size Guide"><p>מדוד היקף חזה, מותן ואורך שרוול. אם אתה מתלבט בין שתי מידות, בחר במידה הגדולה יותר להתאמה נוחה יותר.</p></AccordionItem>
-                <AccordionItem title="Fabric & Care"><p>Premium construction for occasionwear and formal dressing. Dry clean only and store on a structured hanger to preserve the silhouette.</p></AccordionItem>
-                <AccordionItem title="Shipping & Returns"><p>משלוח מהיר, עדכוני סטטוס מסודרים, והחלפה או החזרה בהתאם למדיניות כל עוד הפריט חדש וללא שימוש.</p></AccordionItem>
-                <AccordionItem title="Private Styling"><p>באתרי יוקרה המוצר לא רק נמכר, הוא גם מקבל הקשר. כאן אפשר להוסיף בעתיד WhatsApp, concierge או ייעוץ מידות אישי.</p></AccordionItem>
+                <AccordionItem title="טבלת מידות">
+                  <div className="overflow-x-auto" dir="rtl">
+                    <table className="w-full text-xs font-['Manrope'] border-collapse">
+                      <thead>
+                        <tr className="bg-[#f7f7f7]">
+                          <th className="border border-[#eee] px-3 py-2 text-right font-semibold">מידה</th>
+                          <th className="border border-[#eee] px-3 py-2 text-right font-semibold">היקף חזה (ס"מ)</th>
+                          <th className="border border-[#eee] px-3 py-2 text-right font-semibold">היקף מותן (ס"מ)</th>
+                          <th className="border border-[#eee] px-3 py-2 text-right font-semibold">גובה מומלץ (ס"מ)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { size: 'XS', chest: '82–87', waist: '72–77', height: '162–167' },
+                          { size: 'S',  chest: '88–93', waist: '78–83', height: '168–172' },
+                          { size: 'M',  chest: '94–99', waist: '84–89', height: '173–177' },
+                          { size: 'L',  chest: '100–105', waist: '90–95', height: '178–182' },
+                          { size: 'XL', chest: '106–111', waist: '96–101', height: '183–187' },
+                          { size: 'XXL',chest: '112–117', waist: '102–107', height: '188–192' },
+                        ].map((row) => (
+                          <tr key={row.size} className="hover:bg-[#fafafa]">
+                            <td className="border border-[#eee] px-3 py-2 font-semibold">{row.size}</td>
+                            <td className="border border-[#eee] px-3 py-2">{row.chest}</td>
+                            <td className="border border-[#eee] px-3 py-2">{row.waist}</td>
+                            <td className="border border-[#eee] px-3 py-2">{row.height}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p className="mt-3 text-xs text-[#888]">💡 אם אתה מתלבט בין שתי מידות — בחר במידה הגדולה לנוחות מיטבית.</p>
+                  </div>
+                </AccordionItem>
+
+                <AccordionItem title="הרכב הבד והוראות טיפול">
+                  <div dir="rtl">
+                    {product.material ? (
+                      <p className="mb-3"><strong>הרכב:</strong> {product.material}</p>
+                    ) : (
+                      <p className="mb-3 text-[#888]">פרטי הרכב הבד יצוינו בתווית המוצר.</p>
+                    )}
+                    <ul className="space-y-1 text-xs text-[#555]">
+                      {product.careInstructions ? (
+                        product.careInstructions.split('\n').map((line, i) => <li key={i}>• {line}</li>)
+                      ) : (
+                        <>
+                          <li>• כביסה עד 30° בלבד</li>
+                          <li>• אין לייבש במייבש</li>
+                          <li>• גיהוץ בחום נמוך</li>
+                          <li>• ניקוי יבש מומלץ לחליפות פורמליות</li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+                </AccordionItem>
+
+                <AccordionItem title="משלוח והחזרות">
+                  <div dir="rtl" className="text-xs text-[#555] space-y-2">
+                    <p>• זמן אספקה: 3–7 ימי עסקים.</p>
+                    <p>• ניתן לבטל עסקה תוך <strong>14 יום</strong> מיום קבלת המוצר.</p>
+                    <p>• המוצר יש להחזיר ללא שימוש, עם תגיות ובאריזה מקורית.</p>
+                    <p>• <a href="/legal/returns" className="underline hover:text-[#111]">למדיניות המלאה לחץ כאן</a></p>
+                  </div>
+                </AccordionItem>
+
+                <AccordionItem title="Private Styling"><p>לייעוץ מידות אישי ופיסול הסגנון שלך, צור קשר עם הצוות שלנו.</p></AccordionItem>
               </div>
             </div>
           </div>

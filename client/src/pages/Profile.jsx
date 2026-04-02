@@ -53,6 +53,20 @@ export default function Profile() {
     navigate('/');
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'האם אתה בטוח שברצונך למחוק את חשבונך לצמיתות?\nפעולה זו אינה ניתנת לביטול.'
+    );
+    if (!confirmed) return;
+    try {
+      await api.delete('/auth/account');
+      await logout();
+      navigate('/');
+    } catch (err) {
+      alert(err.response?.data?.error || 'שגיאה במחיקת החשבון');
+    }
+  };
+
   useEffect(() => {
     if (tab === 'orders') fetchOrders();
   }, [tab]);
@@ -159,12 +173,20 @@ export default function Profile() {
                 </div>
               </div>
 
-              <button
-                onClick={handleLogout}
-                className="border border-[#e8e8e6] px-8 py-3 font-label text-xs uppercase tracking-widest text-[#888888] hover:text-[#1a1a1a] hover:border-[#888888] transition-colors"
-              >
-                התנתקות
-              </button>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleLogout}
+                  className="border border-[#e8e8e6] px-8 py-3 font-label text-xs uppercase tracking-widest text-[#888888] hover:text-[#1a1a1a] hover:border-[#888888] transition-colors"
+                >
+                  התנתקות
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="border border-red-200 px-8 py-3 font-label text-xs uppercase tracking-widest text-red-400 hover:text-red-600 hover:border-red-400 transition-colors"
+                >
+                  מחיקת חשבון
+                </button>
+              </div>
             </div>
           )}
 

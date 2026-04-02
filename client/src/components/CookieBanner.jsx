@@ -20,11 +20,41 @@ export default function CookieBanner() {
   const acceptEssentialOnly = () => {
     localStorage.setItem(COOKIE_KEY, JSON.stringify({ essential: true, marketing: false, analytics: false, ts: Date.now() }));
     setVisible(false);
+    blockMarketingScripts();
   };
 
   const enableMarketingScripts = () => {
-    // כאן ניתן להפעיל Google Analytics, Meta Pixel וכו' לאחר הסכמה
-    // window.gtag?.('consent', 'update', { analytics_storage: 'granted' });
+    // Google Analytics — מופעל רק לאחר הסכמה
+    if (window.gtag) {
+      window.gtag('consent', 'update', {
+        analytics_storage: 'granted',
+        ad_storage: 'granted',
+      });
+    }
+    // Meta Pixel — מופעל רק לאחר הסכמה
+    if (window.fbq) {
+      window.fbq('consent', 'grant');
+    }
+    // הפעלת סקריפטים שסומנו כ-data-consent-required
+    document.querySelectorAll('script[data-consent-required]').forEach((el) => {
+      const newScript = document.createElement('script');
+      newScript.src = el.getAttribute('data-src');
+      document.head.appendChild(newScript);
+    });
+  };
+
+  const blockMarketingScripts = () => {
+    // ביטול Google Analytics
+    if (window.gtag) {
+      window.gtag('consent', 'update', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+      });
+    }
+    // ביטול Meta Pixel
+    if (window.fbq) {
+      window.fbq('consent', 'revoke');
+    }
   };
 
   if (!visible) return null;

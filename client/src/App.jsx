@@ -25,6 +25,8 @@ import Privacy from './pages/legal/Privacy';
 import Terms from './pages/legal/Terms';
 import Returns from './pages/legal/Returns';
 import Accessibility from './pages/legal/Accessibility';
+import Unsubscribe from './pages/Unsubscribe';
+import CancelOrder from './pages/CancelOrder';
 
 export default function App() {
   const glowRef = useRef(null);
@@ -66,6 +68,8 @@ export default function App() {
             <Route path="/legal/terms" element={<Terms />} />
             <Route path="/legal/returns" element={<Returns />} />
             <Route path="/legal/accessibility" element={<Accessibility />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
+            <Route path="/cancel-order" element={<ProtectedRoute><CancelOrder /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <CookieBanner />

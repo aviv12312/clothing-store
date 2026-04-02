@@ -38,6 +38,12 @@ const orderSchema = new mongoose.Schema(
     paymentId: String,
     couponCode: String,
     stockDeducted: { type: Boolean, default: false },
+    deliveredAt: { type: Date, default: null },
+    cancellationRequest: {
+      requestedAt: { type: Date, default: null },
+      reason: { type: String, default: null },
+      status: { type: String, enum: ['pending', 'approved', 'rejected', null], default: null },
+    },
   },
   { timestamps: true }
 );

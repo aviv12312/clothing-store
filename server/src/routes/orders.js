@@ -97,5 +97,44 @@ router.patch('/:id/status', protect, requireAdmin, async (req, res) => {
   res.json(order);
 });
 
+// טופס ביטול עסקה — בודק 14 יום מיום המסירה / תאריך ההזמנה
+router.post('/:id/cancellation-request', protect, async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+    if (!order) return res.status(404).json({ error: 'הזמנה לא נמצאה' });
+
+    if (order.orderStatus === 'בוטל') {
+      return res.status(400).json({ error: 'ההזמנה כבר בוטלה' });
+    }
+
+    // תאריך התחלת ספירת 14 הימים — מיום המסירה או מיום ההזמנה
+    const startDate = order.deliveredAt || order.createdAt;
+    const daysSince = (Date.now() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24);
+
+    if (daysSince > 14) {
+      return res.status(400).json({
+        error: 'חלפו יותר מ-14 ימים מיום קבלת המוצר — לא ניתן לבטל',
+        daysSince: Math.floor(daysSince),
+      });
+    }
+
+    const { reason } = req.body;
+    order.cancellationRequest = {
+      requestedAt: new Date(),
+      reason: reason || 'לא צוין',
+      status: 'pending',
+    };
+    await order.save();
+
+    res.json({
+      success: true,
+      message: 'בקשת הביטול התקבלה. נחזור אליך תוך 2 ימי עסקים.',
+      daysRemaining: Math.floor(14 - daysSince),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'שגיאה בעיבוד הבקשה' });
+  }
+});
+
 export default router;
 
