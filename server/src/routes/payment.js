@@ -269,7 +269,9 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
       headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'grant_type=client_credentials',
     });
-    const { access_token } = await tokenRes.json();
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) return res.status(500).json({ error: 'PayPal auth failed' });
+    const { access_token } = tokenData;
 
     const captureRes = await fetch(`${paypalBase}/v2/checkout/orders/${paypalOrderId}/capture`, {
       method: 'POST',
