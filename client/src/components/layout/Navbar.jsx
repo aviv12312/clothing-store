@@ -111,9 +111,8 @@ export default function Navbar() {
             </button>
 
             <Link to="/" className="flex items-center gap-3" dir="ltr">
-              <img src="/logo.png" alt="Dream and Work" className={`h-9 w-9 object-contain md:h-11 md:w-11 ${logoFilter}`} />
               <div className="leading-none">
-                <p className="font-['Noto_Serif'] text-xl tracking-[-0.08em] md:text-3xl">Dream &amp; Work</p>
+                <p style={{ fontFamily: 'YoungBest, serif' }} className="text-xl tracking-[-0.02em] md:text-3xl">Dream &amp; Work</p>
                 <p className="mt-1 font-['Manrope'] text-[0.52rem] uppercase tracking-[0.34rem] opacity-80">Editorial Menswear</p>
               </div>
             </Link>
