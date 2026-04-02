@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
 import { useWishlist } from '../context/WishlistContext';
-import { useCart } from '../context/CartContext';
 import { trackSearch } from '../services/analytics';
 
 const ALL_CATEGORY = 'הכל';
@@ -45,7 +44,6 @@ function getColorHex(name) {
 
 function ProductCard({ product }) {
   const { toggle, isLiked } = useWishlist();
-  const { addItem } = useCart();
   const liked = isLiked(product._id);
 
   return (
@@ -83,15 +81,7 @@ function ProductCard({ product }) {
           )}
 
           <div className="absolute inset-x-0 bottom-0 flex translate-y-8 items-center justify-center bg-[linear-gradient(180deg,transparent_0%,rgba(17,17,17,0.84)_100%)] px-5 py-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button
-              onClick={(event) => {
-                event.preventDefault();
-                addItem(product, product.sizes?.[0] || '', product.colors?.[0] || '');
-              }}
-              className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.25rem] text-white"
-            >
-              Quick Add
-            </button>
+            <span className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.25rem] text-white">View Product</span>
           </div>
         </div>
       </Link>
@@ -366,3 +356,4 @@ export default function Shop() {
     </div>
   );
 }
+

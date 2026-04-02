@@ -1,5 +1,66 @@
-import Product from '../models/Product.js';
+﻿import Product from '../models/Product.js';
 import { v2 as cloudinary } from 'cloudinary';
+
+const buildVariantPayload = (payload) => {
+  if (Array.isArray(payload.variants) && payload.variants.length) {
+    return payload.variants
+      .map((variant) => ({
+        color: String(variant.color || '').trim(),
+        size: String(variant.size || '').trim(),
+        stock: Number(variant.stock) || 0,
+        sku: variant.sku ? String(variant.sku).trim() : undefined,
+        images: Array.isArray(variant.images) ? variant.images.filter(Boolean) : [],
+      }))
+      .filter((variant) => variant.color && variant.size);
+  }
+
+  const colors = Array.isArray(payload.colors) ? payload.colors : [];
+  const sizeStock = payload.sizeStock && typeof payload.sizeStock === 'object' ? payload.sizeStock : {};
+  const colorImages = payload.colorImages && typeof payload.colorImages === 'object' ? payload.colorImages : {};
+
+  return colors.flatMap((color) => {
+    const sizes = Object.keys(sizeStock[color] || {});
+    return sizes.map((size) => ({
+      color,
+      size,
+      stock: Number(sizeStock[color]?.[size]) || 0,
+      images: Array.isArray(colorImages[color]) ? colorImages[color] : [],
+    }));
+  });
+};
+
+const normalizeProductPayload = (payload) => {
+  const variants = buildVariantPayload(payload);
+  if (!variants.length) return payload;
+
+  const colors = [...new Set(variants.map((variant) => variant.color))];
+  const sizes = [...new Set(variants.map((variant) => variant.size))];
+  const sizeStock = colors.reduce((acc, color) => {
+    acc[color] = variants
+      .filter((variant) => variant.color === color)
+      .reduce((sizesAcc, variant) => {
+        sizesAcc[variant.size] = Number(variant.stock) || 0;
+        return sizesAcc;
+      }, {});
+    return acc;
+  }, {});
+  const colorImages = colors.reduce((acc, color) => {
+    const match = variants.find((variant) => variant.color === color && variant.images?.length);
+    acc[color] = match?.images || payload.colorImages?.[color] || [];
+    return acc;
+  }, {});
+  const stock = variants.reduce((sum, variant) => sum + (Number(variant.stock) || 0), 0);
+
+  return {
+    ...payload,
+    variants,
+    colors,
+    sizes,
+    sizeStock,
+    colorImages,
+    stock,
+  };
+};
 
 export const getProducts = async (req, res) => {
   const {
@@ -28,7 +89,14 @@ export const getProducts = async (req, res) => {
   }
   if (search) query.$text = { $search: search };
 
-  const resolvedSort = collection === 'new' ? '-createdAt' : sort;
+  const sortMap = {
+    price_asc: { price: 1 },
+    price_desc: { price: -1 },
+    newest: { createdAt: -1 },
+    sale: { salePrice: -1, createdAt: -1 },
+    '-createdAt': { createdAt: -1 },
+  };
+  const resolvedSort = collection === 'new' ? { createdAt: -1 } : sortMap[sort] || { createdAt: -1 };
   const products = await Product.find(query).sort(resolvedSort).limit(50);
   res.json(products);
 };
@@ -50,12 +118,15 @@ export const createProduct = async (req, res) => {
       images.push(result.secure_url);
     }
   }
-  const product = await Product.create({ ...req.body, images });
+
+  const payload = normalizeProductPayload({ ...req.body, images: req.body.images?.length ? req.body.images : images });
+  const product = await Product.create(payload);
   res.status(201).json(product);
 };
 
 export const updateProduct = async (req, res) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+  const payload = normalizeProductPayload(req.body);
+  const product = await Product.findByIdAndUpdate(req.params.id, payload, {
     new: true,
     runValidators: true,
   });

@@ -6,6 +6,12 @@ import { useAuth } from '../context/AuthContext';
 import Footer from '../components/layout/Footer';
 import { trackViewProduct, trackAddToCart } from '../services/analytics';
 
+const TRUST_ITEMS = [
+  { title: 'Delivery', text: 'משלוח מהיר לכל הארץ ואריזה מוקפדת שמרגישה כמו קנייה של מותג פרימיום.' },
+  { title: 'Returns', text: 'החלפה או החזרה בהתאם למדיניות, כל עוד הפריט נשאר חדש ובמצבו המקורי.' },
+  { title: 'Styling', text: 'בחנות יוקרה הלקוח צריך הכוונה. הטקסטים כאן נותנים ביטחון לפני רכישה.' },
+];
+
 function AccordionItem({ title, children }) {
   const [open, setOpen] = useState(false);
 
@@ -114,6 +120,10 @@ export default function ProductDetail() {
     setTimeout(() => setAddedToCart(false), 1800);
   };
 
+  const fitNote = product.category === 'Formal'
+    ? 'גזרה מדויקת יותר שמתאימה למראה מחויט. אם אתה בין מידות, בדרך כלל עדיף לעלות מידה.'
+    : 'גזרה נינוחה יותר שמתאימה ללבישה יומיומית ולשכבות קלות.';
+
   return (
     <div className="editorial-shell min-h-screen bg-white">
       <main className="px-6 pb-24 pt-28 md:px-12 lg:px-20 lg:pt-40">
@@ -149,7 +159,7 @@ export default function ProductDetail() {
               <div className="bg-[#f7f7f7] p-7 md:p-10 xl:p-12">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{product.category}</p>
-                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Editorial Product Page</p>
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Private Client Selection</p>
                 </div>
 
                 <h1 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl xl:text-6xl">{product.name}</h1>
@@ -167,6 +177,15 @@ export default function ProductDetail() {
 
                 {product.description && <p className="mt-8 max-w-2xl text-sm leading-7 text-[#5d5657]">{product.description}</p>}
 
+                <div className="mt-8 grid gap-3 md:grid-cols-3">
+                  {TRUST_ITEMS.map((item) => (
+                    <div key={item.title} className="bg-white px-4 py-4">
+                      <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">{item.title}</p>
+                      <p className="mt-3 text-sm leading-6 text-[#4e4748]">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+
                 {product.colors?.length > 0 && (
                   <div className="mt-10">
                     <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Color <span className="text-[#111111]">{selectedColor}</span></p>
@@ -182,7 +201,7 @@ export default function ProductDetail() {
                   <div className="mt-10">
                     <div className="flex items-center justify-between gap-4">
                       <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Size <span className="text-[#111111]">{selectedSize}</span></p>
-                      <span className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.24rem] text-[#6e6667]">Need help choosing?</span>
+                      <span className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.24rem] text-[#6e6667]">Size Guide Available</span>
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-2 md:grid-cols-4">
                       {product.sizes.map((size) => (
@@ -192,10 +211,12 @@ export default function ProductDetail() {
                   </div>
                 )}
 
-                <div className="mt-8 space-y-3">
-                  {currentStock === 0 && selectedSize && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#9b2c2c]">Size {selectedSize} is out of stock</p>}
+                <div className="mt-8 space-y-3 border-t border-[rgba(17,17,17,0.08)] pt-8">
+                  {currentStock === 0 && selectedSize && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#9b2c2c]">Size {selectedSize} is currently unavailable</p>}
                   {currentStock > 0 && isAdmin && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">{currentStock} units left in size {selectedSize}</p>}
                   {currentStock > 0 && !isAdmin && currentStock < 10 && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">Low stock available</p>}
+                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">Estimated Delivery: 2-5 business days</p>
+                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">Complimentary exchange support for sizing adjustments</p>
                 </div>
 
                 <div className="mt-10 flex flex-col gap-3">
@@ -206,10 +227,22 @@ export default function ProductDetail() {
                 </div>
               </div>
 
+              <div className="mt-4 grid gap-2 md:grid-cols-2">
+                <div className="bg-[#fbfaf8] px-6 py-6">
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Fit Notes</p>
+                  <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">{fitNote}</p>
+                </div>
+                <div className="bg-[#fbfaf8] px-6 py-6">
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Style Advice</p>
+                  <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">שלב את הפריט עם נעל מחויטת, חגורה מינימליסטית ושכבת tailoring נקייה כדי לשמור על מראה מדויק ויוקרתי.</p>
+                </div>
+              </div>
+
               <div className="mt-4 space-y-2">
+                <AccordionItem title="Size Guide"><p>מדוד היקף חזה, מותן ואורך שרוול. אם אתה מתלבט בין שתי מידות, בחר במידה הגדולה יותר להתאמה נוחה יותר.</p></AccordionItem>
                 <AccordionItem title="Fabric & Care"><p>Premium construction for occasionwear and formal dressing. Dry clean only and store on a structured hanger to preserve the silhouette.</p></AccordionItem>
-                <AccordionItem title="Shipping & Returns"><p>Complimentary shipping on qualifying orders and returns within 14 days, subject to the original condition of the item.</p></AccordionItem>
-                <AccordionItem title="Fit & Styling"><p>Designed with a clean line. If you are between sizes, choose the larger option for a softer drape.</p></AccordionItem>
+                <AccordionItem title="Shipping & Returns"><p>משלוח מהיר, עדכוני סטטוס מסודרים, והחלפה או החזרה בהתאם למדיניות כל עוד הפריט חדש וללא שימוש.</p></AccordionItem>
+                <AccordionItem title="Private Styling"><p>באתרי יוקרה המוצר לא רק נמכר, הוא גם מקבל הקשר. כאן אפשר להוסיף בעתיד WhatsApp, concierge או ייעוץ מידות אישי.</p></AccordionItem>
               </div>
             </div>
           </div>
@@ -237,4 +270,3 @@ export default function ProductDetail() {
     </div>
   );
 }
-

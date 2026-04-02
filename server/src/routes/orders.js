@@ -59,13 +59,14 @@ router.patch('/:id/cancel', protect, async (req, res) => {
     return res.status(400).json({ error: 'לא ניתן לבטל לאחר יותר מ-2 שעות מביצוע ההזמנה' });
   }
 
-  if (order.paymentStatus === 'paid' && Array.isArray(order.items)) {
+  if (order.paymentStatus === 'paid' && order.stockDeducted && Array.isArray(order.items)) {
     for (const item of order.items) {
       await restoreProductStock(item);
     }
   }
 
   order.orderStatus = 'בוטל';
+  order.stockDeducted = false;
   await order.save();
 
   try {
@@ -97,3 +98,4 @@ router.patch('/:id/status', protect, requireAdmin, async (req, res) => {
 });
 
 export default router;
+

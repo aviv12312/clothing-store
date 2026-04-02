@@ -1,4 +1,12 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
+
+const variantSchema = new mongoose.Schema({
+  color: { type: String, required: true },
+  size: { type: String, required: true },
+  stock: { type: Number, default: 0 },
+  sku: String,
+  images: [String],
+}, { _id: false });
 
 const productSchema = new mongoose.Schema(
   {
@@ -8,7 +16,7 @@ const productSchema = new mongoose.Schema(
     salePrice: Number,
     category: {
       type: String,
-      enum: ['חתן ומלווים', 'Casual', 'Formal'],
+      enum: ['×—×ª×Ÿ ×•×ž×œ×•×•×™×', 'Casual', 'Formal'],
       required: true,
     },
     tags: [String],
@@ -16,8 +24,9 @@ const productSchema = new mongoose.Schema(
     colors: [String],
     images: [String],
     colorImages: { type: mongoose.Schema.Types.Mixed, default: {} },
-    stock: { type: Number, default: 0 }, // סה"כ מלאי (מחושב)
-    sizeStock: { type: mongoose.Schema.Types.Mixed, default: {} }, // מלאי לפי מידה { "M": 5, "L": 3 }
+    variants: { type: [variantSchema], default: [] },
+    stock: { type: Number, default: 0 }, // ×¡×”"×› ×ž×œ××™ (×ž×—×•×©×‘)
+    sizeStock: { type: mongoose.Schema.Types.Mixed, default: {} }, // ×ž×œ××™ ×œ×¤×™ ×ž×™×“×” { "M": 5, "L": 3 }
     isActive: { type: Boolean, default: true },
     featured: { type: Boolean, default: false },
   },
@@ -27,3 +36,4 @@ const productSchema = new mongoose.Schema(
 productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 
 export default mongoose.model('Product', productSchema);
+

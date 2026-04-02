@@ -1,14 +1,29 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 
-const CATEGORIES = ['×—×ª×Ÿ ×•×ž×œ×•×•×™×', 'Casual', 'Formal'];
+const CATEGORIES = ['חתן ומלווים', 'Casual', 'Formal'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '44', '46', '48', '50', '52', '54'];
+const ORDER_STATUSES = ['בטיפול', 'נשלח', 'הגיע', 'בוטל'];
+
 const EMPTY_FORM = {
-  name: '', price: '', salePrice: '', category: 'Formal',
-  description: '', stock: '0', sizes: [], colors: '', images: '', tags: '', featured: false,
+  name: '',
+  description: '',
+  category: 'Formal',
+  price: '',
+  salePrice: '',
+  sizes: [],
+  colors: '',
+  tags: '',
+  featured: false,
 };
 
-// ×”×¢×œ××ª ×ª×ž×•× ×•×ª ×œ-Cloudinary
+const STATUS_COLORS = {
+  'בטיפול': 'text-blue-700 bg-blue-50 border-blue-200',
+  'נשלח': 'text-violet-700 bg-violet-50 border-violet-200',
+  'הגיע': 'text-green-700 bg-green-50 border-green-200',
+  'בוטל': 'text-red-700 bg-red-50 border-red-200',
+};
+
 async function uploadImages(files) {
   const urls = [];
   for (const file of files) {
@@ -22,405 +37,440 @@ async function uploadImages(files) {
   return urls;
 }
 
-const ORDER_STATUSES = ['×‘×˜×™×¤×•×œ', '× ×©×œ×—', '×”×’×™×¢', '×‘×•×˜×œ'];
+const parseColors = (value) =>
+  value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 
-const STATUS_COLORS = {
-  '×‘×˜×™×¤×•×œ': 'text-blue-400 bg-blue-400/10',
-  '× ×©×œ×—':   'text-purple-400 bg-purple-400/10',
-  '×”×’×™×¢':   'text-green-400 bg-green-400/10',
-  '×‘×•×˜×œ':   'text-red-400 bg-red-400/10',
-};
+const hasNestedColorStock = (stockMap) =>
+  Object.values(stockMap || {}).some((value) => value && typeof value === 'object' && !Array.isArray(value));
 
-export default function AdminDashboard() {
-  const [tab, setTab] = useState('products');
+const normalizeSizeStock = (rawStock, colors = [], sizes = []) => {
+  if (!rawStock || typeof rawStock !== 'object') return {};
 
-  // â”€â”€ Products state â”€â”€
-  const [products, setProducts] = useState([]);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [editId, setEditId] = useState(null);
-  const [productLoading, setProductLoading] = useState(false);
-  const [search, setSearch] = useState('');
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [colorImages, setColorImages] = useState({});
-  const [uploadingColor, setUploadingColor] = useState(null);
-  const [sizeStock, setSizeStock] = useState({});
-  const [confirmDelete, setConfirmDelete] = useState(null); // id ×©×œ ×ž×•×¦×¨ ×œ×ž×—×™×§×”
-
-  // â”€â”€ Orders state â”€â”€
-  const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
-  const [expandedOrder, setExpandedOrder] = useState(null);
-  const [statusUpdating, setStatusUpdating] = useState(null);
-  const [orderSearch, setOrderSearch] = useState('');
-  const [orderFilter, setOrderFilter] = useState('×”×›×œ');
-
-  // â”€â”€ Toast â”€â”€
-  const [message, setMessage] = useState({ text: '', type: '' });
-  const showMessage = (text, type = 'success') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-  };
-
-  // â”€â”€ Fetch â”€â”€
-  const fetchProducts = async () => {
-    try {
-      const { data } = await api.get('/products');
-      setProducts(data);
-    } catch (err) { console.error(err); }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      setOrdersLoading(true);
-      const { data } = await api.get('/orders');
-      setOrders(data);
-    } catch (err) { console.error(err); }
-    finally { setOrdersLoading(false); }
-  };
-
-  useEffect(() => { fetchProducts(); }, []);
-  useEffect(() => { if (tab === 'orders') fetchOrders(); }, [tab]);
-
-  // â”€â”€ Products handlers â”€â”€
-  const handleToggleSize = (size) =>
-  setForm((prev) => ({
-    ...prev,
-    sizes: prev.sizes.includes(size)
-      ? prev.sizes.filter((s) => s !== size)
-      : [...prev.sizes, size],
-  }));
-
-const parseColors = (value) => value.split(',').map((s) => s.trim()).filter(Boolean);
-
-const normalizeSizeStock = (rawSizeStock, colors = []) => {
-  if (!rawSizeStock || typeof rawSizeStock !== 'object') return {};
-
-  const hasNestedColors = Object.values(rawSizeStock).some(
-    (value) => value && typeof value === 'object' && !Array.isArray(value)
-  );
-
-  if (hasNestedColors) return rawSizeStock;
-  if (!colors.length) return rawSizeStock;
-
-  return { [colors[0]]: { ...rawSizeStock } };
-};
-
-const pruneSizeStock = (stockMap, colors, sizes) => {
-  const hasNestedColors = Object.values(stockMap || {}).some(
-    (value) => value && typeof value === 'object' && !Array.isArray(value)
-  );
-
-  if (!hasNestedColors) {
-    return sizes.reduce((acc, size) => {
-      if (stockMap?.[size] !== undefined) acc[size] = Number(stockMap[size]) || 0;
+  if (hasNestedColorStock(rawStock)) {
+    return colors.reduce((acc, color) => {
+      const current = rawStock[color] || {};
+      acc[color] = sizes.reduce((sizesAcc, size) => {
+        sizesAcc[size] = Number(current[size]) || 0;
+        return sizesAcc;
+      }, {});
       return acc;
     }, {});
   }
 
-  return colors.reduce((acc, color) => {
-    const sizeMap = stockMap?.[color] || {};
+  if (!colors.length) return {};
+
+  return {
+    [colors[0]]: sizes.reduce((acc, size) => {
+      acc[size] = Number(rawStock[size]) || 0;
+      return acc;
+    }, {}),
+  };
+};
+
+const pruneSizeStock = (stockMap, colors, sizes) =>
+  colors.reduce((acc, color) => {
     acc[color] = sizes.reduce((sizesAcc, size) => {
-      sizesAcc[size] = Number(sizeMap[size]) || 0;
+      sizesAcc[size] = Number(stockMap?.[color]?.[size]) || 0;
       return sizesAcc;
     }, {});
     return acc;
   }, {});
-};
 
 const getTotalStock = (stockMap) =>
-  Object.values(stockMap || {}).reduce((sum, value) => {
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return sum + Object.values(value).reduce((nestedSum, qty) => nestedSum + (Number(qty) || 0), 0);
-    }
-    return sum + (Number(value) || 0);
-  }, 0);
-
-const setColorStockValue = (color, size, value) => {
-  setSizeStock((prev) => ({
-    ...prev,
-    [color]: {
-      ...(prev[color] || {}),
-      [size]: Number(value) || 0,
-    },
-  }));
-};
-
-const handleColorsChange = (value) => {
-  setForm((prev) => ({ ...prev, colors: value }));
-  const nextColors = parseColors(value);
-  setColorImages((prev) => Object.fromEntries(Object.entries(prev).filter(([color]) => nextColors.includes(color))));
-  setSizeStock((prev) => pruneSizeStock(prev, nextColors, form.sizes));
-};
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setProductLoading(true);
-  try {
-    const parsedColors = parseColors(form.colors);
-    const normalizedSizeStock = pruneSizeStock(sizeStock, parsedColors, form.sizes);
-    const payload = {
-      ...form,
-      price: Number(form.price),
-      salePrice: form.salePrice ? Number(form.salePrice) : undefined,
-      images: uploadedImages,
-      colorImages,
-      sizeStock: normalizedSizeStock,
-      stock: getTotalStock(normalizedSizeStock),
-      colors: parsedColors,
-      tags: form.tags ? form.tags.split(',').map((s) => s.trim()).filter(Boolean) : [],
-    };
-
-    if (editId) {
-      await api.put(`/products/${editId}`, payload);
-      showMessage('המוצר עודכן בהצלחה');
-    } else {
-      await api.post('/products', payload);
-      showMessage('המוצר נוסף בהצלחה');
-    }
-
-    handleCancel();
-    fetchProducts();
-  } catch (err) {
-    console.error(err);
-    showMessage('שגיאה בשמירת המוצר', 'error');
-  } finally {
-    setProductLoading(false);
-  }
-};
-
-const handleImageFiles = async (e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
-    setUploading(true);
-    try {
-      const urls = await uploadImages(files);
-      setUploadedImages((prev) => [...prev, ...urls]);
-      showMessage(`âœ… ${urls.length} ×ª×ž×•× ×•×ª ×”×•×¢×œ×•`);
-    } catch {
-      showMessage('âŒ ×©×’×™××” ×‘×”×¢×œ××ª ×ª×ž×•× ×•×ª', 'error');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const removeUploadedImage = (url) =>
-    setUploadedImages((prev) => prev.filter((u) => u !== url));
-
-  const handleEdit = (p) => {
-  const parsedColors = p.colors || [];
-  setForm({
-    name: p.name, price: String(p.price),
-    salePrice: p.salePrice ? String(p.salePrice) : '',
-    category: p.category, description: p.description || '',
-    stock: String(p.stock), sizes: p.sizes || [],
-    colors: parsedColors.join(', '),
-    images: (p.images || []).join(', '),
-    tags: (p.tags || []).join(', '),
-    featured: p.featured || false,
-  });
-  setUploadedImages(p.images || []);
-  setColorImages(p.colorImages || {});
-  setSizeStock(pruneSizeStock(normalizeSizeStock(p.sizeStock || {}, parsedColors), parsedColors, p.sizes || []));
-  setEditId(p._id);
-  setTab('add');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-  const handleDelete = async (id) => {
-    setConfirmDelete(id);
-  };
-
-  const confirmDeleteProduct = async () => {
-    if (!confirmDelete) return;
-    await api.delete(`/products/${confirmDelete}`);
-    setConfirmDelete(null);
-    showMessage('ðŸ—‘ï¸ ×ž×•×¦×¨ ×”×•×¡×¨');
-    fetchProducts();
-  };
-
-  const handleColorImageFiles = async (color, e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
-    setUploadingColor(color);
-    try {
-      const urls = await uploadImages(files);
-      setColorImages((prev) => ({ ...prev, [color]: [...(prev[color] || []), ...urls] }));
-      showMessage(`âœ… ×ª×ž×•× ×•×ª ×”×•×¢×œ×• ×¢×‘×•×¨ ${color}`);
-    } catch {
-      showMessage('âŒ ×©×’×™××” ×‘×”×¢×œ××ª ×ª×ž×•× ×•×ª', 'error');
-    } finally { setUploadingColor(null); }
-  };
-
-  const removeColorImage = (color, url) =>
-    setColorImages((prev) => ({ ...prev, [color]: prev[color].filter((u) => u !== url) }));
-
-  const handleCancel = () => { setForm(EMPTY_FORM); setUploadedImages([]); setColorImages({}); setSizeStock({}); setEditId(null); setTab('products'); };
-
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
+  Object.values(stockMap || {}).reduce(
+    (sum, sizeMap) => sum + Object.values(sizeMap || {}).reduce((nested, qty) => nested + (Number(qty) || 0), 0),
+    0
   );
 
-  // â”€â”€ Orders handlers â”€â”€
-  const handleStatusChange = async (orderId, newStatus) => {
+const buildVariants = (stockMap, colorImagesMap) =>
+  Object.entries(stockMap || {}).flatMap(([color, sizes]) =>
+    Object.entries(sizes || {}).map(([size, stock]) => ({
+      color,
+      size,
+      stock: Number(stock) || 0,
+      images: colorImagesMap[color] || [],
+      sku: `${color}-${size}`.replace(/\s+/g, '-').toUpperCase(),
+    }))
+  );
+
+
+export default function AdminDashboard() {
+  const [tab, setTab] = useState('products');
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [sizeStock, setSizeStock] = useState({});
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [colorImages, setColorImages] = useState({});
+  const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderFilter, setOrderFilter] = useState('הכל');
+  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [savingProduct, setSavingProduct] = useState(false);
+  const [uploadingGeneral, setUploadingGeneral] = useState(false);
+  const [uploadingColor, setUploadingColor] = useState('');
+  const [statusUpdating, setStatusUpdating] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [message, setMessage] = useState({ text: '', type: '' });
+
+  const showMessage = useCallback((text, type = 'success') => {
+    setMessage({ text, type });
+    window.clearTimeout(showMessage.timer);
+    showMessage.timer = window.setTimeout(() => setMessage({ text: '', type: '' }), 3200);
+  }, []);
+
+  const fetchProducts = useCallback(async () => {
     try {
-      setStatusUpdating(orderId);
-      await api.patch(`/orders/${orderId}/status`, { orderStatus: newStatus });
-      setOrders((prev) =>
-        prev.map((o) => o._id === orderId ? { ...o, orderStatus: newStatus } : o)
-      );
-      showMessage('âœ… ×¡×˜×˜×•×¡ ×¢×•×“×›×Ÿ');
-    } catch {
-      showMessage('âŒ ×©×’×™××” ×‘×¢×“×›×•×Ÿ', 'error');
-    } finally { setStatusUpdating(null); }
+      setLoadingProducts(true);
+      const { data } = await api.get('/products');
+      setProducts(data);
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בטעינת המוצרים', 'error');
+    } finally {
+      setLoadingProducts(false);
+    }
+  }, [showMessage]);
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoadingOrders(true);
+      const { data } = await api.get('/orders');
+      setOrders(data);
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בטעינת ההזמנות', 'error');
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, [showMessage]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    if (tab === 'orders') fetchOrders();
+  }, [fetchOrders, tab]);
+
+  const colorList = useMemo(() => parseColors(form.colors), [form.colors]);
+
+  useEffect(() => {
+    setSizeStock((prev) => pruneSizeStock(prev, colorList, form.sizes));
+    setColorImages((prev) => Object.fromEntries(Object.entries(prev).filter(([color]) => colorList.includes(color))));
+  }, [colorList, form.sizes]);
+
+  const resetForm = () => {
+    setForm(EMPTY_FORM);
+    setSizeStock({});
+    setUploadedImages([]);
+    setColorImages({});
+    setEditId(null);
   };
 
-  const formatDate = (d) => new Date(d).toLocaleDateString('he-IL', {
-    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
+  const openCreateTab = () => {
+    resetForm();
+    setTab('add');
+  };
+
+  const handleToggleSize = (size) => {
+    setForm((prev) => ({
+      ...prev,
+      sizes: prev.sizes.includes(size) ? prev.sizes.filter((entry) => entry !== size) : [...prev.sizes, size],
+    }));
+  };
+
+  const setColorStockValue = (color, size, value) => {
+    setSizeStock((prev) => ({
+      ...prev,
+      [color]: {
+        ...(prev[color] || {}),
+        [size]: Math.max(0, Number(value) || 0),
+      },
+    }));
+  };
+
+  const handleImageFiles = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+
+    try {
+      setUploadingGeneral(true);
+      const urls = await uploadImages(files);
+      setUploadedImages((prev) => [...prev, ...urls]);
+      showMessage(`${urls.length} תמונות כלליות הועלו`);
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בהעלאת תמונות כלליות', 'error');
+    } finally {
+      setUploadingGeneral(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleColorImageFiles = async (color, event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+
+    try {
+      setUploadingColor(color);
+      const urls = await uploadImages(files);
+      setColorImages((prev) => ({ ...prev, [color]: [...(prev[color] || []), ...urls] }));
+      showMessage(`תמונות עבור ${color} הועלו`);
+    } catch (error) {
+      console.error(error);
+      showMessage(`שגיאה בהעלאת תמונות עבור ${color}`, 'error');
+    } finally {
+      setUploadingColor('');
+      event.target.value = '';
+    }
+  };
+
+  const removeUploadedImage = (url) => {
+    setUploadedImages((prev) => prev.filter((entry) => entry !== url));
+  };
+
+  const removeColorImage = (color, url) => {
+    setColorImages((prev) => ({
+      ...prev,
+      [color]: (prev[color] || []).filter((entry) => entry !== url),
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const colors = parseColors(form.colors);
+    const normalizedStock = pruneSizeStock(sizeStock, colors, form.sizes);
+    const payload = {
+      name: form.name.trim(),
+      description: form.description.trim(),
+      category: form.category,
+      price: Number(form.price),
+      salePrice: form.salePrice ? Number(form.salePrice) : undefined,
+      sizes: form.sizes,
+      colors,
+      tags: form.tags
+        ? form.tags.split(',').map((entry) => entry.trim()).filter(Boolean)
+        : [],
+      featured: form.featured,
+      images: uploadedImages,
+      colorImages,
+      sizeStock: normalizedStock,
+      variants: buildVariants(normalizedStock, colorImages),
+      stock: getTotalStock(normalizedStock),
+    };
+
+    try {
+      setSavingProduct(true);
+      if (editId) {
+        await api.put(`/products/${editId}`, payload);
+        showMessage('המוצר עודכן בהצלחה');
+      } else {
+        await api.post('/products', payload);
+        showMessage('המוצר נוסף בהצלחה');
+      }
+      resetForm();
+      setTab('products');
+      fetchProducts();
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בשמירת המוצר', 'error');
+    } finally {
+      setSavingProduct(false);
+    }
+  };
+
+  const handleEdit = (product) => {
+    const colors = product.colors || [];
+
+    setForm({
+      name: product.name || '',
+      description: product.description || '',
+      category: product.category || 'Formal',
+      price: String(product.price || ''),
+      salePrice: product.salePrice ? String(product.salePrice) : '',
+      sizes: product.sizes || [],
+      colors: colors.join(', '),
+      tags: (product.tags || []).join(', '),
+      featured: !!product.featured,
+    });
+    setUploadedImages(product.images || []);
+    setColorImages(product.colorImages || {});
+    setSizeStock(normalizeSizeStock(product.sizeStock || {}, colors, product.sizes || []));
+    setEditId(product._id);
+    setTab('add');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+
+    try {
+      await api.delete(`/products/${confirmDelete}`);
+      setConfirmDelete(null);
+      showMessage('המוצר הוסר');
+      fetchProducts();
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה במחיקת מוצר', 'error');
+    }
+  };
+
+  const handleStatusChange = async (orderId, orderStatus) => {
+    try {
+      setStatusUpdating(orderId);
+      await api.patch(`/orders/${orderId}/status`, { orderStatus });
+      setOrders((prev) => prev.map((order) => (order._id === orderId ? { ...order, orderStatus } : order)));
+      showMessage('סטטוס ההזמנה עודכן');
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בעדכון סטטוס', 'error');
+    } finally {
+      setStatusUpdating('');
+    }
+  };
+
+  const filteredProducts = useMemo(() => {
+    const value = search.trim().toLowerCase();
+    if (!value) return products;
+
+    return products.filter(
+      (product) =>
+        product.name?.toLowerCase().includes(value) ||
+        product.category?.toLowerCase().includes(value) ||
+        product.tags?.some((tag) => tag.toLowerCase().includes(value))
+    );
+  }, [products, search]);
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const byStatus = orderFilter === 'הכל' || order.orderStatus === orderFilter;
+      const query = orderSearch.trim().toLowerCase();
+      if (!query) return byStatus;
+
+      const haystack = [
+        order.user?.name,
+        order.user?.email,
+        order._id?.slice(-6),
+        order.shippingAddress?.name,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      return byStatus && haystack.includes(query);
+    });
+  }, [orderFilter, orderSearch, orders]);
+
+  const formatDate = (value) =>
+    new Date(value).toLocaleString('he-IL', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   return (
-    <div className="min-h-screen bg-white text-[#1a1a1a] pt-20">
-
-      {/* Confirm Delete Dialog */}
+    <div className="min-h-screen bg-white pt-24 text-[#111111]">
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-white border border-[#e8e8e6] p-8 max-w-sm w-full mx-4 text-center">
-            <span className="material-symbols-outlined text-red-400 text-4xl mb-4 block">warning</span>
-            <h3 className="font-headline text-lg mb-2">×œ×ž×—×•×§ ××ª ×”×ž×•×¦×¨?</h3>
-            <p className="text-[#888888] text-sm font-label mb-6">×¤×¢×•×œ×” ×–×• ×œ× × ×™×ª× ×ª ×œ×‘×™×˜×•×œ</p>
-            <div className="flex gap-3 justify-center">
-              <button onClick={() => setConfirmDelete(null)}
-                className="px-6 py-2 border border-[#e8e8e6] text-[#888888] font-label text-xs uppercase tracking-widest hover:border-[#aaaaaa] transition-colors">
-                ×‘×™×˜×•×œ
-              </button>
-              <button onClick={confirmDeleteProduct}
-                className="px-6 py-2 bg-red-500/20 border border-red-500/50 text-red-400 font-label text-xs uppercase tracking-widest hover:bg-red-500/30 transition-colors">
-                ×ž×—×§
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-md border border-[#e9e7e2] bg-white p-8 text-center shadow-[0_24px_70px_rgba(17,17,17,0.12)]">
+            <h3 className="font-['Noto_Serif'] text-2xl">למחוק את המוצר?</h3>
+            <p className="mt-3 text-sm text-[#6f6a6a]">הפעולה תסיר את המוצר מהחנות. ניתן להוסיף אותו שוב בהמשך אם צריך.</p>
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <button onClick={() => setConfirmDelete(null)} className="border border-[#d8d5cf] px-5 py-3 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.22rem] text-[#111111]">ביטול</button>
+              <button onClick={handleDelete} className="bg-[#111111] px-5 py-3 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.22rem] text-white">מחיקה</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <div className="border-b border-[#eeeeee] px-10 py-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-headline text-2xl tracking-tight">×¤×× ×œ × ×™×”×•×œ</h1>
-          <p className="text-[#888888] text-xs uppercase tracking-widest font-label mt-1">Dream & Work â€” Admin</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[#888888] text-sm font-label">{products.length} ×ž×•×¦×¨×™× Â· {orders.length} ×”×–×ž× ×•×ª</span>
-          <button
-            onClick={() => { setEditId(null); setForm(EMPTY_FORM); setTab('add'); }}
-            className="flex items-center gap-2 bg-[#1a1a1a] text-white px-5 py-2.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
-          >
-            <span className="material-symbols-outlined text-sm">add</span>
-            ×ž×•×¦×¨ ×—×“×©
-          </button>
-        </div>
-      </div>
-
-      {/* Toast */}
       {message.text && (
-        <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-8 py-3 text-sm font-label tracking-wide shadow-xl ${
-          message.type === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'
-        }`}>
+        <div className={`fixed left-1/2 top-24 z-50 -translate-x-1/2 border px-6 py-3 text-sm shadow-lg ${message.type === 'error' ? 'border-red-200 bg-red-50 text-red-700' : 'border-green-200 bg-green-50 text-green-700'}`}>
           {message.text}
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#eeeeee] px-10">
-        {[
-          { id: 'products', label: '×›×œ ×”×ž×•×¦×¨×™×' },
-          { id: 'orders',   label: '×”×–×ž× ×•×ª' },
-          { id: 'add',      label: editId ? '×¢×¨×™×›×ª ×ž×•×¦×¨' : '×”×•×¡×¤×ª ×ž×•×¦×¨' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`px-6 py-4 font-label text-xs uppercase tracking-widest border-b-2 transition-colors ${
-              tab === t.id ? 'border-[#1a1a1a] text-[#1a1a1a]' : 'border-transparent text-[#888888] hover:text-[#1a1a1a]'
-            }`}
-          >
-            {t.label}
-            {t.id === 'orders' && orders.filter(o => o.orderStatus === '×ž×ž×ª×™×Ÿ ×œ××™×©×•×¨').length > 0 && (
-              <span className="mr-2 bg-[#1a1a1a] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                {orders.filter(o => o.orderStatus === '×ž×ž×ª×™×Ÿ ×œ××™×©×•×¨').length}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="border-b border-[#ece9e2] px-6 py-6 md:px-10">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#7d7677]">Dream & Work Admin</p>
+            <h1 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.04em]">ניהול קטלוג והזמנות</h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="bg-[#f6f6f4] px-4 py-3 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.22rem] text-[#6f6a6a]">{products.length} מוצרים</div>
+            <div className="bg-[#f6f6f4] px-4 py-3 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.22rem] text-[#6f6a6a]">{orders.length} הזמנות</div>
+            <button onClick={openCreateTab} className="bg-[#111111] px-5 py-3 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] text-white">מוצר חדש</button>
+          </div>
+        </div>
       </div>
 
-      <div className="px-10 py-10 max-w-6xl">
+      <div className="border-b border-[#ece9e2] px-6 md:px-10">
+        <div className="flex flex-wrap gap-6">
+          {[
+            { id: 'products', label: 'מוצרים' },
+            { id: 'orders', label: 'הזמנות' },
+            { id: 'add', label: editId ? 'עריכת מוצר' : 'הוספת מוצר' },
+          ].map((item) => (
+            <button key={item.id} onClick={() => setTab(item.id)} className={`border-b-2 py-4 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] ${tab === item.id ? 'border-[#111111] text-[#111111]' : 'border-transparent text-[#8b8485]'}`}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-        {/* â”€â”€ ×˜××‘ ×ž×•×¦×¨×™× â”€â”€ */}
+      <div className="px-6 py-10 md:px-10">
         {tab === 'products' && (
-          <div>
-            <div className="mb-8 relative">
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#888888] text-sm">search</span>
-              <input
-                type="text"
-                placeholder="×—×™×¤×•×© ×œ×¤×™ ×©× ××• ×§×˜×’×•×¨×™×”..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#f5f5f3] border border-[#eeeeee] text-[#1a1a1a] pr-12 pl-4 py-3 text-sm font-label placeholder-[#888888] focus:outline-none focus:border-[#888888]"
-              />
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="חיפוש לפי שם, קטגוריה או תגית" className="w-full max-w-lg border border-[#e5e1d9] bg-[#faf9f7] px-4 py-3 text-sm outline-none transition-colors focus:border-[#111111]" />
+              <button onClick={fetchProducts} className="self-start border border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111]">רענן רשימה</button>
             </div>
 
-            {filtered.length === 0 ? (
-              <div className="text-center py-24">
-                <span className="material-symbols-outlined text-5xl text-[#333] block mb-4">inventory_2</span>
-                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">××™×Ÿ ×ž×•×¦×¨×™×</p>
-              </div>
+            {loadingProducts ? (
+              <div className="flex h-40 items-center justify-center bg-[#f7f6f2]">טוען מוצרים...</div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="border border-dashed border-[#ddd9d0] bg-[#faf9f7] px-6 py-16 text-center text-[#6f6a6a]">אין מוצרים להצגה</div>
             ) : (
-              <div className="flex flex-col gap-3">
-                {filtered.map((p) => (
-                  <div key={p._id} className="flex items-center gap-5 bg-[#f5f5f3] border border-[#eeeeee] p-4 hover:border-[#cccccc] transition-colors group">
-                    <div className="w-14 flex-shrink-0 overflow-hidden" style={{ height: '3.5rem' }}>
-                      {p.images?.[0] ? (
-                        <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+              <div className="space-y-3">
+                {filteredProducts.map((product) => (
+                  <div key={product._id} className="grid gap-4 border border-[#ece9e2] bg-white p-4 md:grid-cols-[88px_1fr_auto_auto] md:items-center">
+                    <div className="aspect-[3/4] overflow-hidden bg-[#f4f2ee]">
+                      {product.images?.[0] ? (
+                        <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-[#eeeeee] flex items-center justify-center">
-                          <span className="material-symbols-outlined text-xl text-[#cccccc]">checkroom</span>
-                        </div>
+                        <div className="flex h-full w-full items-center justify-center text-[#bcb4b4]">ללא תמונה</div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
-                        <p className="font-headline text-base truncate">{p.name}</p>
-                        {p.featured && <span className="text-[0.6rem] font-label uppercase tracking-widest bg-amber-50 text-amber-700 px-2 py-0.5">Featured</span>}
-                        {p.salePrice && <span className="text-[0.6rem] font-label uppercase tracking-widest bg-green-50 text-green-700 px-2 py-0.5">Sale</span>}
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-['Noto_Serif'] text-2xl tracking-[-0.03em]">{product.name}</h3>
+                        {product.featured && <span className="bg-amber-50 px-2 py-1 text-[0.55rem] uppercase tracking-[0.18rem] text-amber-700">Featured</span>}
+                        {product.salePrice && <span className="bg-emerald-50 px-2 py-1 text-[0.55rem] uppercase tracking-[0.18rem] text-emerald-700">Sale</span>}
                       </div>
-                      <div className="flex items-center gap-4 text-[#888888] text-xs font-label">
-                        <span>{p.category}</span>
-                        <span>Â·</span>
-                        <span>×ž×œ××™: {p.stock}</span>
-                        {p.sizes?.length > 0 && <><span>Â·</span><span>{p.sizes.join(', ')}</span></>}
-                      </div>
+                      <p className="mt-2 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.2rem] text-[#7d7677]">{product.category} · מלאי כולל {product.stock}</p>
+                      <p className="mt-3 text-sm text-[#6f6a6a]">{product.colors?.join(', ') || 'ללא צבעים'}{product.sizes?.length ? ` · ${product.sizes.join(', ')}` : ''}</p>
                     </div>
-                    <div className="text-left flex-shrink-0">
-                      {p.salePrice ? (
-                        <div>
-                          <p className="text-green-400 font-body text-sm">â‚ª{p.salePrice}</p>
-                          <p className="text-[#888888] line-through text-xs">â‚ª{p.price}</p>
-                        </div>
+                    <div className="text-left">
+                      {product.salePrice ? (
+                        <>
+                          <p className="font-['Noto_Serif'] text-xl">₪{product.salePrice}</p>
+                          <p className="text-sm text-[#9a9393] line-through">₪{product.price}</p>
+                        </>
                       ) : (
-                        <p className="font-body text-sm">â‚ª{p.price}</p>
+                        <p className="font-['Noto_Serif'] text-xl">₪{product.price}</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                      <button onClick={() => handleEdit(p)} className="flex items-center gap-1.5 text-[#888888] hover:text-[#1a1a1a] transition-colors font-label text-xs uppercase tracking-widest">
-                        <span className="material-symbols-outlined text-sm">edit</span>
-                        ×¢×¨×™×›×”
-                      </button>
-                      <button onClick={() => handleDelete(p._id)} className="flex items-center gap-1.5 text-[#888888] hover:text-red-500 transition-colors font-label text-xs uppercase tracking-widest">
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                        ×ž×—×™×§×”
-                      </button>
+                    <div className="flex gap-3 md:justify-end">
+                      <button onClick={() => handleEdit(product)} className="border border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111]">עריכה</button>
+                      <button onClick={() => setConfirmDelete(product._id)} className="border border-red-200 px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-red-700">מחיקה</button>
                     </div>
                   </div>
                 ))}
@@ -429,327 +479,243 @@ const handleImageFiles = async (e) => {
           </div>
         )}
 
-        {/* â”€â”€ ×˜××‘ ×”×–×ž× ×•×ª â”€â”€ */}
         {tab === 'orders' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-headline text-xl">×›×œ ×”×”×–×ž× ×•×ª</h2>
-              <button onClick={fetchOrders} className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest flex items-center gap-1.5 transition-colors">
-                <span className="material-symbols-outlined text-sm">refresh</span>
-                ×¨×¢× ×Ÿ
-              </button>
-            </div>
-
-            {/* ×—×™×¤×•×© + ×¤×™×œ×˜×¨ */}
-            <div className="flex flex-col md:flex-row gap-3 mb-6">
-              <input
-                type="text"
-                placeholder="×—×™×¤×•×© ×œ×¤×™ ×©× ×œ×§×•×— ××• ×ž×¡×¤×¨ ×”×–×ž× ×”..."
-                value={orderSearch}
-                onChange={(e) => setOrderSearch(e.target.value)}
-                className="flex-1 bg-[#f5f5f3] border border-[#eeeeee] text-[#1a1a1a] px-4 py-2.5 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-              />
-              <div className="flex gap-2 flex-wrap">
-                {['×”×›×œ', ...ORDER_STATUSES].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setOrderFilter(s)}
-                    className={`px-3 py-2 font-label text-xs uppercase tracking-widest transition-colors ${
-                      orderFilter === s
-                        ? 'bg-[#1a1a1a] text-white'
-                        : 'border border-[#e8e8e6] text-[#888888] hover:border-[#888888]'
-                    }`}
-                  >
-                    {s}
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <input value={orderSearch} onChange={(event) => setOrderSearch(event.target.value)} placeholder="חיפוש לפי לקוח, אימייל או מספר הזמנה" className="w-full max-w-lg border border-[#e5e1d9] bg-[#faf9f7] px-4 py-3 text-sm outline-none transition-colors focus:border-[#111111]" />
+              <div className="flex flex-wrap gap-2">
+                {['הכל', ...ORDER_STATUSES].map((status) => (
+                  <button key={status} onClick={() => setOrderFilter(status)} className={`px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] ${orderFilter === status ? 'bg-[#111111] text-white' : 'border border-[#d8d5cf] text-[#111111]'}`}>
+                    {status}
                   </button>
                 ))}
+                <button onClick={fetchOrders} className="border border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111]">רענן</button>
               </div>
             </div>
 
-            {ordersLoading ? (
-              <div className="text-center py-24">
-                <div className="inline-block w-8 h-8 border-2 border-[#eeeeee] border-t-[#1a1a1a] rounded-full animate-spin mb-4" />
-                <p className="text-[#888888] font-label text-xs uppercase tracking-widest">×˜×•×¢×Ÿ ×”×–×ž× ×•×ª...</p>
-              </div>
-            ) : (() => {
-              const filteredOrders = orders.filter((o) => {
-                const matchStatus = orderFilter === '×”×›×œ' || o.orderStatus === orderFilter;
-                const matchSearch = !orderSearch ||
-                  o.user?.name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                  o.user?.email?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                  o._id.slice(-6).toUpperCase().includes(orderSearch.toUpperCase());
-                return matchStatus && matchSearch;
-              });
-              return filteredOrders.length === 0 ? (
-                <div className="text-center py-16 bg-[#f5f5f3] border border-[#eeeeee]">
-                  <span className="material-symbols-outlined text-4xl text-[#cccccc] block mb-3">search_off</span>
-                  <p className="text-[#888888] font-label text-xs uppercase tracking-widest">×œ× × ×ž×¦××• ×”×–×ž× ×•×ª</p>
-                </div>
-              ) : (
-                <>
-                  <p className="text-[#888888] font-label text-xs uppercase tracking-widest mb-4">
-                    {filteredOrders.length} ×”×–×ž× ×•×ª {orderFilter !== '×”×›×œ' ? `Â· ${orderFilter}` : ''}
-                  </p>
-                  <div className="flex flex-col gap-3">
-                    {filteredOrders.map((order) => (
-                  <div key={order._id} className="bg-[#f5f5f3] border border-[#eeeeee] hover:border-[#e8e8e6] transition-colors">
-
-                    {/* ×©×•×¨×” ×¨××©×™×ª */}
-                    <button
-                      onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
-                      className="w-full flex items-center justify-between p-5 text-right"
-                    >
-                      <div className="flex items-center gap-5 flex-wrap">
-                        <span className={`px-3 py-1 font-label text-xs uppercase tracking-widest rounded-sm ${STATUS_COLORS[order.orderStatus] || 'text-[#888888] bg-[#767575]/10'}`}>
+            {loadingOrders ? (
+              <div className="flex h-40 items-center justify-center bg-[#f7f6f2]">טוען הזמנות...</div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="border border-dashed border-[#ddd9d0] bg-[#faf9f7] px-6 py-16 text-center text-[#6f6a6a]">אין הזמנות להצגה</div>
+            ) : (
+              <div className="space-y-4">
+                {filteredOrders.map((order) => (
+                  <div key={order._id} className="overflow-hidden border border-[#ece9e2] bg-white">
+                    <button onClick={() => setExpandedOrder((prev) => (prev === order._id ? null : order._id))} className="flex w-full flex-col gap-3 px-5 py-5 text-right md:flex-row md:items-center md:justify-between">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className={`border px-3 py-1 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.2rem] ${STATUS_COLORS[order.orderStatus] || 'border-[#ddd] bg-[#f5f5f5] text-[#555]'}`}>
                           {order.orderStatus}
                         </span>
-                        <span className="text-[#1a1a1a] font-body text-sm">â‚ª{order.totalPrice?.toFixed(2)}</span>
-                        <span className="text-[#888888] font-label text-xs hidden md:block">{formatDate(order.createdAt)}</span>
-                        {order.user && (
-                          <span className="text-[#666666] font-label text-xs">
-                            {order.user.name} Â· {order.user.email}
-                          </span>
-                        )}
+                        <span className="font-['Noto_Serif'] text-xl">₪{order.totalPrice?.toFixed(2)}</span>
+                        <span className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.18rem] text-[#7d7677]">#{order._id.slice(-6).toUpperCase()}</span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[#888888] font-label text-xs">#{order._id.slice(-6).toUpperCase()}</span>
-                        <span className="material-symbols-outlined text-[#888888] text-sm">
-                          {expandedOrder === order._id ? 'expand_less' : 'expand_more'}
-                        </span>
-                      </div>
+                      <div className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.2rem] text-[#7d7677]">{order.user?.name || order.shippingAddress?.name || 'לקוח'} · {formatDate(order.createdAt)}</div>
                     </button>
 
-                    {/* ×¤×™×¨×•×˜ */}
                     {expandedOrder === order._id && (
-                      <div className="border-t border-[#eeeeee] p-5 space-y-5">
-
-                        {/* ×ž×•×¦×¨×™× */}
-                        <div className="flex flex-col gap-3">
-                          {order.items?.map((item, i) => (
-                            <div key={i} className="flex items-center gap-4">
-                              <div className="w-12 h-12 bg-[#eeeeee] flex-shrink-0 overflow-hidden">
-                                {item.image
-                                  ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                  : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-[#333]">checkroom</span></div>
-                                }
-                              </div>
-                              <div className="flex-1">
-                                <p className="font-body text-sm">{item.name}</p>
-                                <p className="text-[#888888] text-xs font-label">
-                                  {item.size && `×ž×™×“×”: ${item.size}`}{item.color && ` Â· ${item.color}`} Â· ×›×ž×•×ª: {item.quantity}
-                                </p>
-                              </div>
-                              <p className="text-[#1a1a1a] font-body text-sm">â‚ª{(item.price * item.quantity).toFixed(2)}</p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* ×›×ª×•×‘×ª + ×¢×“×›×•×Ÿ ×¡×˜×˜×•×¡ */}
-                        <div className="flex flex-col md:flex-row gap-4">
-                          {order.shippingAddress && (
-                            <div className="flex-1 bg-white border border-[#eeeeee] p-4">
-                              <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">×›×ª×•×‘×ª ×ž×©×œ×•×—</p>
-                              <p className="text-sm font-body text-[#666666]">
-                                {order.shippingAddress.name} Â· {order.shippingAddress.street}, {order.shippingAddress.city}
-                                {order.shippingAddress.phone && ` Â· ${order.shippingAddress.phone}`}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* ×¢×“×›×•×Ÿ ×¡×˜×˜×•×¡ */}
-                          <div className="bg-white border border-[#eeeeee] p-4">
-                            <p className="font-label text-[10px] uppercase tracking-widest text-[#888888] mb-2">×¢×“×›×•×Ÿ ×¡×˜×˜×•×¡</p>
-                            <div className="flex flex-wrap gap-2">
-                              {ORDER_STATUSES.map((status) => (
-                                <button
-                                  key={status}
-                                  disabled={statusUpdating === order._id || order.orderStatus === status}
-                                  onClick={() => handleStatusChange(order._id, status)}
-                                  className={`px-3 py-1.5 font-label text-xs transition-colors disabled:opacity-40 ${
-                                    order.orderStatus === status
-                                      ? 'bg-[#1a1a1a] text-white'
-                                      : 'border border-[#e8e8e6] text-[#888888] hover:border-[#888888] hover:text-[#1a1a1a]'
-                                  }`}
-                                >
-                                  {statusUpdating === order._id ? '...' : status}
-                                </button>
+                      <div className="border-t border-[#ece9e2] px-5 py-5">
+                        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+                          <div>
+                            <h3 className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">פריטי ההזמנה</h3>
+                            <div className="mt-4 space-y-3">
+                              {order.items?.map((item, index) => (
+                                <div key={`${item.product}-${index}`} className="flex items-center gap-4 border border-[#f0eee8] bg-[#faf9f7] p-3">
+                                  <div className="h-16 w-14 overflow-hidden bg-[#f1efea]">
+                                    {item.image ? <img src={item.image} alt={item.name} className="h-full w-full object-cover" /> : null}
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="font-medium text-[#111111]">{item.name}</p>
+                                    <p className="mt-1 text-sm text-[#6f6a6a]">{item.color || 'ללא צבע'} · {item.size || 'ללא מידה'} · כמות {item.quantity}</p>
+                                  </div>
+                                  <p className="font-['Noto_Serif'] text-lg">₪{(item.price * item.quantity).toFixed(2)}</p>
+                                </div>
                               ))}
                             </div>
                           </div>
-                        </div>
 
+                          <div className="space-y-5">
+                            <div className="border border-[#f0eee8] bg-[#faf9f7] p-4">
+                              <h3 className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">כתובת למשלוח</h3>
+                              <p className="mt-3 text-sm leading-7 text-[#4f4a4a]">{order.shippingAddress?.name}<br />{order.shippingAddress?.street}, {order.shippingAddress?.city}<br />{order.shippingAddress?.zipCode} · {order.shippingAddress?.phone}</p>
+                            </div>
+
+                            <div className="border border-[#f0eee8] bg-[#faf9f7] p-4">
+                              <h3 className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">עדכון סטטוס</h3>
+                              <div className="mt-4 flex flex-wrap gap-2">
+                                {ORDER_STATUSES.map((status) => (
+                                  <button key={status} disabled={statusUpdating === order._id || status === order.orderStatus} onClick={() => handleStatusChange(order._id, status)} className={`px-3 py-2 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.18rem] ${status === order.orderStatus ? 'bg-[#111111] text-white' : 'border border-[#d8d5cf] text-[#111111]'} disabled:opacity-40`}>
+                                    {statusUpdating === order._id ? '...' : status}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-                    ))}
-                  </div>
-                </>
-              );
-            })()}
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* â”€â”€ ×˜××‘ ×”×•×¡×¤×”/×¢×¨×™×›×” â”€â”€ */}
         {tab === 'add' && (
-          <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
-            <h2 className="font-headline text-xl tracking-tight">{editId ? 'עריכת מוצר' : 'מוצר חדש'}</h2>
+          <form onSubmit={handleSubmit} className="mx-auto max-w-5xl space-y-10">
+            <div>
+              <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#7d7677]">Catalog Builder</p>
+              <h2 className="mt-2 font-['Noto_Serif'] text-4xl tracking-[-0.04em]">{editId ? 'עריכת מוצר קיים' : 'הוספת מוצר חדש'}</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6f6a6a]">הטופס בנוי לפי זרימת עבודה של וריאנטים: קודם מגדירים צבעים, אחר כך מידות, ואז מלאי נפרד לכל צבע ולכל מידה.</p>
+            </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="col-span-2">
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">שם המוצר *</label>
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="לדוגמה: חליפת חתן קלאסית" />
+            <section className="grid gap-6 border border-[#ece9e2] bg-[#faf9f7] p-6 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">שם מוצר</label>
+                <input required value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} className="mt-2 w-full border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]" placeholder="לדוגמה: חליפת טוקסידו קלאסית" />
               </div>
+
               <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">קטגוריה *</label>
-                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full bg-[#f5f5f3] border border-[#e8e8e6] text-[#1a1a1a] px-3 py-3 font-body text-sm focus:outline-none focus:border-[#888888]">
-                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">קטגוריה</label>
+                <select value={form.category} onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))} className="mt-2 w-full border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]">
+                  {CATEGORIES.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
                 </select>
               </div>
-              <div className="flex items-center gap-3 pt-6">
-                <input type="checkbox" id="featured" checked={form.featured}
-                  onChange={(e) => setForm({ ...form, featured: e.target.checked })}
-                  className="accent-yellow-500 w-4 h-4" />
-                <label htmlFor="featured" className="font-label text-sm text-[#888888] cursor-pointer">Featured (מוצג בדף הבית)</label>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              {[['מחיר ₪ *', 'price', true], ['מחיר מבצע ₪', 'salePrice', false]].map(([label, field, req]) => (
-                <div key={field}>
-                  <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">{label}</label>
-                  <input required={req} type="number" min="1"
-                    value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                    className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888]"
-                    placeholder={field === 'salePrice' ? 'ריק = אין מבצע' : '0'} />
+              <div className="flex items-end">
+                <label className="flex items-center gap-3 border border-[#dfdbd3] bg-white px-4 py-3 text-sm text-[#4f4a4a]">
+                  <input type="checkbox" checked={form.featured} onChange={(event) => setForm((prev) => ({ ...prev, featured: event.target.checked }))} className="h-4 w-4 accent-[#111111]" />
+                  הצג את המוצר בדף הבית
+                </label>
+              </div>
+
+              <div>
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">מחיר רגיל</label>
+                <input required type="number" min="1" value={form.price} onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))} className="mt-2 w-full border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]" placeholder="0" />
+              </div>
+
+              <div>
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">מחיר מבצע</label>
+                <input type="number" min="0" value={form.salePrice} onChange={(event) => setForm((prev) => ({ ...prev, salePrice: event.target.value }))} className="mt-2 w-full border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]" placeholder="ריק אם אין מבצע" />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">תיאור</label>
+                <textarea value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} className="mt-2 w-full resize-none border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]" placeholder="תיאור קצר, איכותי וברור של המוצר" />
+              </div>
+
+              <div>
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">צבעים</label>
+                <input value={form.colors} onChange={(event) => setForm((prev) => ({ ...prev, colors: event.target.value }))} className="mt-2 w-full border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]" placeholder="שחור, לבן, כחול" />
+                <p className="mt-2 text-xs text-[#7d7677]">מפרידים צבעים באמצעות פסיקים. לכל צבע יופיע מלאי נפרד לפי מידה.</p>
+              </div>
+
+              <div>
+                <label className="block font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">תגיות</label>
+                <input value={form.tags} onChange={(event) => setForm((prev) => ({ ...prev, tags: event.target.value }))} className="mt-2 w-full border border-[#dfdbd3] bg-white px-4 py-3 text-sm outline-none focus:border-[#111111]" placeholder="טוקסידו, חתן, ערב" />
+              </div>
+            </section>
+
+            <section className="border border-[#ece9e2] bg-white p-6">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">מידות זמינות</p>
+                  <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.03em]">בחר את כל המידות הרלוונטיות</h3>
                 </div>
-              ))}
-            </div>
-
-            <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">תיאור</label>
-              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3} className="w-full bg-[#f5f5f3] border border-[#e8e8e6] text-[#1a1a1a] px-4 py-3 font-body text-sm focus:outline-none focus:border-[#888888] resize-none placeholder-[#aaaaaa]"
-                placeholder="תיאור המוצר..." />
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">צבעים *</label>
-                <input value={form.colors} onChange={(e) => handleColorsChange(e.target.value)}
-                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="שחור, לבן, אפור" />
-                <p className="text-[#888888] text-xs font-label mt-2">קודם מגדירים את כל הצבעים, ואז לכל צבע יופיע מלאי נפרד לפי מידה.</p>
+                <div className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">{form.sizes.length} מידות נבחרו</div>
               </div>
-              <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">תגיות</label>
-                <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                  className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-body text-sm focus:outline-none focus:border-[#888888] placeholder-[#aaaaaa]"
-                  placeholder="חתן, חליפה, קיץ" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">מידות זמינות</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 {SIZES.map((size) => (
-                  <button key={size} type="button" onClick={() => handleToggleSize(size)}
-                    className={`px-3 py-1.5 font-label text-xs border transition-colors ${
-                      form.sizes.includes(size) ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'bg-transparent text-[#888888] border-[#e8e8e6] hover:border-[#888888]'
-                    }`}>{size}</button>
+                  <button key={size} type="button" onClick={() => handleToggleSize(size)} className={`px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.18rem] ${form.sizes.includes(size) ? 'bg-[#111111] text-white' : 'border border-[#d8d5cf] text-[#111111]'}`}>
+                    {size}
+                  </button>
                 ))}
               </div>
-            </div>
+            </section>
 
-            {parseColors(form.colors).length > 0 && form.sizes.length > 0 && (
-              <div>
-                <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">מלאי לפי צבע ואז מידה</label>
-                <div className="flex flex-col gap-5">
-                  {parseColors(form.colors).map((color) => (
-                    <div key={color} className="border border-[#eeeeee] bg-white p-5">
-                      <div className="flex items-center justify-between mb-4">
-                        <p className="font-headline text-lg">{color}</p>
-                        <p className="text-[#888888] text-xs font-label uppercase tracking-widest">
-                          סה"כ לצבע זה: {Object.values(sizeStock[color] || {}).reduce((sum, qty) => sum + (Number(qty) || 0), 0)}
-                        </p>
+            {colorList.length > 0 && form.sizes.length > 0 && (
+              <section className="space-y-5">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">Variant Stock</p>
+                    <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.03em]">מלאי נפרד לפי צבע ומידה</h3>
+                  </div>
+                  <div className="bg-[#f6f6f4] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111]">סה"כ מלאי: {getTotalStock(sizeStock)} יחידות</div>
+                </div>
+
+                {colorList.map((color) => (
+                  <div key={color} className="border border-[#ece9e2] bg-white p-6">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">צבע</p>
+                        <h4 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.03em]">{color}</h4>
                       </div>
+                      <div className="bg-[#f6f6f4] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111]">{Object.values(sizeStock[color] || {}).reduce((sum, qty) => sum + (Number(qty) || 0), 0)} יחידות לצבע זה</div>
+                    </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {form.sizes.map((size) => (
-                          <div key={`${color}-${size}`} className="flex items-center gap-2 bg-[#f5f5f3] border border-[#eeeeee] px-3 py-2">
-                            <span className="font-label text-xs text-[#1a1a1a] w-8 flex-shrink-0">{size}</span>
-                            <input
-                              type="number"
-                              min="0"
-                              value={sizeStock[color]?.[size] ?? ''}
-                              onChange={(e) => setColorStockValue(color, size, e.target.value)}
-                              className="flex-1 bg-transparent text-[#1a1a1a] text-sm font-body focus:outline-none text-center"
-                              placeholder="0"
-                            />
-                            <span className="text-[#888888] text-xs font-label">יח'</span>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      {form.sizes.map((size) => (
+                        <div key={`${color}-${size}`} className="flex items-center justify-between border border-[#ece9e2] bg-[#faf9f7] px-4 py-3">
+                          <span className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.18rem] text-[#111111]">{size}</span>
+                          <input type="number" min="0" value={sizeStock[color]?.[size] ?? ''} onChange={(event) => setColorStockValue(color, size, event.target.value)} className="w-20 border border-[#dfdbd3] bg-white px-3 py-2 text-center text-sm outline-none focus:border-[#111111]" placeholder="0" />
+                        </div>
+                      ))}
+                    </div>
 
-                      <div className="mt-5">
-                        <p className="font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">תמונות עבור {color}</p>
-                        {colorImages[color]?.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {colorImages[color].map((url) => (
-                              <div key={url} className="relative w-16 h-16 group">
-                                <img src={url} alt="" className="w-full h-full object-cover" />
-                                <button type="button" onClick={() => removeColorImage(color, url)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                  <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <label className={`flex items-center gap-2 border border-dashed border-[#e8e8e6] px-4 py-3 cursor-pointer hover:border-[#888888] transition-colors text-sm ${uploadingColor === color ? 'opacity-50 pointer-events-none' : ''}`}>
-                          <span className="material-symbols-outlined text-[#888888] text-base">{uploadingColor === color ? 'hourglass_empty' : 'add_photo_alternate'}</span>
-                          <span className="font-label text-xs text-[#888888]">{uploadingColor === color ? 'מעלה...' : `העלה תמונות עבור ${color}`}</span>
-                          <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleColorImageFiles(color, e)} disabled={uploadingColor === color} />
+                    <div className="mt-8">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">תמונות ייעודיות עבור {color}</p>
+                        <label className={`cursor-pointer border border-dashed border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111] ${uploadingColor === color ? 'pointer-events-none opacity-50' : ''}`}>
+                          {uploadingColor === color ? 'מעלה...' : 'העלה תמונות'}
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => handleColorImageFiles(color, event)} />
                         </label>
                       </div>
+                      {colorImages[color]?.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          {colorImages[color].map((url) => (
+                            <div key={url} className="relative h-20 w-20 overflow-hidden bg-[#f3f1ec]">
+                              <img src={url} alt={color} className="h-full w-full object-cover" />
+                              <button type="button" onClick={() => removeColorImage(color, url)} className="absolute inset-0 bg-black/55 text-white opacity-0 transition-opacity hover:opacity-100">הסר</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-                <p className="text-[#888888] text-xs font-label mt-2">סה"כ במלאי: {getTotalStock(sizeStock)} יחידות</p>
-              </div>
+                  </div>
+                ))}
+              </section>
             )}
 
-            <div>
-              <label className="block font-label text-[0.65rem] uppercase tracking-widest text-[#888888] mb-3">תמונות מוצר כלליות</label>
+            <section className="border border-[#ece9e2] bg-white p-6">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">General Gallery</p>
+                  <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.03em]">תמונות כלליות של המוצר</h3>
+                </div>
+                <label className={`cursor-pointer border border-dashed border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111] ${uploadingGeneral ? 'pointer-events-none opacity-50' : ''}`}>
+                  {uploadingGeneral ? 'מעלה...' : 'העלה תמונות'}
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageFiles} />
+                </label>
+              </div>
+
               {uploadedImages.length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-4">
+                <div className="mt-6 flex flex-wrap gap-3">
                   {uploadedImages.map((url) => (
-                    <div key={url} className="relative w-20 h-20 group">
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                      <button type="button" onClick={() => removeUploadedImage(url)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
-                      </button>
+                    <div key={url} className="relative h-24 w-24 overflow-hidden bg-[#f3f1ec]">
+                      <img src={url} alt="product" className="h-full w-full object-cover" />
+                      <button type="button" onClick={() => removeUploadedImage(url)} className="absolute inset-0 bg-black/55 text-white opacity-0 transition-opacity hover:opacity-100">הסר</button>
                     </div>
                   ))}
                 </div>
               )}
+            </section>
 
-              <label className={`flex items-center gap-3 border border-dashed border-[#e8e8e6] px-5 py-4 cursor-pointer hover:border-[#888888] transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                <span className="material-symbols-outlined text-[#888888] text-xl">{uploading ? 'hourglass_empty' : 'upload'}</span>
-                <span className="font-label text-xs text-[#888888] uppercase tracking-widest">{uploading ? 'מעלה תמונות...' : 'בחר תמונות מהמחשב'}</span>
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageFiles} disabled={uploading} />
-              </label>
-              <p className="text-[#888888] text-xs font-label mt-1">עד 5 תמונות · מקסימום 5MB כל אחת</p>
-            </div>
-
-            <div className="flex items-center gap-4 pt-4 border-t border-[#eeeeee]">
-              <button type="submit" disabled={productLoading}
-                className="bg-[#1a1a1a] text-white px-10 py-3.5 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50">
-                {productLoading ? 'שומר...' : editId ? 'שמור שינויים' : 'הוסף מוצר'}
+            <div className="flex flex-wrap items-center gap-4 border-t border-[#ece9e2] pt-8">
+              <button type="submit" disabled={savingProduct} className="bg-[#111111] px-8 py-4 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] text-white disabled:opacity-50">
+                {savingProduct ? 'שומר...' : editId ? 'שמור שינויים' : 'הוסף מוצר'}
               </button>
-              <button type="button" onClick={handleCancel}
-                className="text-[#888888] hover:text-[#1a1a1a] font-label text-xs uppercase tracking-widest transition-colors">
+              <button type="button" onClick={() => { resetForm(); setTab('products'); }} className="border border-[#d8d5cf] px-8 py-4 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] text-[#111111]">
                 ביטול
               </button>
             </div>
@@ -759,6 +725,7 @@ const handleImageFiles = async (e) => {
     </div>
   );
 }
+
 
 
 
