@@ -61,7 +61,6 @@ export default function Navbar() {
   };
 
   const toneClass = lightMode ? 'text-[#111111]' : 'text-white';
-  const logoFilter = lightMode ? '' : 'invert';
   const badgeClass = lightMode ? 'bg-[#111111] text-white' : 'bg-white text-black';
 
   return (
@@ -110,7 +109,12 @@ export default function Navbar() {
               <span className="font-['Manrope'] text-[0.68rem] uppercase tracking-[0.22rem]">Menu</span>
             </button>
 
-            <Link to="/" className="flex items-center gap-3" dir="ltr">
+            <Link
+              to="/"
+              onClick={(e) => { if (isHomePage) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
+              className="flex items-center gap-3"
+              dir="ltr"
+            >
               <div className="leading-none">
                 <p style={{ fontFamily: 'YoungBest, serif' }} className="text-xl tracking-[-0.02em] md:text-3xl">Dream &amp; Work</p>
                 <p className="mt-1 font-['Manrope'] text-[0.52rem] uppercase tracking-[0.34rem] opacity-80">Editorial Menswear</p>
@@ -154,3 +158,4 @@ export default function Navbar() {
     </>
   );
 }
+
