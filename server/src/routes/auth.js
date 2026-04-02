@@ -66,5 +66,24 @@ router.post('/reset-password/:token', async (req, res) => {
   res.json({ message: '×”×¡×™×¡×ž×” ××•×¤×¡×” ×‘×”×¦×œ×—×”' });
 });
 
+// מחיקת חשבון לקוח — תיקון 13 לחוק הגנת הפרטיות
+router.delete('/account', protect, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    // מחיקת נתוני המשתמש (הזמנות נשמרות לצורכי ביקורת 7 שנים)
+    await User.findByIdAndUpdate(userId, {
+      name: 'משתמש מחוק',
+      email: `deleted_${userId}@deleted.invalid`,
+      password: 'DELETED',
+      isDeleted: true,
+      deletedAt: new Date(),
+    });
+    res.clearCookie('refreshToken');
+    res.json({ message: 'החשבון נמחק בהצלחה' });
+  } catch (err) {
+    res.status(500).json({ error: 'שגיאה במחיקת החשבון' });
+  }
+});
+
 export default router;
 

@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 const FOOTER_LINKS = [
-  { label: 'פרטיות', href: '#' },
-  { label: 'תנאים', href: '#' },
-  { label: 'משלוח', href: '#' },
-  { label: 'צור קשר', href: '#' },
+  { label: 'מדיניות פרטיות', to: '/legal/privacy' },
+  { label: 'תנאי שימוש', to: '/legal/terms' },
+  { label: 'ביטולים והחזרות', to: '/legal/returns' },
+  { label: 'הצהרת נגישות', to: '/legal/accessibility' },
 ];
+
+const BUSINESS_INFO = {
+  name: '[שם החברה הרשמי]',
+  cn: '[ח.פ / עוסק מורשה]',
+  address: '[כתובת פיזית]',
+  phone: '[טלפון]',
+  email: '[מייל שירות לקוחות]',
+};
 
 export default function Footer() {
   const { user } = useAuth();
@@ -85,26 +94,39 @@ export default function Footer() {
         )}
       </div>}
 
+      {/* Business Info */}
+      <div className="border-t border-[#eeeeee] px-8 md:px-16 py-8 flex flex-col md:flex-row gap-6 md:gap-16 text-[#888]">
+        <div className="space-y-1 font-['Manrope'] text-xs" dir="rtl">
+          <p className="font-semibold text-[#444]">{BUSINESS_INFO.name}</p>
+          <p>ח.פ: {BUSINESS_INFO.cn}</p>
+          <p>{BUSINESS_INFO.address}</p>
+        </div>
+        <div className="space-y-1 font-['Manrope'] text-xs" dir="rtl">
+          <p>טלפון: <a href={`tel:${BUSINESS_INFO.phone}`} className="hover:text-[#111] transition-colors">{BUSINESS_INFO.phone}</a></p>
+          <p>מייל: <a href={`mailto:${BUSINESS_INFO.email}`} className="hover:text-[#111] transition-colors">{BUSINESS_INFO.email}</a></p>
+        </div>
+      </div>
+
       {/* Bottom Bar */}
-      <div className="py-10 px-8 md:px-16 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="border-t border-[#eeeeee] py-8 px-8 md:px-16 flex flex-col md:flex-row justify-between items-center gap-6">
         <span className="text-lg font-['Noto_Serif'] text-[#1a1a1a]" dir="ltr">
           Dream &amp; Work
         </span>
 
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
           {FOOTER_LINKS.map((item) => (
-            <a
+            <Link
               key={item.label}
-              href={item.href}
+              to={item.to}
               className="font-['Manrope'] text-[0.65rem] tracking-[0.15rem] uppercase text-[#666666] hover:text-[#000000] transition-colors duration-200"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </div>
 
         <p className="font-['Manrope'] text-[10px] tracking-widest uppercase text-[#bbbbbb]" dir="ltr">
-          &copy; 2025 DREAM &amp; WORK. ALL RIGHTS RESERVED.
+          &copy; 2026 DREAM &amp; WORK. ALL RIGHTS RESERVED.
         </p>
       </div>
     </footer>

@@ -1,6 +1,6 @@
-import express from 'express';
+﻿import express from 'express';
 import dotenv from 'dotenv';
-// במקומי טוען .env — ב-Railway המשתנים מוגדרים ישירות
+// ×‘×ž×§×•×ž×™ ×˜×•×¢×Ÿ .env â€” ×‘-Railway ×”×ž×©×ª× ×™× ×ž×•×’×“×¨×™× ×™×©×™×¨×•×ª
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
@@ -50,14 +50,14 @@ app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: { error: 'יותר מדי בקשות, נסה שוב מאוחר יותר' },
+    message: { error: '×™×•×ª×¨ ×ž×“×™ ×‘×§×©×•×ª, × ×¡×” ×©×•×‘ ×ž××•×—×¨ ×™×•×ª×¨' },
   })
 );
 
-// Stripe Webhook — חייב לפני express.json()
+// Stripe Webhook â€” ×—×™×™×‘ ×œ×¤× ×™ express.json()
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '250kb' }));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
@@ -73,16 +73,17 @@ app.use('/api/coupons', couponRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
-    error: err.message || 'שגיאה פנימית בשרת',
+    error: err.message || '×©×’×™××” ×¤× ×™×ž×™×ª ×‘×©×¨×ª',
   });
 });
 
 connectDB().then(() => {
   app.listen(process.env.PORT, () => {
-    console.log(`🚀 Server running on port ${process.env.PORT}`);
+    console.log(`ðŸš€ Server running on port ${process.env.PORT}`);
   });
 
-  // בדיקת עגלות נטושות כל שעה
+  // ×‘×“×™×§×ª ×¢×’×œ×•×ª × ×˜×•×©×•×ª ×›×œ ×©×¢×”
   setInterval(checkAbandonedCarts, 60 * 60 * 1000);
-  console.log('⏰ Abandoned cart job scheduled (every 1h)');
+  console.log('â° Abandoned cart job scheduled (every 1h)');
 });
+

@@ -7,7 +7,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
-  const [newsletter, setNewsletter] = useState(true);
+  const [newsletter, setNewsletter] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 

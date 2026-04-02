@@ -20,6 +20,11 @@ import OrderSuccess from './pages/OrderSuccess';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import CookieBanner from './components/CookieBanner';
+import Privacy from './pages/legal/Privacy';
+import Terms from './pages/legal/Terms';
+import Returns from './pages/legal/Returns';
+import Accessibility from './pages/legal/Accessibility';
 
 export default function App() {
   const glowRef = useRef(null);
@@ -57,8 +62,13 @@ export default function App() {
             <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/legal/privacy" element={<Privacy />} />
+            <Route path="/legal/terms" element={<Terms />} />
+            <Route path="/legal/returns" element={<Returns />} />
+            <Route path="/legal/accessibility" element={<Accessibility />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CookieBanner />
         </BrowserRouter>
       </CartProvider>
     </WishlistProvider>

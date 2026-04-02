@@ -85,13 +85,12 @@ const getTotalStock = (stockMap) =>
     0
   );
 
-const buildVariants = (stockMap, colorImagesMap) =>
+const buildVariants = (stockMap) =>
   Object.entries(stockMap || {}).flatMap(([color, sizes]) =>
     Object.entries(sizes || {}).map(([size, stock]) => ({
       color,
       size,
       stock: Number(stock) || 0,
-      images: colorImagesMap[color] || [],
       sku: `${color}-${size}`.replace(/\s+/g, '-').toUpperCase(),
     }))
   );
@@ -262,7 +261,7 @@ export default function AdminDashboard() {
       images: uploadedImages,
       colorImages,
       sizeStock: normalizedStock,
-      variants: buildVariants(normalizedStock, colorImages),
+      variants: buildVariants(normalizedStock),
       stock: getTotalStock(normalizedStock),
     };
 
@@ -280,7 +279,8 @@ export default function AdminDashboard() {
       fetchProducts();
     } catch (error) {
       console.error(error);
-      showMessage('שגיאה בשמירת המוצר', 'error');
+      const details = error.response?.data?.details?.map((entry) => entry.message).join(', ');
+      showMessage(error.response?.data?.error || details || 'שגיאה בשמירת המוצר', 'error');
     } finally {
       setSavingProduct(false);
     }
@@ -725,6 +725,9 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
+
 
 
 
