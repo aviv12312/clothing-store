@@ -667,3 +667,50 @@ export const sendPasswordReset = async (email, userName, resetUrl) => {
   });
 };
 
+export const sendWelcomeEmail = async (name, email) => {
+  const html = `
+    <!DOCTYPE html>
+    <html dir="rtl" lang="he">
+    <head><meta charset="UTF-8"></head>
+    <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
+        <tr><td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+            <tr>
+              <td style="padding:32px 0;text-align:center;border-bottom:1px solid #1e1e1e;">
+                <h1 style="margin:0;color:#e9c349;font-size:24px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <p style="margin:6px 0 0;color:#555;font-size:11px;letter-spacing:3px;">EDITORIAL MENSWEAR</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:40px 32px;text-align:center;">
+                <p style="margin:0;color:#e9c349;font-size:32px;">✦</p>
+                <h2 style="margin:16px 0 8px;color:#e7e5e5;font-size:22px;font-weight:300;">ברוך הבא, ${name}</h2>
+                <p style="margin:0;color:#767575;font-size:14px;line-height:1.8;">החשבון שלך נוצר בהצלחה.<br>אנחנו שמחים שהצטרפת למשפחת Dream & Work.</p>
+                <table cellpadding="0" cellspacing="0" style="margin:32px auto;">
+                  <tr>
+                    <td style="background:#e9c349;padding:14px 32px;">
+                      <a href="${process.env.CLIENT_URL}/shop" style="color:#0a0a0a;text-decoration:none;font-size:13px;letter-spacing:2px;font-weight:600;">גלה את הקולקציה</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px 32px;text-align:center;border-top:1px solid #1e1e1e;">
+                <p style="margin:0;color:#333;font-size:11px;letter-spacing:2px;">DREAM & WORK © 2025</p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+    </body>
+    </html>
+  `;
+  await sendEmail({
+    to: email,
+    subject: '✦ ברוך הבא ל-Dream & Work',
+    html,
+  });
+};
+

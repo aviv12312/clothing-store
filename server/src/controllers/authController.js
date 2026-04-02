@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 
 const generateTokens = (userId) => ({
   accessToken: jwt.sign({ id: userId }, process.env.JWT_ACCESS_SECRET, {
@@ -32,6 +33,7 @@ export const register = async (req, res) => {
     accessToken,
     user: { id: user._id, name: user.name, email: user.email, role: user.role },
   });
+  sendWelcomeEmail(user.name, user.email).catch(() => {});
 };
 
 export const login = async (req, res) => {
