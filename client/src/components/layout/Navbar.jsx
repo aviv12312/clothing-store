@@ -116,7 +116,7 @@ export default function Navbar() {
               dir="ltr"
             >
               <div className="leading-none">
-                <p style={{ fontFamily: 'YoungBest, serif' }} className="text-xl tracking-[-0.02em] md:text-3xl">Dream &amp; Work</p>
+                <p style={{ fontFamily: 'Olondona, serif' }} className="text-xl tracking-[0.02em] md:text-3xl">Dream &amp; Work</p>
                 <p className="mt-1 font-['Manrope'] text-[0.52rem] uppercase tracking-[0.34rem] opacity-80">Editorial Menswear</p>
               </div>
             </Link>
