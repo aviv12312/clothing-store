@@ -45,14 +45,14 @@ export const sendAdminNewOrderAlert = async (order, customerName, customerEmail)
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:32px 0;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:24px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:24px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
                 <p style="margin:6px 0 0;color:#6bcb77;font-size:11px;letter-spacing:3px;">✦ הזמנה חדשה התקבלה</p>
               </td>
             </tr>
@@ -126,14 +126,14 @@ export const sendAdminCancellationAlert = async (order, customerName, customerEm
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:32px 0;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:24px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:24px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
                 <p style="margin:6px 0 0;color:#e74c3c;font-size:11px;letter-spacing:3px;">⚠️ הודעת ביטול הזמנה</p>
               </td>
             </tr>
@@ -196,14 +196,14 @@ export const sendStatusUpdate = async (order, userEmail, userName, newStatus) =>
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:40px 0 30px;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:28px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:28px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
               </td>
             </tr>
             <tr>
@@ -251,14 +251,14 @@ export const sendNewsletterWelcome = async (email, unsubscribeToken) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:40px 0 30px;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:28px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:28px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
               </td>
             </tr>
             <tr>
@@ -330,7 +330,7 @@ export const sendOrderConfirmation = async (order, userEmail, userName) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
@@ -339,7 +339,7 @@ export const sendOrderConfirmation = async (order, userEmail, userName) => {
             <!-- Header -->
             <tr>
               <td style="padding:40px 0 30px;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:28px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:28px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
                 <p style="margin:8px 0 0;color:#767575;font-size:11px;letter-spacing:3px;text-transform:uppercase;">אישור הזמנה</p>
               </td>
             </tr>
@@ -448,14 +448,14 @@ export const sendAbandonedCart = async (email, name, items, total) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:40px 0 30px;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:28px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:28px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
               </td>
             </tr>
             <tr>
@@ -537,14 +537,14 @@ export const sendAbandonedCartDiscount = async (email, name, items, total) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:40px 0 30px;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:28px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:28px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
               </td>
             </tr>
             <tr>
@@ -615,14 +615,14 @@ export const sendPasswordReset = async (email, userName, resetUrl) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:40px 0 30px;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:28px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:28px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
               </td>
             </tr>
             <tr>
@@ -676,14 +676,14 @@ export const sendWelcomeEmail = async (name, email) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
-    <head><meta charset="UTF-8"></head>
+    <head><meta charset="UTF-8"><style>@font-face{font-family:'Olondona';src:url('${process.env.CLIENT_URL}/fonts/Olondona.otf') format('opentype');}h1.brand{font-family:'Olondona',serif!important;}</style></head>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
         <tr><td align="center">
           <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
             <tr>
               <td style="padding:32px 0;text-align:center;border-bottom:1px solid #1e1e1e;">
-                <h1 style="margin:0;color:#e9c349;font-size:24px;font-weight:300;letter-spacing:4px;">DREAM & WORK</h1>
+                <h1 style="margin:0;color:#e9c349;font-size:24px;font-family:'Olondona',serif;font-weight:normal;letter-spacing:4px;">DREAM & WORK</h1>
                 <p style="margin:6px 0 0;color:#555;font-size:11px;letter-spacing:3px;">EDITORIAL MENSWEAR</p>
               </td>
             </tr>

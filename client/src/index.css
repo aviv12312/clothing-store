@@ -7,6 +7,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Olondona';
+  src: url('./assets/Olondona.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

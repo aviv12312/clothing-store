@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem \"D:\\\\School\\\\Node JS\\\\clothing-store\")",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(node -e ' *)",
+      "Bash(node *)",
+      "Bash(npm audit *)"
+    ]
+  }
+}
