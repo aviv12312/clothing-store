@@ -1,6 +1,6 @@
-﻿import express from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
-// ×‘×ž×§×•×ž×™ ×˜×•×¢×Ÿ .env â€” ×‘-Railway ×”×ž×©×ª× ×™× ×ž×•×’×“×¨×™× ×™×©×™×¨×•×ª
+
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
@@ -9,6 +9,8 @@ import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+import mongoSanitize from 'express-mongo-sanitize';
+import hpp from 'hpp';
 
 import { validateEnv } from './config/validateEnv.js';
 import { connectDB } from './config/db.js';
@@ -27,17 +29,40 @@ validateEnv();
 
 const app = express();
 
+const allowedOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes('*')) return true;
+  if (allowedOrigins.includes(origin)) return true;
+
+  try {
+    return new URL(origin).hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+};
+
+const sanitizeRequest = (req, res, next) => {
+  if (mongoSanitize.has(req.query)) {
+    return res.status(400).json({ error: 'Invalid query parameters' });
+  }
+
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  next();
+};
+
 app.set('trust proxy', 1);
 app.use(helmet());
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      const allowed = (process.env.CLIENT_URL || '').split(',').map(s => s.trim());
-      if (allowed.includes('*') || allowed.some(o => origin.startsWith(o)) || /\.vercel\.app$/.test(origin)) {
-        return callback(null, true);
-      }
+      if (isAllowedOrigin(origin)) return callback(null, true);
       callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
@@ -50,15 +75,17 @@ app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: { error: '×™×•×ª×¨ ×ž×“×™ ×‘×§×©×•×ª, × ×¡×” ×©×•×‘ ×ž××•×—×¨ ×™×•×ª×¨' },
+    message: { error: 'יותר מדי בקשות, נסה שוב מאוחר יותר' },
   })
 );
 
-// Stripe Webhook â€” ×—×™×™×‘ ×œ×¤× ×™ express.json()
+// Stripe webhooks must receive the raw body before express.json().
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json({ limit: '250kb' }));
 app.use(cookieParser());
+app.use(sanitizeRequest);
+app.use(hpp());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -73,17 +100,15 @@ app.use('/api/coupons', couponRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
-    error: err.message || '×©×’×™××” ×¤× ×™×ž×™×ª ×‘×©×¨×ª',
+    error: err.message || 'שגיאה פנימית בשרת',
   });
 });
 
 connectDB().then(() => {
   app.listen(process.env.PORT, () => {
-    console.log(`ðŸš€ Server running on port ${process.env.PORT}`);
+    console.log(`Server running on port ${process.env.PORT}`);
   });
 
-  // ×‘×“×™×§×ª ×¢×’×œ×•×ª × ×˜×•×©×•×ª ×›×œ ×©×¢×”
   setInterval(checkAbandonedCarts, 60 * 60 * 1000);
-  console.log('â° Abandoned cart job scheduled (every 1h)');
+  console.log('Abandoned cart job scheduled every hour');
 });
-

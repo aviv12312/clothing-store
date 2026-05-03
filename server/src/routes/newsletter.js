@@ -33,7 +33,7 @@ router.post('/subscribe', async (req, res) => {
   });
 
   try {
-    await sendNewsletterWelcome(email);
+    await sendNewsletterWelcome(email, unsubscribeToken);
   } catch (e) {
     console.error('Newsletter email error:', e.message);
   }

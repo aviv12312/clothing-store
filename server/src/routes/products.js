@@ -11,7 +11,7 @@ import {
 } from '../controllers/productController.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/', getProducts);
 router.get('/:id', getProduct);

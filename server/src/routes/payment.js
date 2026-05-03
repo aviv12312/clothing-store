@@ -8,7 +8,27 @@ import { sendOrderConfirmation, sendAdminNewOrderAlert } from '../services/email
 import Coupon from '../models/Coupon.js';
 
 const router = express.Router();
-const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const requireEnv = (keys, serviceName) => {
+  const missing = keys.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    const error = new Error(`${serviceName} is not configured`);
+    error.status = 503;
+    throw error;
+  }
+};
+
+const getStripe = () => {
+  requireEnv(['STRIPE_SECRET_KEY'], 'Stripe');
+  return new Stripe(process.env.STRIPE_SECRET_KEY);
+};
+
+const getPaypalConfig = () => {
+  requireEnv(['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'], 'PayPal');
+  const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
+  const baseUrl = process.env.PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+  return { auth, baseUrl };
+};
 
 const getAvailableStock = (product, size, color) => {
   if (color && size && product.sizeStock?.[color]?.[size] !== undefined) {
@@ -189,6 +209,7 @@ router.post('/webhook', async (req, res) => {
   let event;
 
   try {
+    requireEnv(['STRIPE_WEBHOOK_SECRET'], 'Stripe webhook');
     event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET);
   } catch {
     return res.status(400).send('Invalid webhook signature');
@@ -199,6 +220,18 @@ router.post('/webhook', async (req, res) => {
     const order = await Order.findOne({ paymentId: paymentIntent.id });
     const paidOrder = await finalizePaidOrder(order);
     if (paidOrder?.couponCode) await markCouponUsed(paidOrder.couponCode);
+
+    if (paidOrder) {
+      try {
+        const user = await User.findById(paidOrder.user).select('email name');
+        if (user) {
+          sendOrderConfirmation(paidOrder, user.email, user.name).catch((e) => console.error('Email error:', e.message));
+          sendAdminNewOrderAlert(paidOrder, user.name, user.email).catch((e) => console.error('Admin email error:', e.message));
+        }
+      } catch (e) {
+        console.error('Webhook email error:', e.message);
+      }
+    }
   }
 
   res.json({ received: true });
@@ -210,10 +243,9 @@ router.post('/paypal/create-order', protect, async (req, res) => {
     const { subtotal, orderItems } = await buildOrderFromCart(cartItems);
     const { coupon, discountAmount, finalTotal } = await validateCouponForUser(couponCode, req.user, subtotal);
 
-    const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
-    const paypalBase = process.env.PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+    const { auth, baseUrl } = getPaypalConfig();
 
-    const tokenRes = await fetch(`${paypalBase}/v1/oauth2/token`, {
+    const tokenRes = await fetch(`${baseUrl}/v1/oauth2/token`, {
       method: 'POST',
       headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'grant_type=client_credentials',
@@ -224,7 +256,7 @@ router.post('/paypal/create-order', protect, async (req, res) => {
       return res.status(502).json({ error: 'שגיאה בהתחברות ל-PayPal' });
     }
 
-    const orderRes = await fetch(`${paypalBase}/v2/checkout/orders`, {
+    const orderRes = await fetch(`${baseUrl}/v2/checkout/orders`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${tokenData.access_token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -261,10 +293,9 @@ router.post('/paypal/create-order', protect, async (req, res) => {
 router.post('/paypal/capture-order', protect, async (req, res) => {
   try {
     const { paypalOrderId } = req.body;
-    const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
-    const paypalBase = process.env.PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+    const { auth, baseUrl } = getPaypalConfig();
 
-    const tokenRes = await fetch(`${paypalBase}/v1/oauth2/token`, {
+    const tokenRes = await fetch(`${baseUrl}/v1/oauth2/token`, {
       method: 'POST',
       headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'grant_type=client_credentials',
@@ -273,7 +304,7 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
     if (!tokenData.access_token) return res.status(500).json({ error: 'PayPal auth failed' });
     const { access_token } = tokenData;
 
-    const captureRes = await fetch(`${paypalBase}/v2/checkout/orders/${paypalOrderId}/capture`, {
+    const captureRes = await fetch(`${baseUrl}/v2/checkout/orders/${paypalOrderId}/capture`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
     });
@@ -283,7 +314,7 @@ router.post('/paypal/capture-order', protect, async (req, res) => {
       return res.status(400).json({ error: 'תשלום לא הושלם' });
     }
 
-    const order = await Order.findOne({ paymentId: paypalOrderId });
+    const order = await Order.findOne({ paymentId: paypalOrderId, user: req.user.id });
     if (!order) return res.status(404).json({ error: 'הזמנה לא נמצאה' });
 
     const paidOrder = await finalizePaidOrder(order);

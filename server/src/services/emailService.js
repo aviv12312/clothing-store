@@ -1,6 +1,11 @@
 import Coupon from '../models/Coupon.js';
 
 const STATUS_META = {
+  'בטיפול': { emoji: '⏳', title: 'ההזמנה שלך בטיפול', color: '#e9c349', msg: 'קיבלנו את הזמנתך ואנחנו מכינים אותה לשליחה.' },
+  'נשלח': { emoji: '🚚', title: 'ההזמנה שלך בדרך אליך!', color: '#4ecdc4', msg: 'ההזמנה יצאה מהמחסן ובדרך אליך. זמן אספקה: 3-5 ימי עסקים.' },
+  'הגיע': { emoji: '✅', title: 'ההזמנה הגיעה!', color: '#6bcb77', msg: 'ההזמנה נמסרה. נשמח אם תדרג את החוויה שלך.' },
+  'בוטל': { emoji: '❌', title: 'ההזמנה בוטלה', color: '#e74c3c', msg: 'ההזמנה בוטלה. לשאלות - צור איתנו קשר.' },
+  'ממתין לאישור': { emoji: '🕐', title: 'ממתינים לאישור ההזמנה', color: '#e9c349', msg: 'הזמנתך התקבלה ואנחנו בודקים את פרטי התשלום.' },
   'בטיפול':         { emoji: '⏳', title: 'ההזמנה שלך בטיפול',      color: '#e9c349', msg: 'קיבלנו את הזמנתך ואנחנו מכינים אותה לשליחה.' },
   'נשלח':           { emoji: '🚚', title: 'ההזמנה שלך בדרך אליך!',   color: '#4ecdc4', msg: 'ההזמנה יצאה מהמחסן ובדרך אליך. זמן אספקה: 3–5 ימי עסקים.' },
   'הגיע':           { emoji: '✅', title: 'ההזמנה הגיעה!',            color: '#6bcb77', msg: 'ההזמנה נמסרה. נשמח אם תדרג את החוויה שלך.' },
@@ -242,7 +247,7 @@ export const sendStatusUpdate = async (order, userEmail, userName, newStatus) =>
   });
 };
 
-export const sendNewsletterWelcome = async (email) => {
+export const sendNewsletterWelcome = async (email, unsubscribeToken) => {
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="he">
@@ -289,7 +294,7 @@ export const sendNewsletterWelcome = async (email) => {
             <tr>
               <td style="padding:32px 0;text-align:center;border-top:1px solid #1e1e1e;margin-top:24px;">
                 <p style="margin:0;color:#555;font-size:11px;line-height:1.8;">
-                  לביטול הרשמה: <a href="${process.env.CLIENT_URL}/unsubscribe/${email}" style="color:#767575;text-decoration:none;">לחץ כאן</a>
+                  לביטול הרשמה: <a href="${process.env.CLIENT_URL}/unsubscribe?token=${unsubscribeToken}" style="color:#767575;text-decoration:none;">לחץ כאן</a>
                 </p>
                 <p style="margin:8px 0 0;color:#333;font-size:11px;letter-spacing:2px;">DREAM & WORK © 2025</p>
               </td>
@@ -713,4 +718,3 @@ export const sendWelcomeEmail = async (name, email) => {
     html,
   });
 };
-

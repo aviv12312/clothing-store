@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 const variantSchema = new mongoose.Schema({
   color: { type: String, required: true },
@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema(
     salePrice: Number,
     category: {
       type: String,
-      enum: ['×—×ª×Ÿ ×•×ž×œ×•×•×™×', 'Casual', 'Formal'],
+      enum: ['חתן ומלווים', 'Casual', 'Formal'],
       required: true,
     },
     tags: [String],
@@ -25,8 +25,8 @@ const productSchema = new mongoose.Schema(
     images: [String],
     colorImages: { type: mongoose.Schema.Types.Mixed, default: {} },
     variants: { type: [variantSchema], default: [] },
-    stock: { type: Number, default: 0 }, // ×¡×”"×› ×ž×œ××™ (×ž×—×•×©×‘)
-    sizeStock: { type: mongoose.Schema.Types.Mixed, default: {} }, // ×ž×œ××™ ×œ×¤×™ ×ž×™×“×” { "M": 5, "L": 3 }
+    stock: { type: Number, default: 0 },
+    sizeStock: { type: mongoose.Schema.Types.Mixed, default: {} },
     isActive: { type: Boolean, default: true },
     featured: { type: Boolean, default: false },
   },
@@ -36,4 +36,3 @@ const productSchema = new mongoose.Schema(
 productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 
 export default mongoose.model('Product', productSchema);
-

@@ -1,6 +1,15 @@
 ﻿import Product from '../models/Product.js';
 import { v2 as cloudinary } from 'cloudinary';
 
+const getCloudinary = () => {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  return cloudinary;
+};
+
 const buildVariantPayload = (payload) => {
   if (Array.isArray(payload.variants) && payload.variants.length) {
     return payload.variants
@@ -110,10 +119,14 @@ export const getProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
   const images = [];
   if (req.files?.length) {
+    const cld = getCloudinary();
     for (const file of req.files) {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: 'clothing-store',
-        transformation: [{ width: 800, height: 1000, crop: 'fill' }],
+      const result = await new Promise((resolve, reject) => {
+        const stream = cld.uploader.upload_stream(
+          { folder: 'clothing-store', transformation: [{ width: 800, height: 1000, crop: 'fill' }] },
+          (error, result) => { if (error) reject(error); else resolve(result); }
+        );
+        stream.end(file.buffer);
       });
       images.push(result.secure_url);
     }

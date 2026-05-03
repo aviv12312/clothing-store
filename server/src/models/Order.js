@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema(
   {
@@ -32,8 +32,8 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['×‘×˜×™×¤×•×œ', '× ×©×œ×—', '×”×’×™×¢', '×‘×•×˜×œ'],
-      default: '×‘×˜×™×¤×•×œ',
+      enum: ['בטיפול', 'נשלח', 'הגיע', 'בוטל', 'ממתין לאישור'],
+      default: 'בטיפול',
     },
     paymentId: String,
     couponCode: String,
@@ -49,4 +49,3 @@ const orderSchema = new mongoose.Schema(
 );
 
 export default mongoose.model('Order', orderSchema);
-

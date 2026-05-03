@@ -56,7 +56,7 @@ router.post('/reset-password/:token', async (req, res) => {
   if (!user) return res.status(400).json({ error: '×”×§×™×©×•×¨ ×¤×’ ×ª×•×§×£ ××• ××™× ×• ×ª×§×™×Ÿ' });
 
   const { password } = req.body;
-  if (!password || password.length < 8) return res.status(400).json({ error: '×¡×™×¡×ž×” ×—×™×™×‘×ª ×œ×”×™×•×ª ×œ×¤×—×•×ª 8 ×ª×•×•×™×' });
+  if (!password || password.length < 8 || password.length > 128) return res.status(400).json({ error: 'סיסמה חייבת להיות בין 8 ל-128 תווים' });
 
   user.password = password;
   user.resetPasswordToken = undefined;

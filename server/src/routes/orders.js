@@ -84,6 +84,10 @@ router.patch('/:id/cancel', protect, async (req, res) => {
 
 router.patch('/:id/status', protect, requireAdmin, async (req, res) => {
   const { orderStatus } = req.body;
+  const VALID_STATUSES = ['בטיפול', 'נשלח', 'הגיע', 'בוטל', 'ממתין לאישור'];
+  if (!orderStatus || !VALID_STATUSES.includes(orderStatus)) {
+    return res.status(400).json({ error: 'סטטוס לא חוקי' });
+  }
   const order = await Order.findByIdAndUpdate(req.params.id, { orderStatus }, { new: true });
   if (!order) return res.status(404).json({ error: 'הזמנה לא נמצאה' });
 
