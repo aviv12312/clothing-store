@@ -60,15 +60,17 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const toneClass = lightMode ? 'text-[#111111]' : 'text-white';
-  const badgeClass = lightMode ? 'bg-[#111111] text-white' : 'bg-white text-black';
+  const toneClass = lightMode ? 'text-on-surface' : 'text-white';
+  const badgeClass = lightMode ? 'bg-primary text-on-primary' : 'bg-white text-primary';
 
   return (
     <>
       <nav
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           scrolled ? 'px-4 pt-4 md:px-6' : 'px-3 pt-3 md:px-6 md:pt-5'
-        } ${!isHomePage && scrolled ? 'pointer-events-none -translate-y-6 opacity-0' : 'translate-y-0 opacity-100'}`}
+        } ${!isHomePage && scrolled ? 'pointer-events-none -translate-y-6 opacity-0' : 'translate-y-0 opacity-100'} ${
+          lightMode ? 'bg-background/95 backdrop-blur-sm border-b border-outline-variant/40' : ''
+        }`}
       >
         <div className="mx-auto flex max-w-[1920px] items-center justify-between">
           <div className={`flex items-center gap-4 md:gap-8 transition-colors duration-300 ${toneClass}`}>
@@ -125,26 +127,26 @@ export default function Navbar() {
       </nav>
 
       <div className={`fixed inset-0 z-[60] md:hidden ${menuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
-        <div className={`absolute inset-0 bg-[rgba(17,17,17,0.32)] transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={closeMenu} />
-        <div className={`absolute right-0 top-0 h-full w-[84vw] max-w-sm bg-white px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(27,28,28,0.08)] transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`absolute inset-0 bg-[rgba(27,46,75,0.35)] transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={closeMenu} />
+        <div className={`absolute right-0 top-0 h-full w-[84vw] max-w-sm bg-background px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(27,46,75,0.12)] transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex flex-col gap-7">
-            {NAV_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl tracking-[-0.05em] text-[#111111]">{link.label}</Link>)}
+            {NAV_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl tracking-[-0.05em] text-on-surface">{link.label}</Link>)}
           </div>
 
-          <div className="mt-12 space-y-4 bg-[#f7f7f7] p-5">
-            <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Collections</p>
-            {SUB_CATEGORIES.map((cat) => <Link key={cat.to} to={cat.to} onClick={closeMenu} className="block font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-[#111111]">{cat.label}</Link>)}
+          <div className="mt-12 space-y-4 bg-surface p-5">
+            <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-on-surface-variant">Collections</p>
+            {SUB_CATEGORIES.map((cat) => <Link key={cat.to} to={cat.to} onClick={closeMenu} className="block font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-on-surface">{cat.label}</Link>)}
           </div>
 
           <div className="mt-12 flex flex-col gap-4">
             {user ? (
               <>
-                <Link to="/profile" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-[#111111]">Profile</Link>
-                {user.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-[#111111]">Admin</Link>}
-                <button onClick={handleLogout} className="text-right font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-[#111111]">Logout</button>
+                <Link to="/profile" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Profile</Link>
+                {user.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Admin</Link>}
+                <button onClick={handleLogout} className="text-right font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Logout</button>
               </>
             ) : (
-              <Link to="/login" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-[#111111]">Login / Register</Link>
+              <Link to="/login" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Login / Register</Link>
             )}
           </div>
         </div>

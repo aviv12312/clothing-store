@@ -6,7 +6,8 @@
       "Bash(Format-Table -AutoSize)",
       "Bash(node -e ' *)",
       "Bash(node *)",
-      "Bash(npm audit *)"
+      "Bash(npm audit *)",
+      "Bash(npm run *)"
     ]
   }
 }

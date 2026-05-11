@@ -20,13 +20,13 @@
 
 :root {
   color-scheme: light;
-  --surface: #ffffff;
-  --surface-low: #f7f7f7;
-  --surface-high: #efefef;
-  --ink: #1b1c1c;
-  --muted: #6e6667;
-  --ghost: rgba(17, 17, 17, 0.12);
-  --navy: #3a6472;
+  --surface: #f3ede5;
+  --surface-low: #f7f3ee;
+  --surface-high: #e8ddd0;
+  --ink: #1b2e4b;
+  --muted: #4a6080;
+  --ghost: rgba(27, 46, 75, 0.10);
+  --navy: #1b2e4b;
 }
 
 * {
@@ -41,7 +41,7 @@ body {
   font-family: 'Manrope', sans-serif;
   direction: rtl;
   margin: 0;
-  background: #ffffff;
+  background: #faf8f4;
   color: var(--ink);
   min-height: 100vh;
 }
@@ -71,7 +71,7 @@ a {
 }
 
 ::selection {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(184, 150, 62, 0.18);
 }
 
 .material-symbols-outlined {
@@ -84,24 +84,24 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: #f3ede5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(27, 28, 28, 0.18);
+  background: rgba(27, 46, 75, 0.15);
 }
 
 .cursor-glow {
   pointer-events: none;
   position: fixed;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.035) 0%, rgba(0, 0, 0, 0.015) 30%, transparent 72%);
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(27, 46, 75, 0.045) 0%, rgba(27, 46, 75, 0.012) 35%, transparent 65%);
   transform: translate(-50%, -50%);
   transition: left 0.14s ease, top 0.14s ease;
   z-index: 1;
   mix-blend-mode: multiply;
-  opacity: 0.45;
+  opacity: 0.5;
 }
 
 @media (max-width: 768px) {
@@ -141,19 +141,20 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, #000000 0%, #1b1b1b 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #1b2e4b 0%, #243d63 100%);
+  color: #faf8f4;
   text-transform: uppercase;
   letter-spacing: 0.24rem;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 1rem 1.5rem;
-  transition: transform 200ms ease, opacity 200ms ease, background 200ms ease;
+  border: 1px solid transparent;
+  transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .editorial-button:hover {
   transform: translateY(-2px);
-  opacity: 0.95;
+  box-shadow: 0 8px 24px rgba(27, 46, 75, 0.25);
 }
 
 .editorial-button-secondary {
@@ -161,20 +162,20 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: #ffffff;
+  background: transparent;
   color: var(--ink);
   text-transform: uppercase;
   letter-spacing: 0.22rem;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 1rem 1.5rem;
-  border: 1px solid rgba(17, 17, 17, 0.12);
+  border: 1px solid rgba(27, 46, 75, 0.25);
   transition: transform 200ms ease, border-color 200ms ease;
 }
 
 .editorial-button-secondary:hover {
   transform: translateY(-2px);
-  border-color: rgba(27, 28, 28, 0.4);
+  border-color: #1b2e4b;
 }
 
 .editorial-input,
@@ -194,6 +195,124 @@ a {
 }
 
 .gold-shimmer {
-  background: linear-gradient(135deg, #000000 0%, #1b1b1b 100%) !important;
-  color: #ffffff !important;
+  background: #1b2e4b;
+  color: #faf8f4 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.gold-shimmer:hover {
+  opacity: 0.82;
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger delays for grid children */
+.stagger > *:nth-child(1) { transition-delay: 0ms; }
+.stagger > *:nth-child(2) { transition-delay: 80ms; }
+.stagger > *:nth-child(3) { transition-delay: 160ms; }
+.stagger > *:nth-child(4) { transition-delay: 240ms; }
+.stagger > *:nth-child(5) { transition-delay: 320ms; }
+.stagger > *:nth-child(6) { transition-delay: 400ms; }
+
+/* ============================================
+   HERO ZOOM ANIMATION
+   ============================================ */
+@keyframes heroZoom {
+  from { transform: scale(1.06); }
+  to   { transform: scale(1); }
+}
+
+.hero-zoom {
+  animation: heroZoom 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ============================================
+   MARQUEE
+   ============================================ */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 22s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.marquee-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+.card-hover {
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(27, 46, 75, 0.12);
+}
+
+.link-gold {
+  position: relative;
+}
+
+.link-gold::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: 0;
+  width: 0;
+  height: 1px;
+  background: #1b2e4b;
+  transition: width 300ms ease;
+}
+
+.link-gold:hover::after {
+  width: 100%;
 }

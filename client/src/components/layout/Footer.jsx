@@ -49,25 +49,25 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#f5f5f3] w-full border-t border-[#e8e8e6]/20">
+    <footer className="bg-surface w-full border-t border-outline-variant">
       {/* Newsletter Bar — נסתר אם כבר נרשם */}
-      {!isSubscribed && <div className="border-b border-[#eeeeee] py-14 px-8 md:px-16 flex flex-col md:flex-row items-center justify-between gap-8">
+      {!isSubscribed && <div className="border-b border-outline-variant py-14 px-8 md:px-16 flex flex-col md:flex-row items-center justify-between gap-8">
         <div>
-          <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.25em] text-[#888888] mb-2">
+          <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.25em] text-on-surface-variant mb-2">
             רשימת תפוצה
           </p>
-          <h3 className="font-['Noto_Serif'] text-xl text-[#1a1a1a] font-light">
+          <h3 className="font-['Noto_Serif'] text-xl text-on-surface font-light">
             קבל עדכונים ראשון
           </h3>
-          <p className="font-['Manrope'] text-xs text-[#888888] mt-1">
+          <p className="font-['Manrope'] text-xs text-on-surface-variant mt-1">
             קולקציות חדשות · מבצעים בלעדיים · Early Access
           </p>
         </div>
 
         {status === 'success' ? (
           <div className="flex items-center gap-3">
-            <span className="text-[#1a1a1a] text-lg">✦</span>
-            <p className="font-['Manrope'] text-sm text-[#1a1a1a]">{msg}</p>
+            <span className="text-gold text-lg">✦</span>
+            <p className="font-['Manrope'] text-sm text-on-surface">{msg}</p>
           </div>
         ) : (
           <form onSubmit={handleSubscribe} className="flex gap-3 w-full md:w-auto md:min-w-[380px]">
@@ -77,7 +77,7 @@ export default function Footer() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="כתובת האימייל שלך"
               required
-              className="flex-1 bg-white border border-[#e8e8e6] text-[#1a1a1a] text-sm font-['Manrope'] px-5 py-3 focus:outline-none focus:border-[#1a1a1a]/50 placeholder-[#bbbbbb] transition-colors"
+              className="flex-1 bg-background border border-outline-variant text-on-surface text-sm font-['Manrope'] px-5 py-3 focus:outline-none focus:border-primary/50 placeholder-outline transition-colors"
               dir="rtl"
             />
             <button
@@ -95,21 +95,21 @@ export default function Footer() {
       </div>}
 
       {/* Business Info */}
-      <div className="border-t border-[#eeeeee] px-8 md:px-16 py-8 flex flex-col md:flex-row gap-6 md:gap-16 text-[#888]">
+      <div className="border-t border-outline-variant px-8 md:px-16 py-8 flex flex-col md:flex-row gap-6 md:gap-16 text-on-surface-variant">
         <div className="space-y-1 font-['Manrope'] text-xs" dir="rtl">
-          <p className="font-semibold text-[#444]">{BUSINESS_INFO.name}</p>
+          <p className="font-semibold text-on-surface">{BUSINESS_INFO.name}</p>
           <p>ח.פ: {BUSINESS_INFO.cn}</p>
           <p>{BUSINESS_INFO.address}</p>
         </div>
         <div className="space-y-1 font-['Manrope'] text-xs" dir="rtl">
-          <p>טלפון: <a href={`tel:${BUSINESS_INFO.phone}`} className="hover:text-[#111] transition-colors">{BUSINESS_INFO.phone}</a></p>
-          <p>מייל: <a href={`mailto:${BUSINESS_INFO.email}`} className="hover:text-[#111] transition-colors">{BUSINESS_INFO.email}</a></p>
+          <p>טלפון: <a href={`tel:${BUSINESS_INFO.phone}`} className="hover:text-on-surface transition-colors">{BUSINESS_INFO.phone}</a></p>
+          <p>מייל: <a href={`mailto:${BUSINESS_INFO.email}`} className="hover:text-on-surface transition-colors">{BUSINESS_INFO.email}</a></p>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-[#eeeeee] py-8 px-8 md:px-16 flex flex-col md:flex-row justify-between items-center gap-6">
-        <span className="text-lg font-['Noto_Serif'] text-[#1a1a1a]" dir="ltr">
+      <div className="border-t border-outline-variant py-8 px-8 md:px-16 flex flex-col md:flex-row justify-between items-center gap-6">
+        <span className="text-lg font-['Noto_Serif'] text-on-surface" dir="ltr">
           Dream &amp; Work
         </span>
 
@@ -118,14 +118,14 @@ export default function Footer() {
             <Link
               key={item.label}
               to={item.to}
-              className="font-['Manrope'] text-[0.65rem] tracking-[0.15rem] uppercase text-[#666666] hover:text-[#000000] transition-colors duration-200"
+              className="font-['Manrope'] text-[0.65rem] tracking-[0.15rem] uppercase text-on-surface-variant hover:text-on-surface transition-colors duration-200"
             >
               {item.label}
             </Link>
           ))}
         </div>
 
-        <p className="font-['Manrope'] text-[10px] tracking-widest uppercase text-[#bbbbbb]" dir="ltr">
+        <p className="font-['Manrope'] text-[10px] tracking-widest uppercase text-outline" dir="ltr">
           &copy; 2026 DREAM &amp; WORK. ALL RIGHTS RESERVED.
         </p>
       </div>
