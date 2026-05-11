@@ -36,6 +36,7 @@ export default {
         label: ['Manrope', 'sans-serif'],
         serif: ['Noto Serif', 'serif'],
         sans: ['Manrope', 'sans-serif'],
+        hand: ['Caveat', 'Architects Daughter', 'cursive'],
       },
       backgroundImage: {
         'gold-shimmer': 'none',

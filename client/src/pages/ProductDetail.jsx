@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/layout/Footer';
 import { trackViewProduct, trackAddToCart } from '../services/analytics';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const TRUST_ITEMS = [
   { title: 'Delivery', text: 'משלוח מהיר לכל הארץ ואריזה מוקפדת שמרגישה כמו קנייה של מותג פרימיום.' },
@@ -21,17 +22,17 @@ function AccordionItem({ title, children }) {
         <span className="font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] text-[#111111]">{title}</span>
         <span className="material-symbols-outlined text-[#6e6667] transition-transform duration-300" style={{ fontSize: '18px', transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}>add</span>
       </button>
-      {open && <div className="pt-5 text-sm leading-7 text-[#5d5657]">{children}</div>}
+      {open && <div className="motion-fade-up pt-5 text-sm leading-7 text-[#5d5657]">{children}</div>}
     </div>
   );
 }
 
 function RelatedCard({ product }) {
   return (
-    <Link to={`/product/${product._id}`} className="group block">
+    <Link to={`/product/${product._id}`} className="group block motion-lift">
       <div className="aspect-[3/4] overflow-hidden bg-[#f7f7f7]">
         {product.images?.[0] ? (
-          <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+          <img src={product.images[0]} alt={product.name} className="motion-image h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '42px' }}>checkroom</span>
@@ -90,6 +91,7 @@ export default function ProductDetail() {
     if (!product) return [];
     return (product.colorImages?.[selectedColor]?.length ? product.colorImages[selectedColor] : product.images) || [];
   }, [product, selectedColor]);
+  const pageRef = useScrollReveal([product, images.length, related.length]);
 
   if (!product) {
     return <div className="min-h-screen bg-white flex items-center justify-center"><span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span></div>;
@@ -125,10 +127,10 @@ export default function ProductDetail() {
     : 'גזרה נינוחה יותר שמתאימה ללבישה יומיומית ולשכבות קלות.';
 
   return (
-    <div className="editorial-shell min-h-screen bg-white">
+    <div ref={pageRef} className="editorial-shell min-h-screen bg-white">
       <main className="px-6 pb-24 pt-28 md:px-12 lg:px-20 lg:pt-40">
         <div className="mx-auto max-w-[1600px]">
-          <div className="mb-8 flex items-center gap-2 font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">
+          <div className="reveal mb-8 flex items-center gap-2 font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">
             <Link to="/">Home</Link>
             <span>/</span>
             <Link to="/shop">Shop</Link>
@@ -137,10 +139,10 @@ export default function ProductDetail() {
           </div>
 
           <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] xl:gap-16">
-            <div className="grid gap-4 md:grid-cols-[6rem_1fr] xl:grid-cols-[7rem_1fr]">
+            <div className="reveal-left grid gap-4 md:grid-cols-[6rem_1fr] xl:grid-cols-[7rem_1fr]">
               <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col">
                 {images.slice(0, 5).map((image, index) => (
-                  <button key={image + index} onClick={() => setActiveImage(index)} className={`aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#f7f7f7] transition-opacity md:w-full ${activeImage === index ? 'opacity-100' : 'opacity-55 hover:opacity-100'}`}>
+                  <button key={image + index} onClick={() => setActiveImage(index)} className={`aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#f7f7f7] transition-all duration-300 hover:scale-[1.03] md:w-full ${activeImage === index ? 'opacity-100 ring-1 ring-[#111111]' : 'opacity-55 hover:opacity-100'}`}>
                     <img src={image} alt="" className="h-full w-full object-cover" />
                   </button>
                 ))}
@@ -148,21 +150,22 @@ export default function ProductDetail() {
 
               <div className="order-1 bg-[#f7f7f7] md:order-2">
                 {images.length > 0 ? (
-                  <img src={images[activeImage] || images[0]} alt={product.name} className="h-full w-full object-cover" />
+                  <img key={images[activeImage] || images[0]} src={images[activeImage] || images[0]} alt={product.name} className="motion-image motion-fade-up h-full w-full object-cover" />
                 ) : (
                   <div className="flex aspect-[4/5] items-center justify-center"><span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '60px' }}>checkroom</span></div>
                 )}
               </div>
             </div>
 
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <div className="bg-[#f7f7f7] p-7 md:p-10 xl:p-12">
+            <div className="reveal-right lg:sticky lg:top-28 lg:self-start">
+              <div className="motion-lift bg-[#f7f7f7] p-7 md:p-10 xl:p-12">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{product.category}</p>
                   <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Private Client Selection</p>
                 </div>
 
                 <h1 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl xl:text-6xl">{product.name}</h1>
+                <p className="editorial-hand mt-4 text-3xl text-[#8a6d28]">a signature piece</p>
 
                 <div className="mt-6 flex items-baseline gap-4">
                   {product.salePrice ? (
@@ -179,7 +182,7 @@ export default function ProductDetail() {
 
                 <div className="mt-8 grid gap-3 md:grid-cols-3">
                   {TRUST_ITEMS.map((item) => (
-                    <div key={item.title} className="bg-white px-4 py-4">
+                    <div key={item.title} className="motion-lift bg-white px-4 py-4">
                       <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">{item.title}</p>
                       <p className="mt-3 text-sm leading-6 text-[#4e4748]">{item.text}</p>
                     </div>
@@ -191,7 +194,7 @@ export default function ProductDetail() {
                     <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Color <span className="text-[#111111]">{selectedColor}</span></p>
                     <div className="mt-4 flex flex-wrap gap-3">
                       {product.colors.map((color) => (
-                        <button key={color} onClick={() => { setSelectedColor(color); setActiveImage(0); }} className={`px-4 py-3 text-xs uppercase tracking-[0.18rem] transition-colors ${selectedColor === color ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>{color}</button>
+                        <button key={color} onClick={() => { setSelectedColor(color); setActiveImage(0); }} className={`px-4 py-3 text-xs uppercase tracking-[0.18rem] transition-all hover:-translate-y-0.5 ${selectedColor === color ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>{color}</button>
                       ))}
                     </div>
                   </div>
@@ -205,7 +208,7 @@ export default function ProductDetail() {
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-2 md:grid-cols-4">
                       {product.sizes.map((size) => (
-                        <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-4 text-xs uppercase tracking-[0.18rem] transition-colors ${selectedSize === size ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>{size}</button>
+                        <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-4 text-xs uppercase tracking-[0.18rem] transition-all hover:-translate-y-0.5 ${selectedSize === size ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>{size}</button>
                       ))}
                     </div>
                   </div>
@@ -220,19 +223,19 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="mt-10 flex flex-col gap-3">
-                  <button onClick={handleAddToCart} disabled={!canAdd} className={`py-5 text-center font-['Manrope'] text-[0.66rem] uppercase tracking-[0.28rem] transition-all ${!canAdd ? 'bg-[#ececec] text-[#9d9596] cursor-not-allowed' : addedToCart ? 'bg-[#3a6472] text-white' : 'gold-shimmer hover:opacity-95'}`}>
+                  <button onClick={handleAddToCart} disabled={!canAdd} className={`motion-cta py-5 text-center font-['Manrope'] text-[0.66rem] uppercase tracking-[0.28rem] transition-all ${!canAdd ? 'bg-[#ececec] text-[#9d9596] cursor-not-allowed' : addedToCart ? 'bg-[#3a6472] text-white scale-[1.01]' : 'gold-shimmer hover:opacity-95'}`}>
                     {currentStock === 0 ? 'Out of Stock' : !canAdd ? 'Stock Limit Reached' : addedToCart ? 'Added to Cart' : 'Add to Cart'}
                   </button>
-                  <Link to="/cart" className="editorial-button-secondary w-full">View Cart</Link>
+                  <Link to="/cart" className="editorial-button-secondary motion-cta w-full">View Cart</Link>
                 </div>
               </div>
 
               <div className="mt-4 grid gap-2 md:grid-cols-2">
-                <div className="bg-[#fbfaf8] px-6 py-6">
+                <div className="motion-lift bg-[#fbfaf8] px-6 py-6">
                   <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Fit Notes</p>
                   <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">{fitNote}</p>
                 </div>
-                <div className="bg-[#fbfaf8] px-6 py-6">
+                <div className="motion-lift bg-[#fbfaf8] px-6 py-6">
                   <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Style Advice</p>
                   <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">שלב את הפריט עם נעל מחויטת, חגורה מינימליסטית ושכבת tailoring נקייה כדי לשמור על מראה מדויק ויוקרתי.</p>
                 </div>
@@ -320,7 +323,7 @@ export default function ProductDetail() {
               </div>
               <Link to={`/shop?category=${product.category}`} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#111111]">View full category</Link>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+            <div className="motion-grid grid gap-8 md:grid-cols-2 xl:grid-cols-4">
               {related.map((item) => <RelatedCard key={item._id} product={item} />)}
             </div>
           </div>

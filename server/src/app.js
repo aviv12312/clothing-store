@@ -97,6 +97,10 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/coupons', couponRoutes);
 
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API route not found' });
+});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({

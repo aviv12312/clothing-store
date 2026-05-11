@@ -16,13 +16,13 @@ const HOUSE_CODES = [
 
 function ProductCard({ product, priority = false }) {
   return (
-    <Link to={`/product/${product._id}`} className={`group block ${priority ? 'md:col-span-2' : ''}`}>
+    <Link to={`/product/${product._id}`} className={`group block motion-lift ${priority ? 'md:col-span-2' : ''}`}>
       <div className={`relative overflow-hidden bg-surface ${priority ? 'aspect-[5/4]' : 'aspect-[3/4]'}`}>
         {product.images?.[0] ? (
           <img
             src={product.images[0]}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            className="motion-image h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -121,10 +121,16 @@ export default function Home() {
               >
                 A quieter luxury wardrobe for ceremony, tailoring, and everyday precision.
               </p>
+              <p
+                className="reveal editorial-hand mt-6 text-3xl text-white/70 md:text-4xl"
+                style={{ transitionDelay: '300ms' }}
+              >
+                made to be remembered
+              </p>
               <div className="reveal mt-10 flex items-center gap-6" style={{ transitionDelay: '360ms' }}>
                 <Link
                   to="/shop?collection=new"
-                  className="border border-white/35 px-10 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-white transition-all duration-300 hover:bg-white hover:text-primary"
+                  className="motion-cta border border-white/35 px-10 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-white transition-all duration-300 hover:bg-white hover:text-primary"
                 >
                   New Arrivals
                 </Link>
@@ -166,7 +172,7 @@ export default function Home() {
               <Link
                 key={item.title}
                 to={item.link}
-                className="reveal group relative flex h-72 flex-col justify-between bg-primary px-8 py-8 transition-all duration-500 hover:bg-[#0d1f3c] border border-primary/20 md:h-80"
+                className="reveal-scale group relative flex h-72 flex-col justify-between overflow-hidden bg-primary px-8 py-8 transition-all duration-500 hover:bg-[#0d1f3c] border border-primary/20 md:h-80 motion-lift"
               >
                 <span className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.45rem] text-on-primary/30">
                   {item.num}
@@ -206,7 +212,7 @@ export default function Home() {
                     <img
                       src={spotlight.images[0]}
                       alt={spotlight.name}
-                      className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                      className="motion-image h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full bg-surface flex items-center justify-center">
@@ -223,6 +229,7 @@ export default function Home() {
                   <h2 className="mt-5 font-['Noto_Serif'] text-4xl leading-tight tracking-[-0.04em] text-on-surface md:text-5xl">
                     {spotlight.name}
                   </h2>
+                  <p className="editorial-hand mt-3 text-3xl text-on-surface-variant">selected with intent</p>
                   {spotlight.salePrice ? (
                     <div className="mt-4 flex items-baseline gap-3">
                       <p className="font-['Noto_Serif'] text-2xl text-on-surface">₪{spotlight.salePrice}</p>
@@ -236,7 +243,7 @@ export default function Home() {
                     {spotlight.description || 'פריט נבחר מהקולקציה הנוכחית.'}
                   </p>
                   <div className="mt-10 flex flex-col gap-4">
-                    <Link to={`/product/${spotlight._id}`} className="editorial-button self-start">
+                    <Link to={`/product/${spotlight._id}`} className="editorial-button motion-cta self-start">
                       View Product
                     </Link>
                     <Link to="/shop?collection=new" className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.26rem] text-on-surface-variant link-gold">
@@ -272,7 +279,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="stagger grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <div className="stagger motion-grid grid gap-8 md:grid-cols-2 xl:grid-cols-3">
               {featured.map((product, index) => (
                 <div key={product._id} className="reveal">
                   <ProductCard product={product} priority={index === 0} />
@@ -302,6 +309,7 @@ export default function Home() {
             <blockquote className="reveal-right mt-8 font-['Noto_Serif'] text-2xl leading-snug text-white/70 md:text-4xl">
               Dress impeccably and the room remembers the man, not the noise around him.
             </blockquote>
+            <p className="reveal-right editorial-hand mt-8 text-4xl text-white/50">Dream & Work</p>
           </div>
         </section>
 
@@ -320,7 +328,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="stagger grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="stagger motion-grid grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {newCollection.map((product) => (
                 <div key={product._id} className="reveal">
                   <ProductCard product={product} />
@@ -345,7 +353,7 @@ export default function Home() {
                   View sale edit
                 </Link>
               </div>
-              <div className="stagger grid gap-6 md:grid-cols-3">
+              <div className="stagger motion-grid grid gap-6 md:grid-cols-3">
                 {saleSelection.map((product) => (
                   <div key={product._id} className="reveal">
                     <ProductCard product={product} />

@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
 import { trackBeginCheckout, trackPurchase } from '../services/analytics';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
@@ -42,6 +43,7 @@ export default function Checkout() {
   const [couponStatus, setCouponStatus] = useState(null);
   const [couponData, setCouponData] = useState(null);
   const [couponMsg, setCouponMsg] = useState('');
+  const pageRef = useScrollReveal([step, items.length, couponStatus]);
 
   const finalTotal = couponData ? parseFloat(couponData.newTotal) : total;
   const addressFilled = FIELDS.every((field) => address[field.name].trim() !== '');
@@ -127,11 +129,11 @@ export default function Checkout() {
   }, [address, clearCart, couponCode, couponData, finalTotal, items, navigate, step, total]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div ref={pageRef} className="editorial-shell min-h-screen flex flex-col bg-background">
       <main className="flex-1 pt-28 pb-24 px-6 md:px-16 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-7 space-y-14">
-            <section>
+            <section className="reveal">
               <div className="flex items-center gap-4 mb-8">
                 <span className="text-xs font-label uppercase tracking-widest text-outline">01</span>
                 <h2 className="font-headline text-2xl text-on-surface">כתובת למשלוח</h2>
@@ -154,13 +156,13 @@ export default function Checkout() {
                   <button
                     onClick={() => addressFilled && (setStep('payment'), trackBeginCheckout(items, total))}
                     disabled={!addressFilled}
-                    className="w-full py-5 bg-[#1a1a1a] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all"
+                    className="motion-cta w-full py-5 bg-[#1a1a1a] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all"
                   >
                     המשך לתשלום
                   </button>
                 </>
               ) : (
-                <div className="space-y-1 text-sm font-label text-outline">
+                <div className="motion-fade-up space-y-1 text-sm font-label text-outline">
                   <p>{address.name}</p>
                   <p>{address.street}, {address.city} {address.zipCode}</p>
                   <p>{address.phone}</p>
@@ -170,7 +172,7 @@ export default function Checkout() {
             </section>
 
             {step === 'payment' && (
-              <section>
+              <section className="motion-fade-up">
                 <div className="flex items-center gap-4 mb-8">
                   <span className="text-xs font-label uppercase tracking-widest text-outline">02</span>
                   <h2 className="font-headline text-2xl text-on-surface">תשלום</h2>
@@ -182,13 +184,13 @@ export default function Checkout() {
             )}
           </div>
 
-          <aside className="lg:col-span-5">
-            <div className="bg-surface-container p-8 sticky top-28 border border-outline-variant/10">
+          <aside className="reveal-right lg:col-span-5">
+            <div className="motion-lift bg-surface-container p-8 sticky top-28 border border-outline-variant/10">
               <h2 className="font-headline text-xl mb-8 pb-4 border-b border-outline-variant/20">סיכום הזמנה</h2>
 
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
-                  <div key={`${item.productId}-${item.size}-${item.color || ''}`} className="flex justify-between items-start text-sm font-label gap-4">
+                  <div key={`${item.productId}-${item.size}-${item.color || ''}`} className="motion-fade-up flex justify-between items-start text-sm font-label gap-4">
                     <div>
                       <p className="text-on-surface">{item.name}</p>
                       <p className="text-outline text-xs mt-0.5">
@@ -214,7 +216,7 @@ export default function Checkout() {
                   <button
                     onClick={applyCoupon}
                     disabled={!couponCode || couponStatus === 'valid' || couponStatus === 'loading'}
-                    className="font-label text-[0.6rem] uppercase tracking-widest text-[#1a1a1a] border border-[#1a1a1a]/40 px-3 py-1 hover:bg-[#1a1a1a]/5 transition-colors disabled:opacity-40"
+                    className="motion-cta font-label text-[0.6rem] uppercase tracking-widest text-[#1a1a1a] border border-[#1a1a1a]/40 px-3 py-1 hover:bg-[#1a1a1a]/5 transition-colors disabled:opacity-40"
                   >
                     {couponStatus === 'loading' ? '...' : 'החל'}
                   </button>

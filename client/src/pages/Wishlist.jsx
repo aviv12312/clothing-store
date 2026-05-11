@@ -2,48 +2,46 @@ import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import Footer from '../components/layout/Footer';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 export default function Wishlist() {
   const { items, toggle } = useWishlist();
   const { addItem } = useCart();
+  const pageRef = useScrollReveal([items.length]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div ref={pageRef} className="editorial-shell min-h-screen flex flex-col bg-white">
       <main className="flex-1 pt-32 pb-24 px-8 md:px-16 max-w-7xl mx-auto w-full">
-
-        {/* Header */}
-        <header className="mb-16">
-          <h1 className="font-headline text-5xl md:text-6xl tracking-tighter text-on-surface mb-3">
+        <header className="reveal mb-16">
+          <p className="editorial-kicker text-outline">Private Edit</p>
+          <h1 className="mt-4 font-headline text-5xl md:text-6xl tracking-tighter text-on-surface">
             המועדפים שלי
           </h1>
-          <p className="text-outline font-label text-xs uppercase tracking-widest">
+          <p className="mt-3 text-outline font-label text-xs uppercase tracking-widest">
             {items.length === 0 ? 'רשימה ריקה' : `${items.length} פריטים שמורים`}
           </p>
         </header>
 
-        {/* Empty State */}
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-6">
+          <div className="reveal-scale flex flex-col items-center justify-center py-32 gap-6 text-center">
             <span className="material-symbols-outlined text-7xl text-outline">favorite</span>
             <p className="font-label text-sm uppercase tracking-widest text-outline">
               עוד לא שמרת פריטים
             </p>
             <Link
               to="/shop"
-              className="bg-[#1a1a1a] text-white px-10 py-4 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
+              className="editorial-button motion-cta"
             >
               גלה את הקולקציה
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-16">
+          <div className="motion-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-16">
             {items.map((p) => (
-              <div key={p._id} className="group relative">
-
-                {/* Heart Button */}
+              <div key={p._id} className="group relative motion-lift">
                 <button
                   onClick={() => toggle(p)}
-                  className="absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
+                  className="absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white transition-all hover:scale-110"
                   title="הסר מהמועדפים"
                 >
                   <span className="material-symbols-outlined text-red-400 text-xl"
@@ -52,14 +50,13 @@ export default function Wishlist() {
                   </span>
                 </button>
 
-                {/* Product Image */}
                 <Link to={`/product/${p._id}`}>
                   <div className="relative overflow-hidden aspect-[3/4] bg-surface-container mb-5">
                     {p.images?.[0] ? (
                       <img
                         src={p.images[0]}
                         alt={p.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="motion-image w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-[#f5f5f3]">
@@ -69,7 +66,6 @@ export default function Wishlist() {
                   </div>
                 </Link>
 
-                {/* Info */}
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-headline text-lg text-on-surface">{p.name}</p>
@@ -87,14 +83,12 @@ export default function Wishlist() {
                   </div>
                 </div>
 
-                {/* Add to Cart */}
                 <button
                   onClick={() => addItem(p, p.sizes?.[0] || 'M', p.colors?.[0] || '')}
-                  className="w-full mt-4 bg-[#1a1a1a] text-white py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors opacity-0 group-hover:opacity-100"
+                  className="motion-cta w-full mt-4 bg-[#1a1a1a] text-white py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-all opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0"
                 >
                   הוסף לעגלה
                 </button>
-
               </div>
             ))}
           </div>

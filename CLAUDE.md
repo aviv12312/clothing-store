@@ -1,86 +1,127 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file guides Claude Code when working in this repository.
 
-## Project Overview
+## Project Rules
 
-**Dream & Work** — Hebrew-language fashion e-commerce store (editorial menswear). The UI is in Hebrew with RTL layout. Error messages and user-facing strings are written in Hebrew throughout the codebase.
+Dream & Work is an existing full-stack Hebrew RTL clothing-store project with a React/Vite client and an Express/MongoDB server.
 
-## Development Commands
+- This project existed before workflow docs were added.
+- Local code and the actual `package.json` files are the source of truth when docs disagree.
+- Do not rewrite the app, replace the architecture, or change stack/dependencies without explicit approval.
+- Do not edit `.env` files or print secrets, tokens, database URLs, payment keys, or private credentials.
+- Keep changes small, targeted, and easy to review.
 
-### Server (Express + MongoDB)
+## Stack & Layout
+
+- Root: `package.json` exists, contains `@paypal/react-paypal-js`, and has no useful npm scripts.
+- Client: React 19, React Router 7, Axios, Vite 8, Tailwind CSS 3, ESLint 9.
+- Server: Node.js ESM, Express 5, Mongoose 9/MongoDB, JWT, bcryptjs, Stripe, Cloudinary, Multer, Groq SDK, Helmet/CORS/rate-limit/validation/sanitization middleware.
+- Main folders: `client/src/`, `server/src/`, `docs/`, `.claude/`.
+- Client source areas: `components/`, `context/`, `hooks/`, `pages/`, `services/`.
+- Server source areas: `config/`, `controllers/`, `jobs/`, `middleware/`, `models/`, `routes/`, `services/`.
+
+## Commands
+
+Install only with explicit approval:
+
 ```bash
-cd server
-npm run dev      # nodemon, hot-reload
-npm start        # production
+npm install
+cd client && npm install
+cd server && npm install
 ```
 
-### Client (React + Vite)
+Client:
+
 ```bash
-cd client
-npm run dev      # Vite dev server (default: http://localhost:5173)
-npm run build    # production build
-npm run lint     # ESLint
+cd client && npm run dev
+cd client && npm run build
+cd client && npm run lint
+cd client && npm run preview
 ```
 
-Both `client` and `server` are independent npm workspaces with their own `package.json`. There is no root-level package.json — run commands from within each directory.
+Server:
 
-## Environment Variables
+```bash
+cd server && npm run dev
+cd server && npm start
+cd server && npm test
+```
 
-The server validates env vars on startup via [server/src/config/validateEnv.js](server/src/config/validateEnv.js). Required:
-- `PORT`, `MONGODB_URI`, `CLIENT_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`
+Missing/placeholder commands:
 
-Optional groups (missing keys log a warning but don't crash):
-- **Stripe**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-- **PayPal**: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`
-- **Cloudinary**: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- **AI chat**: `GROQ_API_KEY`
-- **Email**: `BREVO_API_KEY`, `EMAIL_USER`
+- No root dev/build/lint/test scripts.
+- No client test script.
+- No server lint or build script.
+- `cd server && npm test` is a placeholder that prints `Error: no test specified` and exits with failure. Do not treat it as a real test suite.
 
-## Architecture
+## Verification
 
-### Client (`client/src/`)
+Use the smallest relevant verification for changed files.
 
-- **`context/`** — Three React context providers wrapping the app in order: `AuthProvider → WishlistProvider → CartProvider`. Read via `useAuth()`, etc.
-- **`services/api.js`** — Single axios instance for all API calls. Attaches `Authorization: Bearer <token>` from `localStorage`. Implements silent token refresh on `TOKEN_EXPIRED` responses (one concurrent refresh, deduped with a promise).
-- **`components/ProtectedRoute.jsx` / `AdminRoute.jsx`** — Route guards checking `useAuth()`.
-- **`pages/admin/Dashboard.jsx`** — Admin-only panel, accessed via `/admin/*`.
-- **`hooks/useCookieConsent.js`** — GDPR/cookie consent state.
+Client changes:
 
-Auth state: access token in `localStorage` (`accessToken` key), refresh token in httpOnly cookie set by the server.
+```bash
+cd client && npm run lint
+cd client && npm run build
+```
 
-### Server (`server/src/`)
+Server JavaScript changes:
 
-- **`app.js`** — Entry point. Registers middleware in order: `helmet → cors → rateLimit → raw body for Stripe webhook → json → cookieParser → mongoSanitize → hpp`, then mounts all routes. Starts abandoned cart job on interval after DB connects.
-- **`middleware/auth.js`** — `protect` (JWT verify → attach `req.user`) and `requireAdmin` (role check). Error codes: `TOKEN_EXPIRED` triggers client-side refresh.
-- **`middleware/rateLimiters.js`** — Stricter limiter for auth routes (`authLimiter`), global 100 req/15 min on `/api/`.
-- **`middleware/validators.js`** — `express-validator` rule sets + `validate()` runner.
-- **`routes/`** — One file per resource: `auth`, `products`, `orders`, `payment`, `ai`, `upload`, `newsletter`, `cart`, `coupons`.
-- **`services/emailService.js`** — All transactional email via Brevo REST API (`fetch`, not SDK). Sends: welcome, order confirmation, status update, abandoned cart (plain + with 10% discount coupon), newsletter welcome, password reset, admin alerts.
-- **`jobs/abandonedCartJob.js`** — Runs hourly via `setInterval`. Sends first reminder at 1 hour, discount coupon at 24 hours.
+```bash
+cd server && node --check src/app.js
+```
 
-### Data Models
+Replace `src/app.js` with the touched server file when checking another file.
 
-- **User** — name, email, password (bcrypt, `select: false`), role (`user`|`admin`), address, wishlist (ref Product), newsletter, reset token fields.
-- **Product** — name, price, salePrice, category (`חתן ומלווים`|`Casual`|`Formal`), tags, sizes, colors, images, `colorImages` (mixed), `variants` (color+size+stock+sku+images), `stock`, `sizeStock` (mixed — keyed by size or by `color→size`), isActive, featured. Full-text index on name/description/tags.
-- **Order** — user ref, items (product+name+price+size+color+qty+image), subtotalPrice, discountAmount, totalPrice, couponCode, shippingAddress, paymentMethod (`stripe`|`paypal`), paymentId, paymentStatus, orderStatus (Hebrew string), stockDeducted flag.
-- **AbandonedCart**, **Coupon**, **Newsletter** — supporting models.
+Behavior changes:
 
-### Stock Management
+- Run `cd server && npm run dev` and `cd client && npm run dev` when runtime verification is needed.
+- Manually check the affected page, route, API call, auth flow, admin flow, payment flow, or upload flow.
+- Check browser console and server logs for obvious runtime errors.
+- Record only actually-run commands/checks in `docs/verification.md`.
 
-Stock is multi-layered. Resolution order in `getAvailableStock` (payment route):
-1. `sizeStock[color][size]` if both color and size present
-2. `sizeStock[size]` if only size present
-3. `product.stock` fallback
+## Client Rules
 
-Stock is only decremented at payment confirmation (`finalizePaidOrder`), guarded by `stockDeducted` flag to prevent double-deduction on webhook retries.
+- Preserve Hebrew user-facing text and RTL layout.
+- Preserve existing React Router routes unless explicitly changing routing.
+- Use existing React Context state: `AuthContext`, `CartContext`, `WishlistContext`.
+- Use `client/src/services/api.js` for API calls unless there is a clear reason not to.
+- Preserve token refresh and `ProtectedRoute`/`AdminRoute` behavior.
+- Use Tailwind and `client/tailwind.config.js` design tokens.
+- Avoid unrelated redesigns and broad UI rewrites.
 
-### Payments
+## Server Rules
 
-- **Stripe**: client calls `/api/payment/stripe/create-intent` → receives `clientSecret` → Stripe.js confirms on client → webhook `payment_intent.succeeded` finalizes order + sends email.
-- **PayPal**: client calls `create-order` → receives `paypalOrderId` → PayPal SDK approves on client → client calls `capture-order` → server captures + finalizes.
-- **Critical**: `/api/payment/webhook` receives raw body — it must be mounted before `express.json()` middleware (already correct in `app.js`).
+- Preserve the current Express route/module structure.
+- Preserve env validation in `server/src/config/validateEnv.js`.
+- Use ESM imports/exports; do not use `require`.
+- Preserve auth middleware behavior in `server/src/middleware/auth.js`.
+- Preserve Stripe webhook raw body ordering before `express.json()`.
+- Preserve Mongoose model compatibility unless schema/migration work is explicitly approved.
+- Use existing controllers, routes, middleware, models, and services before adding abstractions.
+- Treat auth, payments, env vars, database writes, and admin permissions as sensitive.
 
-### Tailwind & Design Tokens
+## Auth & Payments
 
-The design system uses a warm neutral palette (`background: #faf8f4`, `primary: #1b2e4b`, `gold: #b8963e`). Fonts: `Olondona` (brand serif, loaded from `/public/fonts/Olondona.otf`), `Noto Serif` (headline), `Manrope` (body). All tokens are in [client/tailwind.config.js](client/tailwind.config.js).
+- Auth uses JWT access tokens and an httpOnly refresh cookie.
+- The client stores the access token in `localStorage` and refreshes through `client/src/services/api.js`.
+- Do not add a second token refresh mechanism.
+- Stripe webhook handling depends on raw request bodies before JSON parsing.
+- PayPal and Stripe changes require careful client/server verification.
+
+## Documentation Rules
+
+- `docs/PRD.md`: product direction and scope. Change only when explicitly requested.
+- `docs/plans/`: use for large, risky, sensitive, or multi-file plans.
+- `docs/implementation-log.md`: update only after real implementation work.
+- `docs/verification.md`: update only after real verification.
+- Do not create fake plan, implementation, or verification entries.
+
+## MCP Rules
+
+- Use Context7 for library/framework/SDK/API/CLI/cloud documentation and version-specific questions, including React, Vite, Express, Mongoose, Tailwind, Stripe, PayPal, Cloudinary, and Groq.
+- Context7 flow: `resolve-library-id`, choose the best match, then `query-docs` with the full question.
+- Do not use Context7 for refactoring, business logic debugging, code review, or general programming concepts.
+- Use GitHub MCP only for GitHub-specific tasks: repositories, issues, pull requests, branches, commits, CI checks, or publishing GitHub changes.
+- For local code inspection, prefer local files and commands over GitHub MCP.

@@ -61,13 +61,43 @@ The first stable version should not include:
 
 ## Stack
 
-TBD based on the existing `package.json` files.
+The current stack is based on the existing `package.json` files.
 
-The stack should be updated only after reviewing:
+- Root project:
+  - `package.json` exists
+  - `@paypal/react-paypal-js` is listed as a dependency
+  - No useful root npm scripts are currently configured
+- Client:
+  - React
+  - React DOM
+  - React Router DOM
+  - Axios
+  - Vite
+  - Tailwind CSS
+  - PostCSS
+  - Autoprefixer
+  - ESLint
+- Server:
+  - Node.js with ES modules
+  - Express
+  - Mongoose / MongoDB
+  - dotenv
+  - bcryptjs
+  - jsonwebtoken
+  - Stripe
+  - Cloudinary
+  - Multer
+  - Groq SDK
+  - Helmet
+  - CORS
+  - cookie-parser
+  - express-rate-limit
+  - express-validator
+  - express-mongo-sanitize
+  - hpp
+  - nodemon for development
 
-- `package.json`
-- `client/package.json`
-- `server/package.json`
+The project uses a Hebrew RTL React client and an Express/MongoDB server.
 
 ## Success Criteria
 
@@ -75,21 +105,23 @@ The project is considered stable when:
 
 - Client install succeeds
 - Server install succeeds
+- Client lint passes
 - Client build passes
 - Server starts successfully
 - Existing main pages still work
 - No obvious runtime errors appear in the browser console
 - No obvious runtime errors appear in the server logs
+- Baseline server syntax checks pass for touched server files
+- Server `npm test` is documented as a placeholder until a real test suite is added
 - Verification commands are documented in `docs/verification.md`
 - New implementation work is documented in `docs/implementation-log.md`
 
 ## Open Questions
 
-- What exact frontend stack is used in `client/`?
-- What exact backend stack is used in `server/`?
-- Are tests configured?
+- What real automated test setup should be added for the client?
+- What real automated test setup should be added for the server?
 - Is authentication already implemented?
 - Is there an admin panel?
 - Which current features are already complete?
 - Which current features are still incomplete?
-- What commands should be used for build, dev, test, and verification?
+- Should root-level npm scripts be added for common project commands?

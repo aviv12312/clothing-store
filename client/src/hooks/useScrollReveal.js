@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Adds .visible to elements with .reveal / .reveal-left / .reveal-right
+ * Adds .visible to reveal elements when they enter the viewport.
  * when they enter the viewport.
  */
 export function useScrollReveal(deps = []) {
@@ -10,8 +10,8 @@ export function useScrollReveal(deps = []) {
   useEffect(() => {
     const root = containerRef.current ?? document;
     const targets = root.querySelectorAll
-      ? root.querySelectorAll('.reveal, .reveal-left, .reveal-right')
-      : document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+      ? root.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale')
+      : document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
 
     if (!targets.length) return;
 

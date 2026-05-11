@@ -4,6 +4,7 @@ import api from '../services/api';
 import Footer from '../components/layout/Footer';
 import { useWishlist } from '../context/WishlistContext';
 import { trackSearch } from '../services/analytics';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const ALL_CATEGORY = 'הכל';
 const CATEGORIES = [ALL_CATEGORY, 'חתן ומלווים', 'Casual', 'Formal'];
@@ -47,10 +48,10 @@ function ProductCard({ product }) {
   const liked = isLiked(product._id);
 
   return (
-    <article className="group relative">
+    <article className="group relative motion-lift">
       <button
         onClick={() => toggle(product)}
-        className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center bg-white shadow-[0_8px_24px_rgba(17,17,17,0.06)] transition-all hover:bg-[#f7f7f7]"
+        className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center bg-white shadow-[0_8px_24px_rgba(17,17,17,0.06)] transition-all hover:scale-110 hover:bg-[#f7f7f7]"
       >
         <span
           className={`material-symbols-outlined ${liked ? 'text-[#111111]' : 'text-[#6e6667]'}`}
@@ -72,7 +73,7 @@ function ProductCard({ product }) {
             <img
               src={product.images[0]}
               alt={product.name}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              className="motion-image h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
@@ -190,6 +191,7 @@ export default function Shop() {
       }),
     [priceRange, products, selectedColor, selectedSize]
   );
+  const pageRef = useScrollReveal([loading, displayedProducts.length, mobileFilter]);
 
   const activeFilters = [
     category !== ALL_CATEGORY && { key: 'category', label: categoryTitle[category] || category, clear: () => setCategory(ALL_CATEGORY) },
@@ -288,16 +290,17 @@ export default function Shop() {
   );
 
   return (
-    <div className="editorial-shell min-h-screen bg-white">
+    <div ref={pageRef} className="editorial-shell min-h-screen bg-white">
       <div className="px-6 pb-10 pt-32 md:px-12 lg:px-20 lg:pt-40">
         <div className="mx-auto max-w-[1600px]">
-          <p className="editorial-kicker text-[#6e6667]">Catalog</p>
+          <p className="reveal editorial-kicker text-[#6e6667]">Catalog</p>
           <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
+            <div className="reveal">
               <h1 className="font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#111111] md:text-7xl">{collectionLabel}</h1>
+              <p className="editorial-hand mt-4 text-3xl text-[#8a6d28] md:text-4xl">curated pieces, quiet confidence</p>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5d5657] md:text-base">A clean catalog layout with more white space, lighter surfaces, and simpler filtering so the products stay in focus.</p>
             </div>
-            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary lg:hidden">Filters</button>
+            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary motion-cta lg:hidden">Filters</button>
           </div>
 
           {activeFilters.length > 0 && (
@@ -318,16 +321,16 @@ export default function Shop() {
 
           <main className="flex-1">
             {loading ? (
-              <div className="flex h-72 items-center justify-center bg-[#f7f7f7]">
+              <div className="motion-fade-up flex h-72 items-center justify-center bg-[#f7f7f7]">
                 <span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span>
               </div>
             ) : displayedProducts.length === 0 ? (
-              <div className="bg-[#f7f7f7] px-8 py-20 text-center">
+              <div className="motion-fade-up bg-[#f7f7f7] px-8 py-20 text-center">
                 <p className="editorial-kicker text-[#6e6667]">Nothing matched the current filters</p>
-                <button onClick={resetAll} className="editorial-button mt-8">Clear Filters</button>
+                <button onClick={resetAll} className="editorial-button motion-cta mt-8">Clear Filters</button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
+              <div className="motion-grid grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
                 {displayedProducts.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
@@ -340,7 +343,7 @@ export default function Shop() {
       {mobileFilter && (
         <div className="fixed inset-0 z-[60] lg:hidden">
           <div className="absolute inset-0 bg-[rgba(17,17,17,0.24)]" onClick={() => setMobileFilter(false)} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto bg-white shadow-[0_24px_60px_rgba(27,28,28,0.08)]">
+          <div className="motion-drawer absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto bg-white shadow-[0_24px_60px_rgba(27,28,28,0.08)]">
             <div className="flex items-center justify-between px-6 pt-24">
               <p className="editorial-kicker text-[#6e6667]">Filters</p>
               <button onClick={() => setMobileFilter(false)} className="flex h-10 w-10 items-center justify-center bg-[#f5f5f5]">

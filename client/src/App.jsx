@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -50,33 +50,43 @@ export default function App() {
       <CartProvider>
         <BrowserRouter>
           <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-            <Route path="/legal/privacy" element={<Privacy />} />
-            <Route path="/legal/terms" element={<Terms />} />
-            <Route path="/legal/returns" element={<Returns />} />
-            <Route path="/legal/accessibility" element={<Accessibility />} />
-            <Route path="/unsubscribe" element={<Unsubscribe />} />
-            <Route path="/cancel-order" element={<ProtectedRoute><CancelOrder /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
           <CookieBanner />
         </BrowserRouter>
       </CartProvider>
     </WishlistProvider>
     </AuthProvider>
     </>
+  );
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <div key={location.pathname} className="motion-page">
+      <Routes location={location}>
+        <Route path="/" element={<Home />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/legal/privacy" element={<Privacy />} />
+        <Route path="/legal/terms" element={<Terms />} />
+        <Route path="/legal/returns" element={<Returns />} />
+        <Route path="/legal/accessibility" element={<Accessibility />} />
+        <Route path="/unsubscribe" element={<Unsubscribe />} />
+        <Route path="/cancel-order" element={<ProtectedRoute><CancelOrder /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   );
 }
