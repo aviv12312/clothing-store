@@ -79,7 +79,7 @@ export default function Checkout() {
         btnRef.current.innerHTML = '';
 
         paypal.Buttons({
-          style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+          style: { layout: 'vertical', color: 'black', shape: 'rect', label: 'pay' },
           createOrder: async () => {
             const { data } = await api.post('/payment/paypal/create-order', {
               cartItems: items.map((item) => ({
@@ -151,14 +151,14 @@ export default function Checkout() {
                         placeholder={t(field.placeholderKey)}
                         value={address[field.name]}
                         onChange={(e) => setAddress((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
-                        className="w-full bg-transparent border-b border-outline-variant py-3 text-on-surface placeholder-outline font-label text-sm focus:outline-none focus:border-[#1a1a1a] uppercase tracking-wider transition-colors"
+                        className="w-full bg-transparent border-b border-outline-variant py-3 text-on-surface placeholder-outline font-label text-sm focus:outline-none focus:border-[#13243A] uppercase tracking-wider transition-colors"
                       />
                     ))}
                   </div>
                   <button
                     onClick={() => addressFilled && (setStep('payment'), trackBeginCheckout(items, total))}
                     disabled={!addressFilled}
-                    className="motion-cta w-full py-5 bg-[#1a1a1a] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all"
+                    className="motion-cta w-full py-5 bg-[#13243A] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all"
                   >
                     {t('checkout.continuePayment')}
                   </button>
@@ -168,7 +168,7 @@ export default function Checkout() {
                   <p>{address.name}</p>
                   <p>{address.street}, {address.city} {address.zipCode}</p>
                   <p>{address.phone}</p>
-                  <button onClick={() => setStep('address')} className="text-[#1a1a1a] text-xs uppercase tracking-widest mt-2 border-b border-[#1a1a1a]/30">{t('checkout.edit')}</button>
+                  <button onClick={() => setStep('address')} className="text-[#13243A] text-xs uppercase tracking-widest mt-2 border-b border-[#13243A]/30">{t('checkout.edit')}</button>
                 </div>
               )}
             </section>
@@ -213,12 +213,12 @@ export default function Checkout() {
                     onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponStatus(null); setCouponData(null); setCouponMsg(''); }}
                     placeholder={t('checkout.couponPlaceholder')}
                     disabled={couponStatus === 'valid'}
-                    className="flex-1 bg-transparent border-b border-outline-variant py-2 text-on-surface placeholder-outline font-label text-xs uppercase tracking-wider focus:outline-none focus:border-[#1a1a1a] transition-colors disabled:opacity-50"
+                    className="flex-1 bg-transparent border-b border-outline-variant py-2 text-on-surface placeholder-outline font-label text-xs uppercase tracking-wider focus:outline-none focus:border-[#13243A] transition-colors disabled:opacity-50"
                   />
                   <button
                     onClick={applyCoupon}
                     disabled={!couponCode || couponStatus === 'valid' || couponStatus === 'loading'}
-                    className="motion-cta font-label text-[0.6rem] uppercase tracking-widest text-[#1a1a1a] border border-[#1a1a1a]/40 px-3 py-1 hover:bg-[#1a1a1a]/5 transition-colors disabled:opacity-40"
+                    className="motion-cta font-label text-[0.6rem] uppercase tracking-widest text-[#13243A] border border-[#13243A]/40 px-3 py-1 hover:bg-[#13243A]/5 transition-colors disabled:opacity-40"
                   >
                     {couponStatus === 'loading' ? '...' : t('checkout.apply')}
                   </button>
@@ -229,7 +229,7 @@ export default function Checkout() {
               <div className="border-t border-outline-variant/20 pt-4">
                 <div className="flex justify-between text-sm font-label text-outline mb-2">
                   <span>{t('cart.shipping')}</span>
-                  <span className="text-[#1a1a1a]">{t('common.free')}</span>
+                  <span className="text-[#13243A]">{t('common.free')}</span>
                 </div>
                 {couponData && (
                   <div className="flex justify-between text-sm font-label text-green-600 mb-2">
@@ -241,7 +241,7 @@ export default function Checkout() {
                   <span>{t('cart.total')}</span>
                   <div className="text-left">
                     {couponData && <p className="text-outline line-through text-sm">₪{total.toFixed(2)}</p>}
-                    <span className="text-[#1a1a1a]">₪{finalTotal.toFixed(2)}</span>
+                    <span className="text-[#13243A]">₪{finalTotal.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

@@ -182,39 +182,65 @@ export default function Home() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (!reduced) {
-      // No fade-in on the image parent — that creates a persistent GPU layer
-      // which softens the image. The image just appears sharply when loaded.
+      // Animations fire when each section enters the viewport — works on both
+      // desktop (text is visible at load → triggers immediately) and mobile
+      // (text is below the image → triggers when user scrolls down).
+      const onView = (target, fromState, toState) => {
+        if (!target) return;
+        const triggerEl = Array.isArray(target) ? target[0] : target;
+        if (!triggerEl) return;
+        gsap.fromTo(target, fromState, {
+          ...toState,
+          scrollTrigger: {
+            trigger: triggerEl,
+            start: 'top 92%',
+            toggleActions: 'play none none none',
+          },
+        });
+      };
 
       // Kicker clip reveal
-      if (heroKickerRef.current) {
-        gsap.fromTo(heroKickerRef.current,
-          { yPercent: 105, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out', delay: 0.3 }
-        );
-      }
+      onView(
+        heroKickerRef.current,
+        { yPercent: 105, autoAlpha: 0 },
+        { yPercent: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out' }
+      );
 
       // Title lines: luxury clip reveal (each line rises from below)
       if (heroLine1Ref.current && heroLine2Ref.current) {
-        gsap.fromTo([heroLine1Ref.current, heroLine2Ref.current],
+        onView(
+          [heroLine1Ref.current, heroLine2Ref.current],
           { yPercent: 108, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, duration: 1.3, stagger: 0.14, ease: 'power4.out', delay: 0.42 }
+          { yPercent: 0, autoAlpha: 1, duration: 1.3, stagger: 0.14, ease: 'power4.out' }
         );
       }
 
       // Body text, hand text, CTA fade up
-      const extras = [
+      const heroExtras = [
         heroBodyRef.current,
         heroHandRef.current,
         heroCtaRef.current,
+      ].filter(Boolean);
+      if (heroExtras.length) {
+        onView(
+          heroExtras,
+          { autoAlpha: 0, y: 22 },
+          { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out' }
+        );
+      }
+
+      // Moment block (lower in the hero on mobile) — separate trigger
+      const moments = [
         momentKickerRef.current,
         momentTitleRef.current,
         momentBodyRef.current,
         momentCtaRef.current,
       ].filter(Boolean);
-      if (extras.length) {
-        gsap.fromTo(extras,
+      if (moments.length) {
+        onView(
+          moments,
           { autoAlpha: 0, y: 22 },
-          { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out', delay: 0.9 }
+          { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out' }
         );
       }
     }
@@ -362,10 +388,10 @@ export default function Home() {
       <main>
 
 
-        {/* ── Marquee ── */}
-        <section ref={heroRef} className="cinematic-hero relative min-h-screen overflow-hidden bg-primary px-4 pb-6 pt-32 text-white md:px-8 lg:px-10 lg:pt-36">
+        {/* ── Hero — panel-in-panel: cream outer → navy slab + terracotta accents ── */}
+        <section ref={heroRef} className="cinematic-hero relative min-h-screen overflow-hidden bg-background px-4 pb-6 pt-32 text-navy-deep md:px-8 lg:px-10 lg:pt-36">
           <div className="mx-auto grid min-h-[calc(100vh-10rem)] max-w-[1800px] gap-4 lg:grid-cols-[1.18fr_0.82fr]">
-            <div className="relative min-h-[54vh] overflow-hidden border border-white/10 bg-white/5 lg:min-h-0">
+            <div className="relative min-h-[54vh] overflow-hidden border border-slate/30 bg-sand lg:min-h-0">
               {/* Render only after API responds — prevents flash of stale local image */}
               {!loadingFeatured && (
                 <img
@@ -380,23 +406,24 @@ export default function Home() {
                 />
               )}
               {/* Subtle dark wash only at the very bottom — for label legibility, image stays clear */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(to_top,rgba(27,46,75,0.55)_0%,rgba(27,46,75,0)_100%)]" />
-              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between gap-4 border-t border-white/20 pt-5 text-white/45">
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(to_top,rgba(19,36,58,0.55)_0%,rgba(19,36,58,0)_100%)]" />
+              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between gap-4 border-t border-white/25 pt-5 text-white/55">
                 <span className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.32rem]">{t('home.heroKicker')}</span>
-                <span className="editorial-hand text-base text-white/50">Campaign Panel</span>
+                <span className="editorial-hand text-base text-terracotta-soft">Campaign Panel</span>
               </div>
             </div>
 
             <div ref={heroCopyRef} className="grid gap-4">
-              <div className="flex min-h-[34rem] items-center border border-white/10 bg-[#142844] px-7 py-10 md:px-10 lg:px-12">
-                <div className="max-w-xl text-white">
+              {/* Inner panel: navy slab inside cream outer */}
+              <div className="flex min-h-[34rem] items-center border border-navy-deep/30 bg-navy px-7 py-10 md:px-10 lg:px-12">
+                <div className="max-w-xl text-cream">
                   <div style={{ overflow: 'hidden' }}>
-                    <p ref={heroKickerRef} className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.55rem] text-white/45">
+                    <p ref={heroKickerRef} className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.55rem] text-terracotta-soft">
                       {t('home.heroKicker')}
                     </p>
                   </div>
                   <h1
-                    className="mt-6 font-['Noto_Serif'] leading-[1.0] tracking-[-0.03em] text-white"
+                    className="mt-6 font-['Noto_Serif'] leading-[1.0] tracking-[-0.03em] text-cream"
                     style={{ fontSize: 'clamp(3rem, 5.4vw, 6.6rem)' }}
                   >
                     <span style={{ display: 'block', overflow: 'hidden' }}>
@@ -406,22 +433,22 @@ export default function Home() {
                       <span ref={heroLine2Ref} style={{ display: 'block' }}>{t('home.heroTitleLine2')}</span>
                     </span>
                   </h1>
-                  <p ref={heroBodyRef} className="mt-6 max-w-sm font-['Manrope'] text-sm leading-7 text-white/60">
+                  <p ref={heroBodyRef} className="mt-6 max-w-sm font-['Manrope'] text-sm leading-7 text-cream/70">
                     {t('home.heroBody')}
                   </p>
-                  <p ref={heroHandRef} className="editorial-hand mt-6 text-3xl text-white/70 md:text-4xl">
+                  <p ref={heroHandRef} className="editorial-hand mt-6 text-3xl text-terracotta-soft md:text-4xl">
                     {t('home.heroHand')}
                   </p>
                   <div ref={heroCtaRef} className="mt-10 flex flex-wrap items-center gap-5">
                     <Link
                       to="/shop?collection=new"
-                      className="motion-cta border border-gold/70 px-9 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-white transition-all duration-300 hover:bg-gold hover:text-primary"
+                      className="motion-cta border border-terracotta px-9 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-cream transition-all duration-300 hover:bg-terracotta hover:text-navy-deep"
                     >
                       {t('home.newArrivals')}
                     </Link>
                     <Link
                       to="/shop"
-                      className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-white/50 transition-colors duration-300 hover:text-white"
+                      className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-cream/55 transition-colors duration-300 hover:text-cream"
                     >
                       {t('home.discover')} →
                     </Link>
@@ -430,17 +457,19 @@ export default function Home() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
-                <div className="border border-white/10 bg-white/[0.04] p-6">
-                  <p ref={momentKickerRef} className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem] text-gold/80">Every moment</p>
-                  <h2 ref={momentTitleRef} className="mt-4 font-['Noto_Serif'] text-3xl tracking-[-0.05em] text-white md:text-4xl">
+                {/* Sand panel — sits inside cream outer, contrasting the navy slab */}
+                <div className="border border-slate/25 bg-surface-low p-6">
+                  <p ref={momentKickerRef} className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem] text-terracotta">Every moment</p>
+                  <h2 ref={momentTitleRef} className="mt-4 font-['Noto_Serif'] text-3xl tracking-[-0.05em] text-navy-deep md:text-4xl">
                     Panels that can change with every campaign.
                   </h2>
-                  <p ref={momentBodyRef} className="mt-4 text-sm leading-7 text-white/55">
+                  <p ref={momentBodyRef} className="mt-4 text-sm leading-7 text-on-surface-variant">
                     Hero and lookbook imagery are now campaign-controlled, while the layout keeps every visual the same size.
                   </p>
                 </div>
-                <div ref={momentCtaRef} className="flex flex-col justify-between border border-white/10 bg-gold p-6 text-primary">
-                  <p className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem] text-primary/60">Lookbook Ready</p>
+                {/* Terracotta CTA panel — accent layer */}
+                <div ref={momentCtaRef} className="flex flex-col justify-between border border-terracotta-deep/40 bg-terracotta p-6 text-cream">
+                  <p className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem] text-cream/85">Lookbook Ready</p>
                   <Link to="/shop" className="mt-10 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.28rem]">
                     Enter the collection →
                   </Link>
@@ -462,16 +491,16 @@ export default function Home() {
 
         <section className="lookbook-cinema reveal bg-background px-4 py-4 md:px-8 lg:px-10">
           <div className="mx-auto grid max-w-[1800px] gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-            <div className="lookbook-copy-panel border border-outline-variant bg-background px-6 py-8">
-              <p className="editorial-kicker text-gold-dark">{t('home.lookbook.kicker')}</p>
-              <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-on-surface md:text-5xl">
+            <div className="lookbook-copy-panel border border-slate/25 bg-surface-low px-6 py-8">
+              <p className="editorial-kicker text-terracotta">{t('home.lookbook.kicker')}</p>
+              <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-navy-deep md:text-5xl">
                 Every Moment
               </h2>
-              <p className="editorial-hand mt-2 text-2xl text-gold-dark">curated for you</p>
+              <p className="editorial-hand mt-2 text-2xl text-terracotta-deep">curated for you</p>
               <p className="lookbook-copy mt-4 max-w-sm text-sm leading-7 text-on-surface-variant">
                 A compact campaign grid for workday, evening, and event dressing.
               </p>
-              <Link to="/shop" className="mt-8 inline-flex font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-on-surface link-gold">
+              <Link to="/shop" className="mt-8 inline-flex font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-navy-deep link-gold">
                 View the lookbook →
               </Link>
             </div>

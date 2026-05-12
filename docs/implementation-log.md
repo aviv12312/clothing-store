@@ -715,3 +715,123 @@ No plan file was created because this was a small admin copy/UI clarification.
 ### Follow-up Tasks
 
 - Visually review the admin upload sections to confirm the guidance is clear and not too crowded.
+
+---
+
+### Date
+
+2026-05-12
+
+### Feature / Task
+
+Light hero palette update
+
+### Goal
+
+Change only the home hero section to the site's light palette while keeping direct hex classes available for VS Code color picker editing.
+
+### Plan Reference
+
+Approved chat plan: "Light Hero Palette Update".
+
+### Implemented Changes
+
+- Changed the home hero wrapper from a translucent white/dark text setup to `#F7F3EA` with dark text.
+- Changed the hero text panels from dark navy to light surface panels with `#FFFFFF`, `#E5E7EB`, `#111827`, `#4B5563`, and gold accents.
+- Kept the image-overlay text white because it sits on top of the campaign image.
+- Kept the home image/admin logic and animations unchanged.
+
+### Files Changed
+
+- `client/src/pages/Home.jsx`
+
+### Important Decisions
+
+- The change is scoped to the hero block only; global Tailwind `primary` was not changed.
+- Hex classes were used intentionally so VS Code can show color pickers on the hero colors.
+
+### Follow-up Tasks
+
+- Visually review the hero in the browser to confirm the light palette is readable and not too flat.
+
+---
+
+### Date
+
+2026-05-12
+
+### Feature / Task
+
+Restore blue hero palette
+
+### Goal
+
+Return the home hero colors from the temporary light palette back to the previous blue/dark palette.
+
+### Plan Reference
+
+Approved in chat after the user asked to restore the previous color.
+
+### Implemented Changes
+
+- Restored the hero wrapper to `bg-primary` with white text.
+- Restored the main hero text panel to `bg-[#142844]`.
+- Restored hero text, CTA, secondary panel, and progress-line colors to the previous white/gold-on-blue styling.
+
+### Files Changed
+
+- `client/src/pages/Home.jsx`
+
+### Important Decisions
+
+- Only the hero color classes were restored; layout, images, animations, admin-managed image logic, and other sections were not changed.
+
+### Follow-up Tasks
+
+- Visually review the home hero to confirm it matches the preferred blue palette again.
+
+---
+
+### Date
+
+2026-05-12
+
+### Feature / Task
+
+Navy, cream, and sage editorial palette
+
+### Goal
+
+Refresh the storefront color system to keep navy as the anchor color, move the light surfaces toward cream/stone, and replace yellow/gold accents with sage.
+
+### Plan Reference
+
+Approved chat plan: "Navy, Cream & Sage Editorial Palette".
+
+### Implemented Changes
+
+- Updated Tailwind color tokens and root CSS variables to the navy, cream, stone, and sage palette.
+- Kept existing `gold`/`gold-dark` class names for compatibility, but changed their values to sage/deep sage.
+- Replaced hardcoded yellow accents in shared CSS, splash screen, and footer with sage tones.
+- Changed the PayPal button style from gold to black to avoid a yellow checkout accent.
+- Updated the home hero inner panel to the planned deep navy value.
+
+### Files Changed
+
+- `client/tailwind.config.js`
+- `client/src/index.css`
+- `client/src/pages/Home.jsx`
+- `client/src/pages/Checkout.jsx`
+- `client/src/components/SplashScreen.jsx`
+- `client/src/components/layout/Footer.jsx`
+
+### Important Decisions
+
+- Admin screens were not redesigned.
+- Storefront class names such as `gold`, `gold-dark`, and `gold-shimmer` were retained to avoid broad JSX churn; they now render as sage rather than yellow.
+- Existing routes, API calls, payment logic, cart/auth behavior, and admin image logic were not changed.
+
+### Follow-up Tasks
+
+- Visually review Home, Shop, Product Detail, Wishlist, Cart, and Checkout on desktop and mobile.
+- If the sage feels too muted or too green in real imagery, tune only the token values.

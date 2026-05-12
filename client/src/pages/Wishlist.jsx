@@ -54,7 +54,7 @@ export default function Wishlist() {
                     {p.images?.[0] ? (
                       <img src={p.images[0]} alt={p.name} className="motion-image w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-[#f5f5f3]">
+                      <div className="w-full h-full flex items-center justify-center bg-[#FFFBF2]">
                         <span className="material-symbols-outlined text-5xl text-outline">checkroom</span>
                       </div>
                     )}
@@ -80,7 +80,7 @@ export default function Wishlist() {
 
                 <button
                   onClick={() => addItem(p, p.sizes?.[0] || 'M', p.colors?.[0] || '')}
-                  className="motion-cta w-full mt-4 bg-[#1a1a1a] text-white py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-all opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0"
+                  className="motion-cta w-full mt-4 bg-[#13243A] text-white py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-all opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0"
                 >
                   {t('common.addToCart')}
                 </button>

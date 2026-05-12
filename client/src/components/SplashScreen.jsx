@@ -70,7 +70,7 @@ export default function SplashScreen({ onComplete }) {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        backgroundColor: '#080d16',
+        backgroundColor: '#13243A',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -84,7 +84,7 @@ export default function SplashScreen({ onComplete }) {
           style={{
             fontFamily: 'Olondona, serif',
             fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
-            color: '#e8dcc8',
+            color: '#F4EDE0',
             letterSpacing: '0.22em',
             lineHeight: 1,
           }}
@@ -92,13 +92,13 @@ export default function SplashScreen({ onComplete }) {
           DREAM &amp; WORK
         </div>
 
-        {/* Thin gold separator */}
+        {/* Thin terracotta separator */}
         <div
           ref={separatorRef}
           style={{
             marginTop: '1.1rem',
             height: '1px',
-            background: 'linear-gradient(to right, transparent, #D6B56D 30%, #D6B56D 70%, transparent)',
+            background: 'linear-gradient(to right, transparent, #C47A5C 30%, #C47A5C 70%, transparent)',
           }}
         />
 
@@ -111,7 +111,7 @@ export default function SplashScreen({ onComplete }) {
             fontSize: '0.48rem',
             letterSpacing: '0.58rem',
             textTransform: 'uppercase',
-            color: 'rgba(214,181,109,0.5)',
+            color: 'rgba(196,122,92,0.75)',
           }}
         >
           Editorial Menswear
@@ -132,7 +132,7 @@ export default function SplashScreen({ onComplete }) {
             ref={progressRef}
             style={{
               height: '100%',
-              background: 'linear-gradient(to right, #b8963e, #e8c97a, #D6B56D)',
+              background: 'linear-gradient(to right, #9C5A40, #C47A5C, #E0AB94)',
               transform: 'scaleX(0)',
               transformOrigin: 'left',
             }}

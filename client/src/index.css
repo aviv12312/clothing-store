@@ -13,17 +13,32 @@
 
 :root {
   color-scheme: light;
-  --surface: #F7F3EA;
-  --surface-low: #FFFFFF;
-  --surface-high: #E5E7EB;
-  --ink: #111827;
-  --muted: #4B5563;
-  --ghost: rgba(11, 31, 58, 0.12);
-  --navy: #1b2e4b;
-  --champagne: #D6B56D;
-  --ivory: #F7F3EA;
-  --charcoal: #111827;
-  --soft-gray: #E5E7EB;
+  /* Coastal Mediterranean palette */
+  --cream: #F4EDE0;
+  --cream-down: #EFE7D6;
+  --ivory: #FFFBF2;
+  --sand: #E0D3BC;
+  --sand-deep: #CDBFA1;
+  --navy: #1B2E4B;
+  --navy-deep: #13243A;
+  --sky: #A8C4D6;
+  --sky-soft: #D8E6EE;
+  --slate: #8AA3B8;
+  --terracotta: #C47A5C;
+  --terracotta-deep: #9C5A40;
+  --terracotta-soft: #E0AB94;
+  --ink: #13243A;
+  --muted: #5A6B7F;
+  --ghost: rgba(27, 46, 75, 0.12);
+  /* Legacy aliases — keep old class consumers working */
+  --surface: #F4EDE0;
+  --surface-low: #FFFBF2;
+  --surface-high: #E0D3BC;
+  --champagne: #C47A5C;
+  --sage: #C47A5C;
+  --sage-dark: #9C5A40;
+  --charcoal: #13243A;
+  --soft-gray: #E0D3BC;
   --hand: 'Caveat', 'Architects Daughter', cursive;
 }
 
@@ -69,7 +84,7 @@ a {
 }
 
 ::selection {
-  background: rgba(214, 181, 109, 0.28);
+  background: rgba(168, 196, 214, 0.32);
 }
 
 .material-symbols-outlined {
@@ -94,7 +109,7 @@ a {
   position: fixed;
   width: 480px;
   height: 480px;
-  background: radial-gradient(circle, rgba(214, 181, 109, 0.12) 0%, rgba(11, 31, 58, 0.025) 35%, transparent 65%);
+  background: radial-gradient(circle, rgba(168, 196, 214, 0.16) 0%, rgba(27, 46, 75, 0.025) 35%, transparent 65%);
   transform: translate(-50%, -50%);
   transition: left 0.14s ease, top 0.14s ease;
   z-index: 1;
@@ -218,7 +233,7 @@ a {
 }
 
 .gallery-frame {
-  box-shadow: inset 0 0 0 1px rgba(214, 181, 109, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(196, 122, 92, 0.24);
 }
 
 @keyframes maskReveal {
@@ -299,8 +314,8 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, #1b2e4b 0%, #111827 100%);
-  color: #F7F3EA;
+  background: linear-gradient(135deg, #1B2E4B 0%, #13243A 100%);
+  color: #F4EDE0;
   text-transform: uppercase;
   letter-spacing: 0.24rem;
   font-size: 0.68rem;
@@ -333,7 +348,7 @@ a {
 
 .editorial-button-secondary:hover {
   transform: translateY(-2px);
-  border-color: #D6B56D;
+  border-color: #C47A5C;
 }
 
 .editorial-input,
@@ -349,12 +364,12 @@ a {
 
 .editorial-input:focus,
 .editorial-select:focus {
-  border-color: rgba(214, 181, 109, 0.95);
+  border-color: rgba(196, 122, 92, 0.95);
 }
 
 .gold-shimmer {
-  background: #D6B56D;
-  color: #111827 !important;
+  background: #C47A5C;
+  color: #13243A !important;
   transition: opacity 0.2s ease !important;
 }
 
@@ -446,7 +461,7 @@ a {
   position: absolute;
   inset: -30% auto -30% -45%;
   width: 44%;
-  background: linear-gradient(100deg, transparent 0%, rgba(214, 181, 109, 0.16) 46%, transparent 100%);
+  background: linear-gradient(100deg, transparent 0%, rgba(196, 122, 92, 0.16) 46%, transparent 100%);
   transform: translateX(-130%) skewX(-12deg);
   transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
@@ -484,8 +499,8 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(214, 181, 109, 0);
-  box-shadow: inset 0 0 0 0 rgba(214, 181, 109, 0);
+  border: 1px solid rgba(196, 122, 92, 0);
+  box-shadow: inset 0 0 0 0 rgba(196, 122, 92, 0);
   transition: border-color 900ms ease, box-shadow 900ms ease;
   pointer-events: none;
 }
@@ -522,13 +537,13 @@ a {
 
   .lookbook-card:hover {
     transform: translateY(-12px) scale(1.012);
-    border-color: rgba(214, 181, 109, 0.58);
+    border-color: rgba(196, 122, 92, 0.58);
     box-shadow: 0 26px 80px rgba(11, 31, 58, 0.2);
   }
 
   .lookbook-card:hover::after {
-    border-color: rgba(214, 181, 109, 0.5);
-    box-shadow: inset 0 0 34px rgba(214, 181, 109, 0.12);
+    border-color: rgba(196, 122, 92, 0.5);
+    box-shadow: inset 0 0 34px rgba(196, 122, 92, 0.12);
   }
 
   .lookbook-card:hover .lookbook-media img {
@@ -539,7 +554,7 @@ a {
 
   .lookbook-card:hover h3 {
     transform: translateY(-6px);
-    color: #F7F3EA;
+    color: #F4EDE0;
   }
 
   .lookbook-card:hover p {
@@ -586,7 +601,7 @@ a {
   right: 0;
   width: 0;
   height: 1px;
-  background: #D6B56D;
+  background: #C47A5C;
   transition: width 300ms ease;
 }
 

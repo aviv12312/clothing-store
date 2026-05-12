@@ -19,9 +19,9 @@ export default function Cart() {
     return (
       <div ref={pageRef} className="editorial-shell min-h-screen bg-white">
         <main className="flex min-h-[80vh] flex-col items-center justify-center px-6 text-center md:px-12">
-          <p className="reveal editorial-kicker text-[#6e6667]">{t('cart.bag')}</p>
-          <h1 className="reveal mt-6 font-['Noto_Serif'] text-5xl tracking-[-0.05em] text-[#111111] md:text-7xl">{t('cart.emptyTitle')}</h1>
-          <p className="reveal mt-6 max-w-xl text-sm leading-7 text-[#5d5657]">{t('cart.emptyText')}</p>
+          <p className="reveal editorial-kicker text-[#5A6B7F]">{t('cart.bag')}</p>
+          <h1 className="reveal mt-6 font-['Noto_Serif'] text-5xl tracking-[-0.05em] text-[#13243A] md:text-7xl">{t('cart.emptyTitle')}</h1>
+          <p className="reveal mt-6 max-w-xl text-sm leading-7 text-[#5A6B7F]">{t('cart.emptyText')}</p>
           <Link to="/shop" className="editorial-button motion-cta mt-10">{t('common.continueShopping')}</Link>
         </main>
         <Footer />
@@ -35,44 +35,44 @@ export default function Cart() {
         <div className="mx-auto max-w-[1600px]">
           <header className="reveal mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="editorial-kicker text-[#6e6667]">{t('cart.curatedBag')}</p>
-              <h1 className="mt-4 font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#111111] md:text-7xl">{t('cart.selection')}</h1>
+              <p className="editorial-kicker text-[#5A6B7F]">{t('cart.curatedBag')}</p>
+              <h1 className="mt-4 font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#13243A] md:text-7xl">{t('cart.selection')}</h1>
             </div>
-            <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">{t('cart.itemCount', { count: items.length })}</p>
+            <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#5A6B7F]">{t('cart.itemCount', { count: items.length })}</p>
           </header>
 
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.2fr_0.8fr]">
             <section className="motion-grid space-y-4">
               {items.map((item) => (
-                <article key={`${item.productId}-${item.size}-${item.color}`} className="motion-lift bg-[#f7f7f7] p-5 md:p-8">
+                <article key={`${item.productId}-${item.size}-${item.color}`} className="motion-lift bg-[#FFFBF2] p-5 md:p-8">
                   <div className="grid gap-6 md:grid-cols-[10rem_1fr] xl:grid-cols-[12rem_1fr]">
-                    <div className="aspect-[3/4] overflow-hidden bg-[#ececec]">
+                    <div className="aspect-[3/4] overflow-hidden bg-[#EFE7D6]">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="motion-image h-full w-full object-cover grayscale transition-all duration-700 hover:grayscale-0" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center"><span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '44px' }}>checkroom</span></div>
+                        <div className="flex h-full w-full items-center justify-center"><span className="material-symbols-outlined text-[#CDBFA1]" style={{ fontSize: '44px' }}>checkroom</span></div>
                       )}
                     </div>
 
                     <div className="flex flex-col justify-between gap-6">
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
-                          <p className="font-['Noto_Serif'] text-2xl tracking-[-0.04em] text-[#111111]">{item.name}</p>
-                          <p className="mt-2 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.24rem] text-[#6e6667]">
+                          <p className="font-['Noto_Serif'] text-2xl tracking-[-0.04em] text-[#13243A]">{item.name}</p>
+                          <p className="mt-2 font-['Manrope'] text-[0.58rem] uppercase tracking-[0.24rem] text-[#5A6B7F]">
                             {item.color ? `${item.color} / ` : ''}{t('common.size')} {item.size || 'Standard'}
                           </p>
                         </div>
-                        <p className="font-['Noto_Serif'] text-2xl text-[#111111]">₪{(item.price * item.quantity).toFixed(0)}</p>
+                        <p className="font-['Noto_Serif'] text-2xl text-[#13243A]">₪{(item.price * item.quantity).toFixed(0)}</p>
                       </div>
 
                       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                         <div className="flex w-fit items-center bg-white px-3 py-2">
-                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity - 1)} aria-label={`הפחתת כמות עבור ${item.name}`} className="flex h-9 w-9 items-center justify-center text-[#6e6667] transition-transform hover:scale-110 hover:text-[#111111]"><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px' }}>remove</span></button>
-                          <span className="w-10 text-center font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-[#111111]">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity + 1)} disabled={item.stock && item.quantity >= item.stock} aria-label={`הגדלת כמות עבור ${item.name}`} className={`flex h-9 w-9 items-center justify-center transition-transform ${item.stock && item.quantity >= item.stock ? 'text-[#c6c0c1] cursor-not-allowed' : 'text-[#6e6667] hover:scale-110 hover:text-[#111111]'}`}><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px' }}>add</span></button>
+                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity - 1)} aria-label={`הפחתת כמות עבור ${item.name}`} className="flex h-9 w-9 items-center justify-center text-[#5A6B7F] transition-transform hover:scale-110 hover:text-[#13243A]"><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px' }}>remove</span></button>
+                          <span className="w-10 text-center font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-[#13243A]">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity + 1)} disabled={item.stock && item.quantity >= item.stock} aria-label={`הגדלת כמות עבור ${item.name}`} className={`flex h-9 w-9 items-center justify-center transition-transform ${item.stock && item.quantity >= item.stock ? 'text-[#CDBFA1] cursor-not-allowed' : 'text-[#5A6B7F] hover:scale-110 hover:text-[#13243A]'}`}><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px' }}>add</span></button>
                         </div>
 
-                        <button onClick={() => removeItem(item.productId, item.size, item.color)} className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.24rem] text-[#6e6667] transition-colors hover:text-[#111111]">{t('cart.remove')}</button>
+                        <button onClick={() => removeItem(item.productId, item.size, item.color)} className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.24rem] text-[#5A6B7F] transition-colors hover:text-[#13243A]">{t('cart.remove')}</button>
                       </div>
                     </div>
                   </div>
@@ -81,23 +81,23 @@ export default function Cart() {
             </section>
 
             <aside className="lg:sticky lg:top-28 lg:self-start">
-              <div className="reveal-right motion-lift bg-[#f7f7f7] p-7 md:p-9">
-                <h2 className="font-['Noto_Serif'] text-3xl tracking-[-0.04em] text-[#111111]">{t('cart.orderSummary')}</h2>
+              <div className="reveal-right motion-lift bg-[#FFFBF2] p-7 md:p-9">
+                <h2 className="font-['Noto_Serif'] text-3xl tracking-[-0.04em] text-[#13243A]">{t('cart.orderSummary')}</h2>
 
-                <div className="mt-8 space-y-4 font-['Manrope'] text-[0.68rem] uppercase tracking-[0.2rem] text-[#5d5657]">
-                  <div className="flex items-center justify-between"><span>{t('cart.subtotal')}</span><span className="text-[#111111]">₪{total.toFixed(2)}</span></div>
-                  <div className="flex items-center justify-between"><span>{t('cart.shipping')}</span><span className="text-[#111111]">{t('common.free')}</span></div>
-                  <div className="flex items-center justify-between"><span>{t('cart.vat')}</span><span className="text-[#111111]">{t('common.included')}</span></div>
+                <div className="mt-8 space-y-4 font-['Manrope'] text-[0.68rem] uppercase tracking-[0.2rem] text-[#5A6B7F]">
+                  <div className="flex items-center justify-between"><span>{t('cart.subtotal')}</span><span className="text-[#13243A]">₪{total.toFixed(2)}</span></div>
+                  <div className="flex items-center justify-between"><span>{t('cart.shipping')}</span><span className="text-[#13243A]">{t('common.free')}</span></div>
+                  <div className="flex items-center justify-between"><span>{t('cart.vat')}</span><span className="text-[#13243A]">{t('common.included')}</span></div>
                 </div>
 
                 <div className="mt-8 bg-white px-4 py-3">
-                  <label className="block font-['Manrope'] text-[0.56rem] uppercase tracking-[0.24rem] text-[#6e6667]">{t('cart.promoCode')}</label>
+                  <label className="block font-['Manrope'] text-[0.56rem] uppercase tracking-[0.24rem] text-[#5A6B7F]">{t('cart.promoCode')}</label>
                   <input type="text" placeholder={t('cart.promoPlaceholder')} className="editorial-input mt-2" />
                 </div>
 
                 <div className="mt-8 flex items-end justify-between">
-                  <span className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#6e6667]">{t('cart.total')}</span>
-                  <span className="font-['Noto_Serif'] text-4xl text-[#111111]">₪{total.toFixed(2)}</span>
+                  <span className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#5A6B7F]">{t('cart.total')}</span>
+                  <span className="font-['Noto_Serif'] text-4xl text-[#13243A]">₪{total.toFixed(2)}</span>
                 </div>
 
                 <Link to="/checkout" className="editorial-button motion-cta mt-8 w-full">{t('cart.checkout')}</Link>
@@ -106,10 +106,10 @@ export default function Cart() {
                 <div className="mt-8 space-y-3">
                   {CONCIERGE_SERVICES.map((service) => (
                     <div key={service.titleKey} className="motion-lift flex items-start gap-3 bg-white p-4">
-                      <span className="material-symbols-outlined text-[#111111]">{service.icon}</span>
+                      <span className="material-symbols-outlined text-[#13243A]">{service.icon}</span>
                       <div>
-                        <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.22rem] text-[#111111]">{t(service.titleKey)}</p>
-                        <p className="mt-1 text-sm leading-6 text-[#5d5657]">{t(service.descKey)}</p>
+                        <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.22rem] text-[#13243A]">{t(service.titleKey)}</p>
+                        <p className="mt-1 text-sm leading-6 text-[#5A6B7F]">{t(service.descKey)}</p>
                       </div>
                     </div>
                   ))}

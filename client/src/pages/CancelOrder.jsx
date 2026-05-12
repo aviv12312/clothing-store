@@ -51,21 +51,21 @@ export default function CancelOrder() {
   return (
     <div className="min-h-screen bg-white pt-28 pb-20 px-6" dir="rtl">
       <div className="mx-auto max-w-xl">
-        <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.3rem] text-[#6e6667]">שירות לקוחות</p>
-        <h1 className="mt-3 font-['Noto_Serif'] text-4xl text-[#111]">ביטול עסקה</h1>
-        <p className="mt-2 font-['Manrope'] text-sm text-[#888]">
+        <p className="font-['Manrope'] text-[0.65rem] uppercase tracking-[0.3rem] text-[#5A6B7F]">שירות לקוחות</p>
+        <h1 className="mt-3 font-['Noto_Serif'] text-4xl text-[#13243A]">ביטול עסקה</h1>
+        <p className="mt-2 font-['Manrope'] text-sm text-[#8AA3B8]">
           בהתאם לחוק הגנת הצרכן ניתן לבטל עסקה תוך 14 ימים מיום קבלת המוצר.
         </p>
 
         {status === 'success' ? (
-          <div className="mt-10 bg-[#f7f7f7] p-8 text-center">
+          <div className="mt-10 bg-[#FFFBF2] p-8 text-center">
             <p className="text-3xl mb-4">✦</p>
-            <h2 className="font-['Noto_Serif'] text-xl text-[#111]">הבקשה התקבלה</h2>
-            <p className="mt-3 font-['Manrope'] text-sm text-[#555]">{msg}</p>
-            <p className="mt-2 font-['Manrope'] text-xs text-[#888]">
+            <h2 className="font-['Noto_Serif'] text-xl text-[#13243A]">הבקשה התקבלה</h2>
+            <p className="mt-3 font-['Manrope'] text-sm text-[#5A6B7F]">{msg}</p>
+            <p className="mt-2 font-['Manrope'] text-xs text-[#8AA3B8]">
               אישור נשלח לכתובת המייל שלך. נחזור אליך תוך 2 ימי עסקים.
             </p>
-            <button onClick={() => navigate('/profile')} className="mt-6 font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#111] px-6 py-3 hover:bg-[#111] hover:text-white transition-colors">
+            <button onClick={() => navigate('/profile')} className="mt-6 font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#13243A] px-6 py-3 hover:bg-[#13243A] hover:text-white transition-colors">
               חזרה לפרופיל
             </button>
           </div>
@@ -74,11 +74,11 @@ export default function CancelOrder() {
 
             {/* בחירת הזמנה */}
             <div>
-              <label className="block font-['Manrope'] text-xs uppercase tracking-[0.2rem] text-[#333] mb-2">
+              <label className="block font-['Manrope'] text-xs uppercase tracking-[0.2rem] text-[#5A6B7F] mb-2">
                 בחר הזמנה לביטול
               </label>
               {orders.length === 0 ? (
-                <p className="font-['Manrope'] text-sm text-[#888] bg-[#f7f7f7] p-4">
+                <p className="font-['Manrope'] text-sm text-[#8AA3B8] bg-[#FFFBF2] p-4">
                   אין הזמנות זכאיות לביטול. ייתכן שחלפו 14 הימים, ההזמנה כבר בוטלה, או שכבר הגשת בקשת ביטול.
                 </p>
               ) : (
@@ -86,7 +86,7 @@ export default function CancelOrder() {
                   value={selectedOrder}
                   onChange={(e) => setSelectedOrder(e.target.value)}
                   required
-                  className="w-full border border-[#ddd] px-4 py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#111]"
+                  className="w-full border border-[#E0D3BC] px-4 py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#13243A]"
                 >
                   <option value="">-- בחר הזמנה --</option>
                   {orders.map((o) => (
@@ -100,7 +100,7 @@ export default function CancelOrder() {
 
             {/* סיבת ביטול */}
             <div>
-              <label className="block font-['Manrope'] text-xs uppercase tracking-[0.2rem] text-[#333] mb-2">
+              <label className="block font-['Manrope'] text-xs uppercase tracking-[0.2rem] text-[#5A6B7F] mb-2">
                 סיבת הביטול
               </label>
               <div className="space-y-2">
@@ -112,10 +112,10 @@ export default function CancelOrder() {
                       value={r}
                       checked={reason === r}
                       onChange={() => setReason(r)}
-                      className="accent-[#111]"
+                      className="accent-[#13243A]"
                       required
                     />
-                    <span className="font-['Manrope'] text-sm text-[#333]">{r}</span>
+                    <span className="font-['Manrope'] text-sm text-[#5A6B7F]">{r}</span>
                   </label>
                 ))}
               </div>
@@ -126,13 +126,13 @@ export default function CancelOrder() {
                   placeholder="פרט את הסיבה..."
                   required
                   rows={3}
-                  className="mt-3 w-full border border-[#ddd] px-4 py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#111] resize-none"
+                  className="mt-3 w-full border border-[#E0D3BC] px-4 py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#13243A] resize-none"
                 />
               )}
             </div>
 
             {/* הצהרה */}
-            <div className="bg-[#f7f7f7] p-4 font-['Manrope'] text-xs text-[#666] leading-relaxed">
+            <div className="bg-[#FFFBF2] p-4 font-['Manrope'] text-xs text-[#5A6B7F] leading-relaxed">
               <p>⚠️ <strong>לתשומת לבך:</strong></p>
               <ul className="mt-2 space-y-1 list-disc list-inside">
                 <li>ביטול אפשרי תוך 14 ימים מיום קבלת המוצר.</li>
@@ -149,7 +149,7 @@ export default function CancelOrder() {
             <button
               type="submit"
               disabled={status === 'loading' || orders.length === 0}
-              className="w-full bg-[#111] text-white font-['Manrope'] text-xs uppercase tracking-[0.2rem] py-4 hover:bg-[#333] transition-colors disabled:opacity-50"
+              className="w-full bg-[#13243A] text-white font-['Manrope'] text-xs uppercase tracking-[0.2rem] py-4 hover:bg-[#5A6B7F] transition-colors disabled:opacity-50"
             >
               {status === 'loading' ? 'שולח...' : 'שלח בקשת ביטול'}
             </button>

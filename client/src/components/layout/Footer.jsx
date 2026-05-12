@@ -31,16 +31,16 @@ const LEGAL_LINKS = [
 ];
 
 const LINK_CLASS =
-  "block font-['Manrope'] text-[0.82rem] leading-[2.1] text-[#faf8f4]/50 transition-colors duration-200 hover:text-[#faf8f4]/90";
+  "block font-['Manrope'] text-[0.82rem] leading-[2.1] text-[#F4EDE0]/50 transition-colors duration-200 hover:text-[#F4EDE0]/90";
 
 const HEADING_CLASS =
-  "font-['Manrope'] text-[0.52rem] uppercase tracking-[0.34rem] text-[#D6B56D]/55 mb-4";
+  "font-['Manrope'] text-[0.52rem] uppercase tracking-[0.34rem] text-[#C47A5C]/85 mb-4";
 
 export default function Footer() {
   return (
     <footer
       dir="rtl"
-      style={{ backgroundColor: '#1b2e4b' }}
+      style={{ backgroundColor: '#13243A' }}
       aria-labelledby="footer-brand"
     >
       {/* ── Main columns ── */}
@@ -52,12 +52,12 @@ export default function Footer() {
           <h2
             id="footer-brand"
             style={{ fontFamily: 'Olondona, serif', letterSpacing: '0.08em', lineHeight: 1 }}
-            className="text-[1.9rem] text-[#faf8f4]"
+            className="text-[1.9rem] text-[#F4EDE0]"
             dir="ltr"
           >
             Dream &amp; Work
           </h2>
-          <p className="mt-4 font-['Manrope'] text-[0.8rem] leading-6 text-[#faf8f4]/45 max-w-[18rem]" dir="rtl">
+          <p className="mt-4 font-['Manrope'] text-[0.8rem] leading-6 text-[#F4EDE0]/45 max-w-[18rem]" dir="rtl">
             בית אופנה ישראלי המתמחה בלבוש מחויט לחתנים, מלווים וגברים שאוהבים את הפרטים.
           </p>
         </div>
@@ -100,25 +100,25 @@ export default function Footer() {
       </div>
 
       {/* ── Legal bar ── */}
-      <div style={{ borderTop: '1px solid rgba(250,248,244,0.08)' }}>
+      <div style={{ borderTop: '1px solid rgba(244,237,224,0.1)' }}>
         <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-8 py-4 md:flex-row md:items-center md:justify-between md:px-12 lg:px-20">
           <div className="flex items-center gap-4">
             {LEGAL_LINKS.map((item, i) => (
               <span key={item.to} className="flex items-center gap-4">
                 <Link
                   to={item.to}
-                  className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.2rem] text-[#faf8f4]/25 hover:text-[#faf8f4]/55 transition-colors"
+                  className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.2rem] text-[#F4EDE0]/25 hover:text-[#F4EDE0]/55 transition-colors"
                 >
                   {item.label}
                 </Link>
                 {i < LEGAL_LINKS.length - 1 && (
-                  <span className="text-[#faf8f4]/15 text-[0.5rem]">·</span>
+                  <span className="text-[#F4EDE0]/15 text-[0.5rem]">·</span>
                 )}
               </span>
             ))}
           </div>
           <p
-            className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.22rem] text-[#faf8f4]/22"
+            className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.22rem] text-[#F4EDE0]/22"
             dir="ltr"
           >
             DREAM AND WORK &nbsp;·&nbsp; TEL AVIV 2026 &nbsp;&copy;

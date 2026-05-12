@@ -4,31 +4,43 @@ export default {
   theme: {
     extend: {
       colors: {
-        background:                  '#F7F3EA',
-        surface:                     '#FFFFFF',
-        'surface-low':               '#F7F3EA',
-        'surface-dim':               '#E5E7EB',
-        'surface-container':         '#F7F3EA',
-        'surface-container-low':     '#FFFFFF',
-        'surface-container-high':    '#E5E7EB',
-        'surface-container-highest': '#D6D9DE',
-        'surface-container-lowest':  '#FFFFFF',
-        'on-surface':                '#111827',
-        'on-surface-variant':        '#4B5563',
-        outline:                     '#9CA3AF',
-        'outline-variant':           '#E5E7EB',
-        primary:                     '#1b2e4b',
-        'on-primary':                '#F7F3EA',
-        'primary-container':         '#E5E7EB',
-        'on-primary-container':      '#1b2e4b',
-        secondary:                   '#D6B56D',
-        'on-secondary':              '#111827',
-        tertiary:                    '#111827',
-        'on-tertiary':               '#F7F3EA',
-        'inverse-surface':           '#1b2e4b',
-        'inverse-on-surface':        '#F7F3EA',
-        gold:                        '#D6B56D',
-        'gold-dark':                 '#9E7D36',
+        // Coastal Mediterranean palette — cream + navy + terracotta + sky
+        background:                  '#F4EDE0', // cream warm
+        surface:                     '#FFFBF2', // warm ivory
+        'surface-low':               '#EFE7D6', // cream-down (inner light panel)
+        'surface-dim':               '#E0D3BC', // sand
+        'surface-container':         '#F4EDE0',
+        'surface-container-low':     '#FFFBF2',
+        'surface-container-high':    '#E0D3BC',
+        'surface-container-highest': '#CDBFA1',
+        'surface-container-lowest':  '#FFFBF2',
+        'on-surface':                '#13243A', // deep navy ink
+        'on-surface-variant':        '#5A6B7F', // slate
+        outline:                     '#8AA3B8', // slate blue
+        'outline-variant':           '#E0D3BC', // sand
+        primary:                     '#1B2E4B', // navy
+        'on-primary':                '#F4EDE0',
+        'primary-container':         '#A8C4D6', // sky soft
+        'on-primary-container':      '#13243A',
+        secondary:                   '#A8C4D6', // sky soft
+        'on-secondary':              '#13243A',
+        tertiary:                    '#C47A5C', // terracotta
+        'on-tertiary':               '#FFFBF2',
+        'inverse-surface':           '#1B2E4B',
+        'inverse-on-surface':        '#F4EDE0',
+        // Aliases — keep old class names working with new palette
+        gold:                        '#C47A5C', // terracotta
+        'gold-dark':                 '#9C5A40', // terracotta deep
+        navy:                        '#1B2E4B',
+        'navy-deep':                 '#13243A',
+        sky:                         '#A8C4D6',
+        'sky-soft':                  '#D8E6EE',
+        sand:                        '#E0D3BC',
+        terracotta:                  '#C47A5C',
+        'terracotta-soft':           '#E0AB94',
+        slate:                       '#8AA3B8',
+        cream:                       '#F4EDE0',
+        charcoal:                    '#13243A',
       },
       fontFamily: {
         headline: ['Noto Serif', 'serif'],

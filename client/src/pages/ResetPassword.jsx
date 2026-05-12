@@ -30,13 +30,13 @@ export default function ResetPassword() {
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-12">
-          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#1a1a1a]">
+          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#13243A]">
             DREAM & WORK
           </Link>
         </div>
 
-        <h1 className="font-['Noto_Serif'] text-3xl text-[#1a1a1a] text-center mb-2">סיסמה חדשה</h1>
-        <p className="font-['Manrope'] text-sm text-[#888888] text-center mb-10">
+        <h1 className="font-['Noto_Serif'] text-3xl text-[#13243A] text-center mb-2">סיסמה חדשה</h1>
+        <p className="font-['Manrope'] text-sm text-[#8AA3B8888] text-center mb-10">
           הכנס סיסמה חדשה לחשבונך
         </p>
 
@@ -55,14 +55,14 @@ export default function ResetPassword() {
             ['אימות סיסמה', confirm, setConfirm],
           ].map(([label, val, setter]) => (
             <div key={label}>
-              <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#888888] mb-2">
+              <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#8AA3B8888] mb-2">
                 {label}
               </label>
               <input
                 type="password" required minLength={8}
                 value={val}
                 onChange={(e) => setter(e.target.value)}
-                className="w-full bg-transparent border-b border-[#e8e8e6] text-[#1a1a1a] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#888888] transition-colors"
+                className="w-full bg-transparent border-b border-[#EFE7D6] text-[#13243A] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#8AA3B8888] transition-colors"
                 placeholder="••••••••"
               />
             </div>

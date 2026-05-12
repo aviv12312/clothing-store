@@ -112,7 +112,7 @@ export default function Navbar() {
             className="flex min-w-0 flex-col items-center justify-center text-center"
             dir="ltr"
           >
-            <span style={{ fontFamily: 'Olondona, serif' }} className="truncate text-2xl tracking-[0.04em] text-[#dfdfdf]
+            <span style={{ fontFamily: 'Olondona, serif' }} className="truncate text-2xl tracking-[0.04em] text-[#F4EDE0]
  sm:text-3xl lg:text-[2rem]">Dream &amp; Work</span>
             <span className="editorial-hand mt-0.5 text-base text-white/45">Dressed for the room</span>
           </Link>

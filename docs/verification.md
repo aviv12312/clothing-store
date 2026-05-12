@@ -718,3 +718,122 @@ Warning: Vite reported that some chunks are larger than 500 kB after minificatio
 ### Manual Verification
 
 Browser interaction was not run during this entry. The admin campaign image editor and product image upload sections still need visual review in a browser.
+
+---
+
+### Date
+2026-05-12
+
+### Feature / Task
+Light hero palette update
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 646 kB before gzip and about 199 kB after gzip.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The light hero palette still needs visual review in a browser for contrast, button clarity, and image-overlay text readability.
+
+---
+
+### Date
+2026-05-12
+
+### Feature / Task
+Restore blue hero palette
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 646 kB before gzip and about 199 kB after gzip.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The restored blue hero palette still needs visual review in a browser.
+
+---
+
+### Date
+2026-05-12
+
+### Feature / Task
+Navy, cream, and sage editorial palette
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+After the final indentation cleanup, `npm run lint` was run again and passed without reported errors.
+
+```bash
+rg "D6B56D|9E7D36|b8963e|e8c97a|color: 'gold'|#142844|#F7F3EA|#FFFFFF|#E5E7EB|#1b2e4b" client/src client/tailwind.config.js
+```
+
+Result: Passed. No matching old yellow, old light palette, old lowercase navy, old hero inner navy, or PayPal gold style references remained in the searched client source/config paths.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 646 kB before gzip and about 199 kB after gzip.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. Home, Shop, Product Detail, Wishlist, Cart, Checkout, hover/focus states, and mobile contrast still need visual review in a browser.
