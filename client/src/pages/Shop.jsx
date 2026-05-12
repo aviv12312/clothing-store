@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
 import { useWishlist } from '../context/WishlistContext';
@@ -10,18 +11,18 @@ const ALL_CATEGORY = 'הכל';
 const CATEGORIES = [ALL_CATEGORY, 'חתן ומלווים', 'Casual', 'Formal'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const SORT_OPTIONS = [
-  { value: '', label: 'Recommended' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'newest', label: 'Newest First' },
-  { value: 'sale', label: 'Sale First' },
+  { value: '', labelKey: 'shop.recommended' },
+  { value: 'price_asc', labelKey: 'shop.priceAsc' },
+  { value: 'price_desc', labelKey: 'shop.priceDesc' },
+  { value: 'newest', labelKey: 'shop.newest' },
+  { value: 'sale', labelKey: 'shop.saleFirst' },
 ];
 
-const categoryTitle = {
-  [ALL_CATEGORY]: 'All Collections',
-  'חתן ומלווים': 'Groom & Groomsmen',
-  Casual: 'Casual',
-  Formal: 'Formal',
+const CATEGORY_LABEL_KEYS = {
+  [ALL_CATEGORY]: 'shop.allCollections',
+  'חתן ומלווים': 'nav.groom',
+  Casual: 'nav.casual',
+  Formal: 'nav.formal',
 };
 
 function getColorHex(name) {
@@ -44,6 +45,7 @@ function getColorHex(name) {
 }
 
 function ProductCard({ product }) {
+  const { t } = useTranslation();
   const { toggle, isLiked } = useWishlist();
   const liked = isLiked(product._id);
 
@@ -51,10 +53,12 @@ function ProductCard({ product }) {
     <article className="group relative motion-lift">
       <button
         onClick={() => toggle(product)}
+        aria-label={liked ? 'Remove from wishlist' : 'Add to wishlist'}
         className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center bg-white shadow-[0_8px_24px_rgba(17,17,17,0.06)] transition-all hover:scale-110 hover:bg-[#f7f7f7]"
       >
         <span
           className={`material-symbols-outlined ${liked ? 'text-[#111111]' : 'text-[#6e6667]'}`}
+          aria-hidden="true"
           style={{ fontVariationSettings: liked ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}
         >
           favorite
@@ -63,7 +67,7 @@ function ProductCard({ product }) {
 
       {product.salePrice && (
         <div className="absolute right-4 top-4 z-10 bg-[#111111] px-3 py-1 font-['Manrope'] text-[0.55rem] uppercase tracking-[0.22rem] text-white">
-          Sale
+          {t('common.sale')}
         </div>
       )}
 
@@ -82,7 +86,7 @@ function ProductCard({ product }) {
           )}
 
           <div className="absolute inset-x-0 bottom-0 flex translate-y-8 items-center justify-center bg-[linear-gradient(180deg,transparent_0%,rgba(17,17,17,0.84)_100%)] px-5 py-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <span className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.25rem] text-white">View Product</span>
+            <span className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.25rem] text-white">{t('common.viewProduct')}</span>
           </div>
         </div>
       </Link>
@@ -123,6 +127,7 @@ function ProductCard({ product }) {
 }
 
 export default function Shop() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState(() => searchParams.get('category') || ALL_CATEGORY);
@@ -194,7 +199,7 @@ export default function Shop() {
   const pageRef = useScrollReveal([loading, displayedProducts.length, mobileFilter]);
 
   const activeFilters = [
-    category !== ALL_CATEGORY && { key: 'category', label: categoryTitle[category] || category, clear: () => setCategory(ALL_CATEGORY) },
+    category !== ALL_CATEGORY && { key: 'category', label: t(CATEGORY_LABEL_KEYS[category] || category), clear: () => setCategory(ALL_CATEGORY) },
     selectedSize && { key: 'size', label: `Size ${selectedSize}`, clear: () => setSelectedSize('') },
     selectedColor && { key: 'color', label: selectedColor, clear: () => setSelectedColor('') },
     (priceRange[0] > 0 || priceRange[1] < maxPrice) && {
@@ -214,17 +219,17 @@ export default function Shop() {
     setSort('');
   };
 
-  const collectionLabel = searchParams.get('collection') === 'new' ? 'New Arrivals' : categoryTitle[category] || 'Curated Wardrobe';
+  const collectionLabel = searchParams.get('collection') === 'new' ? t('shop.newArrivals') : t(CATEGORY_LABEL_KEYS[category] || 'shop.curatedWardrobe');
 
   const Sidebar = () => (
     <div className="flex flex-col gap-10 p-7 md:p-8">
       <div>
-        <p className="editorial-kicker text-[#6e6667]">Search</p>
-        <input type="text" value={draftSearch} onChange={(event) => handleSearch(event.target.value)} placeholder="Search by product" className="editorial-input mt-3" />
+        <p className="editorial-kicker text-[#6e6667]">{t('shop.search')}</p>
+        <input type="text" value={draftSearch} onChange={(event) => handleSearch(event.target.value)} placeholder={t('shop.searchPlaceholder')} className="editorial-input mt-3" />
       </div>
 
       <div>
-        <p className="editorial-kicker text-[#6e6667]">Category</p>
+        <p className="editorial-kicker text-[#6e6667]">{t('shop.category')}</p>
         <div className="mt-4 flex flex-col gap-3">
           {CATEGORIES.map((item) => (
             <button
@@ -232,7 +237,7 @@ export default function Shop() {
               onClick={() => setCategory(item)}
               className={`flex items-center justify-between text-sm uppercase tracking-[0.18rem] transition-colors ${category === item ? 'text-[#111111]' : 'text-[#6e6667] hover:text-[#111111]'}`}
             >
-              <span>{categoryTitle[item] || item}</span>
+              <span>{t(CATEGORY_LABEL_KEYS[item] || item)}</span>
               {category === item && <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>north_west</span>}
             </button>
           ))}
@@ -240,7 +245,7 @@ export default function Shop() {
       </div>
 
       <div>
-        <p className="editorial-kicker text-[#6e6667]">Size</p>
+        <p className="editorial-kicker text-[#6e6667]">{t('common.size')}</p>
         <div className="mt-4 grid grid-cols-3 gap-2">
           {SIZES.map((size) => (
             <button key={size} onClick={() => setSelectedSize(selectedSize === size ? '' : size)} className={`px-3 py-3 text-xs uppercase tracking-[0.18rem] transition-colors ${selectedSize === size ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>
@@ -252,17 +257,17 @@ export default function Shop() {
 
       {allColors.length > 0 && (
         <div>
-          <p className="editorial-kicker text-[#6e6667]">Color</p>
+          <p className="editorial-kicker text-[#6e6667]">{t('common.color')}</p>
           <div className="mt-4 flex flex-wrap gap-3">
             {allColors.map((color) => (
-              <button key={color} onClick={() => setSelectedColor(selectedColor === color ? '' : color)} title={color} className={`h-7 w-7 transition-transform ${selectedColor === color ? 'scale-110 ring-1 ring-[#111111] ring-offset-2' : ''}`} style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }} />
+              <button key={color} onClick={() => setSelectedColor(selectedColor === color ? '' : color)} title={color} aria-label={`סינון לפי צבע ${color}`} className={`h-7 w-7 transition-transform ${selectedColor === color ? 'scale-110 ring-1 ring-[#111111] ring-offset-2' : ''}`} style={{ backgroundColor: color.startsWith('#') ? color : getColorHex(color) }} />
             ))}
           </div>
         </div>
       )}
 
       <div>
-        <p className="editorial-kicker text-[#6e6667]">Price</p>
+        <p className="editorial-kicker text-[#6e6667]">{t('shop.price')}</p>
         <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.18rem] text-[#111111]">
           <span>₪{priceRange[0]}</span>
           <span>₪{priceRange[1]}</span>
@@ -274,17 +279,17 @@ export default function Shop() {
       </div>
 
       <div>
-        <p className="editorial-kicker text-[#6e6667]">Sort</p>
+        <p className="editorial-kicker text-[#6e6667]">{t('shop.sort')}</p>
         <select value={sort} onChange={(event) => setSort(event.target.value)} className="editorial-select mt-3 bg-transparent">
           {SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
+            <option key={option.value} value={option.value}>{t(option.labelKey)}</option>
           ))}
         </select>
       </div>
 
       <div className="flex items-center justify-between bg-white px-5 py-4">
-        <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{loading ? 'Loading' : `${displayedProducts.length} Products`}</p>
-        <button onClick={resetAll} className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">Reset</button>
+        <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{loading ? t('common.loading') : `${displayedProducts.length} ${t('common.products')}`}</p>
+        <button onClick={resetAll} className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">{t('shop.reset')}</button>
       </div>
     </div>
   );
@@ -293,14 +298,14 @@ export default function Shop() {
     <div ref={pageRef} className="editorial-shell min-h-screen bg-white">
       <div className="px-6 pb-10 pt-32 md:px-12 lg:px-20 lg:pt-40">
         <div className="mx-auto max-w-[1600px]">
-          <p className="reveal editorial-kicker text-[#6e6667]">Catalog</p>
+          <p className="reveal editorial-kicker text-[#6e6667]">{t('shop.catalog')}</p>
           <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="reveal">
               <h1 className="font-['Noto_Serif'] text-5xl tracking-[-0.06em] text-[#111111] md:text-7xl">{collectionLabel}</h1>
-              <p className="editorial-hand mt-4 text-3xl text-[#8a6d28] md:text-4xl">curated pieces, quiet confidence</p>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5d5657] md:text-base">A clean catalog layout with more white space, lighter surfaces, and simpler filtering so the products stay in focus.</p>
+              <p className="editorial-hand mt-4 text-3xl text-gold-dark md:text-4xl">{t('shop.hand')}</p>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5d5657] md:text-base">{t('shop.intro')}</p>
             </div>
-            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary motion-cta lg:hidden">Filters</button>
+            <button onClick={() => setMobileFilter(true)} className="editorial-button-secondary motion-cta lg:hidden">{t('shop.filters')}</button>
           </div>
 
           {activeFilters.length > 0 && (
@@ -326,8 +331,8 @@ export default function Shop() {
               </div>
             ) : displayedProducts.length === 0 ? (
               <div className="motion-fade-up bg-[#f7f7f7] px-8 py-20 text-center">
-                <p className="editorial-kicker text-[#6e6667]">Nothing matched the current filters</p>
-                <button onClick={resetAll} className="editorial-button motion-cta mt-8">Clear Filters</button>
+                <p className="editorial-kicker text-[#6e6667]">{t('shop.nothingMatched')}</p>
+                <button onClick={resetAll} className="editorial-button motion-cta mt-8">{t('shop.clearFilters')}</button>
               </div>
             ) : (
               <div className="motion-grid grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
@@ -345,9 +350,9 @@ export default function Shop() {
           <div className="absolute inset-0 bg-[rgba(17,17,17,0.24)]" onClick={() => setMobileFilter(false)} />
           <div className="motion-drawer absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto bg-white shadow-[0_24px_60px_rgba(27,28,28,0.08)]">
             <div className="flex items-center justify-between px-6 pt-24">
-              <p className="editorial-kicker text-[#6e6667]">Filters</p>
-              <button onClick={() => setMobileFilter(false)} className="flex h-10 w-10 items-center justify-center bg-[#f5f5f5]">
-                <span className="material-symbols-outlined">close</span>
+              <p className="editorial-kicker text-[#6e6667]">{t('shop.filters')}</p>
+              <button onClick={() => setMobileFilter(false)} aria-label="סגירת סינון" className="flex h-10 w-10 items-center justify-center bg-[#f5f5f5]">
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
               </button>
             </div>
             <Sidebar />

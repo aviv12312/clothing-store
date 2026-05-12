@@ -1,5 +1,6 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import Footer from '../components/layout/Footer';
@@ -9,11 +10,11 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
 const FIELDS = [
-  { name: 'name', placeholder: 'שם מלא', type: 'text' },
-  { name: 'street', placeholder: 'רחוב ומספר', type: 'text' },
-  { name: 'city', placeholder: 'עיר', type: 'text' },
-  { name: 'zipCode', placeholder: 'מיקוד', type: 'text' },
-  { name: 'phone', placeholder: 'טלפון', type: 'tel' },
+  { name: 'name', placeholderKey: 'checkout.fields.name', type: 'text' },
+  { name: 'street', placeholderKey: 'checkout.fields.street', type: 'text' },
+  { name: 'city', placeholderKey: 'checkout.fields.city', type: 'text' },
+  { name: 'zipCode', placeholderKey: 'checkout.fields.zipCode', type: 'text' },
+  { name: 'phone', placeholderKey: 'checkout.fields.phone', type: 'tel' },
 ];
 
 let paypalPromise = null;
@@ -31,6 +32,7 @@ function loadPaypalSdk() {
 }
 
 export default function Checkout() {
+  const { t } = useTranslation();
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
   const btnRef = useRef(null);
@@ -56,11 +58,11 @@ export default function Checkout() {
       const { data } = await api.post('/coupons/validate', { code: couponCode, total });
       setCouponData(data);
       setCouponStatus('valid');
-      setCouponMsg(`הנחה של ${data.discount}% הופעלה`);
+      setCouponMsg(t('checkout.discountApplied', { discount: data.discount }));
     } catch (err) {
       setCouponStatus('error');
       setCouponData(null);
-      setCouponMsg(err.response?.data?.error || 'קוד לא תקין');
+      setCouponMsg(err.response?.data?.error || t('checkout.invalidCoupon'));
     }
   };
 
@@ -112,21 +114,21 @@ export default function Checkout() {
           },
           onError: (err) => {
             console.error('PayPal error:', err);
-            setError('שגיאה ב-PayPal, נסה שוב');
+            setError(t('checkout.paypalError'));
           },
         }).render(btnRef.current);
       } catch (err) {
         console.error('PayPal SDK load error:', err);
         if (!cancelled) {
           setSdkStatus('error');
-          setError('לא ניתן לטעון את PayPal. בדוק חיבור אינטרנט ונסה שוב.');
+          setError(t('checkout.paypalLoadError'));
         }
       }
     }
 
     initPaypal();
     return () => { cancelled = true; };
-  }, [address, clearCart, couponCode, couponData, finalTotal, items, navigate, step, total]);
+  }, [address, clearCart, couponCode, couponData, finalTotal, items, navigate, step, t, total]);
 
   return (
     <div ref={pageRef} className="editorial-shell min-h-screen flex flex-col bg-background">
@@ -136,7 +138,7 @@ export default function Checkout() {
             <section className="reveal">
               <div className="flex items-center gap-4 mb-8">
                 <span className="text-xs font-label uppercase tracking-widest text-outline">01</span>
-                <h2 className="font-headline text-2xl text-on-surface">כתובת למשלוח</h2>
+                <h2 className="font-headline text-2xl text-on-surface">{t('checkout.addressTitle')}</h2>
               </div>
               {step === 'address' ? (
                 <>
@@ -146,7 +148,7 @@ export default function Checkout() {
                         key={field.name}
                         name={field.name}
                         type={field.type}
-                        placeholder={field.placeholder}
+                        placeholder={t(field.placeholderKey)}
                         value={address[field.name]}
                         onChange={(e) => setAddress((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
                         className="w-full bg-transparent border-b border-outline-variant py-3 text-on-surface placeholder-outline font-label text-sm focus:outline-none focus:border-[#1a1a1a] uppercase tracking-wider transition-colors"
@@ -158,7 +160,7 @@ export default function Checkout() {
                     disabled={!addressFilled}
                     className="motion-cta w-full py-5 bg-[#1a1a1a] text-white font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-40 hover:bg-black transition-all"
                   >
-                    המשך לתשלום
+                    {t('checkout.continuePayment')}
                   </button>
                 </>
               ) : (
@@ -166,7 +168,7 @@ export default function Checkout() {
                   <p>{address.name}</p>
                   <p>{address.street}, {address.city} {address.zipCode}</p>
                   <p>{address.phone}</p>
-                  <button onClick={() => setStep('address')} className="text-[#1a1a1a] text-xs uppercase tracking-widest mt-2 border-b border-[#1a1a1a]/30">ערוך</button>
+                  <button onClick={() => setStep('address')} className="text-[#1a1a1a] text-xs uppercase tracking-widest mt-2 border-b border-[#1a1a1a]/30">{t('checkout.edit')}</button>
                 </div>
               )}
             </section>
@@ -175,9 +177,9 @@ export default function Checkout() {
               <section className="motion-fade-up">
                 <div className="flex items-center gap-4 mb-8">
                   <span className="text-xs font-label uppercase tracking-widest text-outline">02</span>
-                  <h2 className="font-headline text-2xl text-on-surface">תשלום</h2>
+                  <h2 className="font-headline text-2xl text-on-surface">{t('checkout.paymentTitle')}</h2>
                 </div>
-                {sdkStatus === 'loading' && <p className="text-outline text-sm font-label text-center py-4">טוען PayPal...</p>}
+                {sdkStatus === 'loading' && <p className="text-outline text-sm font-label text-center py-4">{t('checkout.loadingPaypal')}</p>}
                 <div dir="ltr" ref={btnRef} className="min-h-[50px]" />
                 {error && <p className="mt-4 text-red-400 text-sm font-label text-center">{error}</p>}
               </section>
@@ -186,7 +188,7 @@ export default function Checkout() {
 
           <aside className="reveal-right lg:col-span-5">
             <div className="motion-lift bg-surface-container p-8 sticky top-28 border border-outline-variant/10">
-              <h2 className="font-headline text-xl mb-8 pb-4 border-b border-outline-variant/20">סיכום הזמנה</h2>
+              <h2 className="font-headline text-xl mb-8 pb-4 border-b border-outline-variant/20">{t('checkout.summary')}</h2>
 
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
@@ -194,7 +196,7 @@ export default function Checkout() {
                     <div>
                       <p className="text-on-surface">{item.name}</p>
                       <p className="text-outline text-xs mt-0.5">
-                        {item.size && `מידה: ${item.size}`}{item.color && ` · ${item.color}`}{` · כמות: ${item.quantity}`}
+                        {item.size && `${t('common.size')}: ${item.size}`}{item.color && ` · ${item.color}`}{` · x${item.quantity}`}
                       </p>
                     </div>
                     <span className="flex-shrink-0">₪{(item.price * item.quantity).toFixed(2)}</span>
@@ -203,13 +205,13 @@ export default function Checkout() {
               </div>
 
               <div className="border-t border-outline-variant/20 pt-4 mb-4">
-                <p className="font-label text-[0.65rem] uppercase tracking-widest text-outline mb-3">קוד הנחה</p>
+                <p className="font-label text-[0.65rem] uppercase tracking-widest text-outline mb-3">{t('checkout.coupon')}</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponStatus(null); setCouponData(null); setCouponMsg(''); }}
-                    placeholder="הכנס קוד..."
+                    placeholder={t('checkout.couponPlaceholder')}
                     disabled={couponStatus === 'valid'}
                     className="flex-1 bg-transparent border-b border-outline-variant py-2 text-on-surface placeholder-outline font-label text-xs uppercase tracking-wider focus:outline-none focus:border-[#1a1a1a] transition-colors disabled:opacity-50"
                   />
@@ -218,7 +220,7 @@ export default function Checkout() {
                     disabled={!couponCode || couponStatus === 'valid' || couponStatus === 'loading'}
                     className="motion-cta font-label text-[0.6rem] uppercase tracking-widest text-[#1a1a1a] border border-[#1a1a1a]/40 px-3 py-1 hover:bg-[#1a1a1a]/5 transition-colors disabled:opacity-40"
                   >
-                    {couponStatus === 'loading' ? '...' : 'החל'}
+                    {couponStatus === 'loading' ? '...' : t('checkout.apply')}
                   </button>
                 </div>
                 {couponMsg && <p className={`text-xs font-label mt-2 ${couponStatus === 'valid' ? 'text-green-400' : 'text-red-400'}`}>{couponMsg}</p>}
@@ -226,17 +228,17 @@ export default function Checkout() {
 
               <div className="border-t border-outline-variant/20 pt-4">
                 <div className="flex justify-between text-sm font-label text-outline mb-2">
-                  <span>משלוח</span>
-                  <span className="text-[#1a1a1a]">חינם</span>
+                  <span>{t('cart.shipping')}</span>
+                  <span className="text-[#1a1a1a]">{t('common.free')}</span>
                 </div>
                 {couponData && (
                   <div className="flex justify-between text-sm font-label text-green-600 mb-2">
-                    <span>הנחה ({couponData.discount}%)</span>
+                    <span>{t('checkout.discount')} ({couponData.discount}%)</span>
                     <span>-₪{couponData.discountAmount}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-headline text-xl mt-4">
-                  <span>סה"כ</span>
+                  <span>{t('cart.total')}</span>
                   <div className="text-left">
                     {couponData && <p className="text-outline line-through text-sm">₪{total.toFixed(2)}</p>}
                     <span className="text-[#1a1a1a]">₪{finalTotal.toFixed(2)}</span>
@@ -244,7 +246,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {items.length === 0 && <p className="text-outline text-sm font-label text-center mt-6">העגלה ריקה</p>}
+              {items.length === 0 && <p className="text-outline text-sm font-label text-center mt-6">{t('checkout.emptyCart')}</p>}
             </div>
           </aside>
         </div>

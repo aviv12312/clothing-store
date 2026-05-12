@@ -23,6 +23,7 @@ import uploadRoutes from './routes/upload.js';
 import newsletterRoutes from './routes/newsletter.js';
 import cartRoutes from './routes/cart.js';
 import couponRoutes from './routes/coupons.js';
+import homepageImageRoutes from './routes/homepageImages.js';
 import { checkAbandonedCarts } from './jobs/abandonedCartJob.js';
 
 validateEnv();
@@ -76,6 +77,12 @@ app.use(
     windowMs: 15 * 60 * 1000,
     max: 100,
     message: { error: 'יותר מדי בקשות, נסה שוב מאוחר יותר' },
+    skip: (req) =>
+      // /auth/me is called on every page load/refresh — excluding it prevents
+      // legitimate users from hitting the limit during normal browsing/dev.
+      req.path === '/auth/me' ||
+      // Skip entirely in development
+      process.env.NODE_ENV !== 'production',
   })
 );
 
@@ -96,6 +103,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/homepage-images', homepageImageRoutes);
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API route not found' });

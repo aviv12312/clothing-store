@@ -1,16 +1,18 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/layout/Footer';
 import { trackViewProduct, trackAddToCart } from '../services/analytics';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useScrollProgress } from '../hooks/useScrollProgress';
 
 const TRUST_ITEMS = [
-  { title: 'Delivery', text: 'משלוח מהיר לכל הארץ ואריזה מוקפדת שמרגישה כמו קנייה של מותג פרימיום.' },
-  { title: 'Returns', text: 'החלפה או החזרה בהתאם למדיניות, כל עוד הפריט נשאר חדש ובמצבו המקורי.' },
-  { title: 'Styling', text: 'בחנות יוקרה הלקוח צריך הכוונה. הטקסטים כאן נותנים ביטחון לפני רכישה.' },
+  { titleKey: 'product.trust.deliveryTitle', textKey: 'product.trust.deliveryText' },
+  { titleKey: 'product.trust.returnsTitle', textKey: 'product.trust.returnsText' },
+  { titleKey: 'product.trust.stylingTitle', textKey: 'product.trust.stylingText' },
 ];
 
 function AccordionItem({ title, children }) {
@@ -18,9 +20,9 @@ function AccordionItem({ title, children }) {
 
   return (
     <div className="bg-[#f7f7f7] px-6 py-5 md:px-8">
-      <button onClick={() => setOpen((value) => !value)} className="flex w-full items-center justify-between text-right">
+      <button onClick={() => setOpen((value) => !value)} aria-expanded={open} className="flex w-full items-center justify-between text-right">
         <span className="font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] text-[#111111]">{title}</span>
-        <span className="material-symbols-outlined text-[#6e6667] transition-transform duration-300" style={{ fontSize: '18px', transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}>add</span>
+        <span className="material-symbols-outlined text-[#6e6667] transition-transform duration-300" aria-hidden="true" style={{ fontSize: '18px', transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}>add</span>
       </button>
       {open && <div className="motion-fade-up pt-5 text-sm leading-7 text-[#5d5657]">{children}</div>}
     </div>
@@ -60,6 +62,7 @@ function RelatedCard({ product }) {
 }
 
 export default function ProductDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { addItem, items } = useCart();
   const { user } = useAuth();
@@ -70,6 +73,8 @@ export default function ProductDetail() {
   const [activeImage, setActiveImage] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [related, setRelated] = useState([]);
+  const galleryRef = useRef(null);
+  const galleryProgress = useScrollProgress(galleryRef);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -92,6 +97,10 @@ export default function ProductDetail() {
     return (product.colorImages?.[selectedColor]?.length ? product.colorImages[selectedColor] : product.images) || [];
   }, [product, selectedColor]);
   const pageRef = useScrollReveal([product, images.length, related.length]);
+  const galleryStyle = {
+    '--story-scale': `${1.04 - galleryProgress * 0.025}`,
+    '--scroll-progress': galleryProgress,
+  };
 
   if (!product) {
     return <div className="min-h-screen bg-white flex items-center justify-center"><span className="material-symbols-outlined animate-spin text-[#8f8889]" style={{ fontSize: '38px' }}>progress_activity</span></div>;
@@ -131,26 +140,31 @@ export default function ProductDetail() {
       <main className="px-6 pb-24 pt-28 md:px-12 lg:px-20 lg:pt-40">
         <div className="mx-auto max-w-[1600px]">
           <div className="reveal mb-8 flex items-center gap-2 font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">
-            <Link to="/">Home</Link>
+            <Link to="/">{t('product.home')}</Link>
             <span>/</span>
-            <Link to="/shop">Shop</Link>
+            <Link to="/shop">{t('product.shop')}</Link>
             <span>/</span>
             <span className="text-[#111111]">{product.name}</span>
           </div>
 
           <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] xl:gap-16">
-            <div className="reveal-left grid gap-4 md:grid-cols-[6rem_1fr] xl:grid-cols-[7rem_1fr]">
+            <div ref={galleryRef} className="reveal-left grid gap-4 md:grid-cols-[6rem_1fr] xl:grid-cols-[7rem_1fr]" style={galleryStyle}>
               <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col">
                 {images.slice(0, 5).map((image, index) => (
-                  <button key={image + index} onClick={() => setActiveImage(index)} className={`aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#f7f7f7] transition-all duration-300 hover:scale-[1.03] md:w-full ${activeImage === index ? 'opacity-100 ring-1 ring-[#111111]' : 'opacity-55 hover:opacity-100'}`}>
-                    <img src={image} alt="" className="h-full w-full object-cover" />
+                  <button key={image + index} onClick={() => setActiveImage(index)} aria-label={`הצגת תמונה ${index + 1} של ${product.name}`} className={`group aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#f7f7f7] transition-all duration-500 hover:scale-[1.04] md:w-full ${activeImage === index ? 'opacity-100 ring-1 ring-[#111111]' : 'opacity-55 hover:opacity-100'}`}>
+                    <img src={image} alt="" className="motion-image h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
 
-              <div className="order-1 bg-[#f7f7f7] md:order-2">
+              <div className="gallery-frame order-1 relative overflow-hidden bg-[#f7f7f7] md:order-2">
                 {images.length > 0 ? (
-                  <img key={images[activeImage] || images[0]} src={images[activeImage] || images[0]} alt={product.name} className="motion-image motion-fade-up h-full w-full object-cover" />
+                  <>
+                    <img key={images[activeImage] || images[0]} src={images[activeImage] || images[0]} alt={product.name} className="story-visual mask-reveal h-full w-full object-cover" />
+                    <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-px bg-[#111111]/10">
+                      <div className="scroll-progress h-full w-full bg-[#111111]/60" />
+                    </div>
+                  </>
                 ) : (
                   <div className="flex aspect-[4/5] items-center justify-center"><span className="material-symbols-outlined text-[#b8b1b2]" style={{ fontSize: '60px' }}>checkroom</span></div>
                 )}
@@ -161,11 +175,11 @@ export default function ProductDetail() {
               <div className="motion-lift bg-[#f7f7f7] p-7 md:p-10 xl:p-12">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{product.category}</p>
-                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Private Client Selection</p>
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">{t('product.privateSelection')}</p>
                 </div>
 
                 <h1 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111] md:text-5xl xl:text-6xl">{product.name}</h1>
-                <p className="editorial-hand mt-4 text-3xl text-[#8a6d28]">a signature piece</p>
+                <p className="editorial-hand mt-4 text-3xl text-gold-dark">{t('product.signaturePiece')}</p>
 
                 <div className="mt-6 flex items-baseline gap-4">
                   {product.salePrice ? (
@@ -182,16 +196,16 @@ export default function ProductDetail() {
 
                 <div className="mt-8 grid gap-3 md:grid-cols-3">
                   {TRUST_ITEMS.map((item) => (
-                    <div key={item.title} className="motion-lift bg-white px-4 py-4">
-                      <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">{item.title}</p>
-                      <p className="mt-3 text-sm leading-6 text-[#4e4748]">{item.text}</p>
+                    <div key={item.titleKey} className="motion-lift bg-white px-4 py-4">
+                      <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] text-[#6e6667]">{t(item.titleKey)}</p>
+                      <p className="mt-3 text-sm leading-6 text-[#4e4748]">{t(item.textKey)}</p>
                     </div>
                   ))}
                 </div>
 
                 {product.colors?.length > 0 && (
                   <div className="mt-10">
-                    <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Color <span className="text-[#111111]">{selectedColor}</span></p>
+                    <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{t('common.color')} <span className="text-[#111111]">{selectedColor}</span></p>
                     <div className="mt-4 flex flex-wrap gap-3">
                       {product.colors.map((color) => (
                         <button key={color} onClick={() => { setSelectedColor(color); setActiveImage(0); }} className={`px-4 py-3 text-xs uppercase tracking-[0.18rem] transition-all hover:-translate-y-0.5 ${selectedColor === color ? 'bg-[#111111] text-white' : 'bg-white text-[#111111] hover:bg-[#f1f1f1]'}`}>{color}</button>
@@ -203,8 +217,8 @@ export default function ProductDetail() {
                 {product.sizes?.length > 0 && (
                   <div className="mt-10">
                     <div className="flex items-center justify-between gap-4">
-                      <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">Size <span className="text-[#111111]">{selectedSize}</span></p>
-                      <span className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.24rem] text-[#6e6667]">Size Guide Available</span>
+                      <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-[#6e6667]">{t('common.size')} <span className="text-[#111111]">{selectedSize}</span></p>
+                      <span className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.24rem] text-[#6e6667]">{t('product.sizeGuide')}</span>
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-2 md:grid-cols-4">
                       {product.sizes.map((size) => (
@@ -215,34 +229,34 @@ export default function ProductDetail() {
                 )}
 
                 <div className="mt-8 space-y-3 border-t border-[rgba(17,17,17,0.08)] pt-8">
-                  {currentStock === 0 && selectedSize && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#9b2c2c]">Size {selectedSize} is currently unavailable</p>}
-                  {currentStock > 0 && isAdmin && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">{currentStock} units left in size {selectedSize}</p>}
-                  {currentStock > 0 && !isAdmin && currentStock < 10 && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">Low stock available</p>}
-                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">Estimated Delivery: 2-5 business days</p>
-                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">Complimentary exchange support for sizing adjustments</p>
+                  {currentStock === 0 && selectedSize && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#9b2c2c]">{t('product.unavailableSize', { size: selectedSize })}</p>}
+                  {currentStock > 0 && isAdmin && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">{t('product.unitsLeft', { count: currentStock, size: selectedSize })}</p>}
+                  {currentStock > 0 && !isAdmin && currentStock < 10 && <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#111111]">{t('product.lowStock')}</p>}
+                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">{t('product.estimatedDelivery')}</p>
+                  <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.24rem] text-[#6e6667]">{t('product.exchangeSupport')}</p>
                 </div>
 
                 <div className="mt-10 flex flex-col gap-3">
                   <button onClick={handleAddToCart} disabled={!canAdd} className={`motion-cta py-5 text-center font-['Manrope'] text-[0.66rem] uppercase tracking-[0.28rem] transition-all ${!canAdd ? 'bg-[#ececec] text-[#9d9596] cursor-not-allowed' : addedToCart ? 'bg-[#3a6472] text-white scale-[1.01]' : 'gold-shimmer hover:opacity-95'}`}>
-                    {currentStock === 0 ? 'Out of Stock' : !canAdd ? 'Stock Limit Reached' : addedToCart ? 'Added to Cart' : 'Add to Cart'}
+                    {currentStock === 0 ? t('common.outOfStock') : !canAdd ? t('common.stockLimitReached') : addedToCart ? t('common.addedToCart') : t('common.addToCart')}
                   </button>
-                  <Link to="/cart" className="editorial-button-secondary motion-cta w-full">View Cart</Link>
+                  <Link to="/cart" className="editorial-button-secondary motion-cta w-full">{t('common.viewCart')}</Link>
                 </div>
               </div>
 
               <div className="mt-4 grid gap-2 md:grid-cols-2">
-                <div className="motion-lift bg-[#fbfaf8] px-6 py-6">
-                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Fit Notes</p>
+                <div className="motion-lift bg-background px-6 py-6">
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">{t('product.fitNotes')}</p>
                   <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">{fitNote}</p>
                 </div>
-                <div className="motion-lift bg-[#fbfaf8] px-6 py-6">
-                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">Style Advice</p>
-                  <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">שלב את הפריט עם נעל מחויטת, חגורה מינימליסטית ושכבת tailoring נקייה כדי לשמור על מראה מדויק ויוקרתי.</p>
+                <div className="motion-lift bg-background px-6 py-6">
+                  <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.22rem] text-[#6e6667]">{t('product.styleAdvice')}</p>
+                  <p className="mt-4 text-sm leading-7 text-[#4f4a4a]">{t('product.styleText')}</p>
                 </div>
               </div>
 
               <div className="mt-4 space-y-2">
-                <AccordionItem title="טבלת מידות">
+                <AccordionItem title={t('product.sizeGuide')}>
                   <div className="overflow-x-auto" dir="rtl">
                     <table className="w-full text-xs font-['Manrope'] border-collapse">
                       <thead>
@@ -275,7 +289,7 @@ export default function ProductDetail() {
                   </div>
                 </AccordionItem>
 
-                <AccordionItem title="הרכב הבד והוראות טיפול">
+                <AccordionItem title={t('product.materialCare')}>
                   <div dir="rtl">
                     {product.material ? (
                       <p className="mb-3"><strong>הרכב:</strong> {product.material}</p>
@@ -297,7 +311,7 @@ export default function ProductDetail() {
                   </div>
                 </AccordionItem>
 
-                <AccordionItem title="משלוח והחזרות">
+                <AccordionItem title={t('product.shippingReturns')}>
                   <div dir="rtl" className="text-xs text-[#555] space-y-2">
                     <p>• זמן אספקה: 3–7 ימי עסקים.</p>
                     <p>• ניתן לבטל עסקה תוך <strong>14 יום</strong> מיום קבלת המוצר.</p>
@@ -306,7 +320,7 @@ export default function ProductDetail() {
                   </div>
                 </AccordionItem>
 
-                <AccordionItem title="Private Styling"><p>לייעוץ מידות אישי ופיסול הסגנון שלך, צור קשר עם הצוות שלנו.</p></AccordionItem>
+                <AccordionItem title={t('product.privateStyling')}><p>{t('product.privateStylingText')}</p></AccordionItem>
               </div>
             </div>
           </div>
@@ -318,10 +332,10 @@ export default function ProductDetail() {
           <div className="mx-auto max-w-[1600px]">
             <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="editorial-kicker text-[#6e6667]">You May Also Like</p>
-                <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111]">Related pieces from the same edit.</h2>
+                <p className="editorial-kicker text-[#6e6667]">{t('product.related')}</p>
+                <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#111111]">{t('product.relatedTitle')}</h2>
               </div>
-              <Link to={`/shop?category=${product.category}`} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#111111]">View full category</Link>
+              <Link to={`/shop?category=${product.category}`} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#111111]">{t('product.fullCategory')}</Link>
             </div>
             <div className="motion-grid grid gap-8 md:grid-cols-2 xl:grid-cols-4">
               {related.map((item) => <RelatedCard key={item._id} product={item} />)}

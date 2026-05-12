@@ -1,31 +1,59 @@
+import { useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+
 const ITEMS = [
-  'DREAM & WORK',
-  '✦',
-  'SPRING SUMMER 2026',
-  '✦',
-  'EDITORIAL MENSWEAR',
-  '✦',
-  'NEW COLLECTION',
-  '✦',
-  'QUIET LUXURY',
-  '✦',
-  'MADE WITH INTENTION',
-  '✦',
+  'DREAM & WORK', '*', 'SPRING SUMMER 2026', '*',
+  'EDITORIAL MENSWEAR', '*', 'NEW COLLECTION', '*',
+  'QUIET LUXURY', '*', 'MADE WITH INTENTION', '*', 'TEL-AVIV','*',
 ];
 
+const GROUP_ITEMS = [...ITEMS, ...ITEMS];
+const GROUPS = [0, 1, 2];
+
 export default function Marquee({ dark = false }) {
-  const text = [...ITEMS, ...ITEMS]; // כפול כדי שיראה רציף
+  const wrapRef  = useRef(null);
+  const trackRef = useRef(null);
+
+  useGSAP(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !trackRef.current) return;
+
+    gsap.fromTo(
+      trackRef.current,
+      { xPercent: 0 },
+      {
+        xPercent: -33.3333,
+        repeat: -1,
+        duration: 26,
+        ease: 'none',
+      }
+    );
+  }, { scope: wrapRef });
+
+  const itemClass = `inline-flex shrink-0 px-7 font-['Manrope'] text-[0.75rem] font-medium uppercase tracking-[0.4em] whitespace-nowrap ${
+    dark ? 'text-white/30' : 'text-on-surface-variant'
+  }`;
 
   return (
-    <div className={`marquee-wrap border-y py-4 ${dark ? 'bg-primary border-primary/80 text-on-primary' : 'bg-background border-outline-variant text-on-surface'}`}>
-      <div className="marquee-track">
-        {text.map((item, i) => (
-          <span
-            key={i}
-            className="mx-8 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.35rem]"
-          >
-            {item}
-          </span>
+    <div
+      ref={wrapRef}
+      className={`overflow-hidden border-y py-5 ${dark ? 'bg-primary border-white/10' : 'bg-background border-outline-variant'}`}
+      dir="ltr"
+    >
+      <div
+        ref={trackRef}
+        className="flex w-max"
+        style={{ willChange: 'transform' }}
+      >
+        {GROUPS.map((group) => (
+          <div key={group} className="flex shrink-0 items-center" style={{ minWidth: '100vw' }}>
+            {GROUP_ITEMS.map((item, i) => (
+              <span key={`${group}-${item}-${i}`} className={itemClass}>
+                {item}
+              </span>
+            ))}
+          </div>
         ))}
       </div>
     </div>

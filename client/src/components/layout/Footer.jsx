@@ -1,133 +1,129 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
 
-const FOOTER_LINKS = [
-  { label: 'מדיניות פרטיות', to: '/legal/privacy' },
-  { label: 'תנאי שימוש', to: '/legal/terms' },
-  { label: 'ביטולים והחזרות', to: '/legal/returns' },
-  { label: 'הצהרת נגישות', to: '/legal/accessibility' },
+const SHOP_LINKS = [
+  { label: 'קולקציה חדשה',  to: '/shop?collection=new' },
+  { label: 'חתן ומלווים',   to: '/shop?category=%D7%97%D7%AA%D7%9F%20%D7%95%D7%9E%D7%9C%D7%95%D7%95%D7%99%D7%9D' },
+  { label: 'Tailoring',     to: '/shop?category=Formal' },
+  { label: 'Casual',        to: '/shop?category=Casual' },
+  { label: 'Sale',          to: '/shop?sale=true' },
 ];
 
-const BUSINESS_INFO = {
-  name: '[שם החברה הרשמי]',
-  cn: '[ח.פ / עוסק מורשה]',
-  address: '[כתובת פיזית]',
-  phone: '[טלפון]',
-  email: '[מייל שירות לקוחות]',
-};
+const SERVICE_LINKS = [
+  { label: 'צור קשר',           to: '/contact' },
+  { label: 'שאלות נפוצות',      to: '/contact' },
+  { label: 'מדריך מידות',       to: '/contact' },
+  { label: 'החזרות והחלפות',    to: '/legal/returns' },
+  { label: 'משלוחים',           to: '/legal/terms' },
+];
+
+const ATELIER_LINKS = [
+  { label: 'סיפור המותג',   to: '/' },
+  { label: 'פגישה אישית',   to: '/contact' },
+  { label: 'Made to Measure', to: '/contact' },
+  { label: 'Instagram',     to: '#' },
+  { label: 'קריירה',        to: '/contact' },
+];
+
+const LEGAL_LINKS = [
+  { label: 'תקנון',   to: '/legal/terms' },
+  { label: 'פרטיות',  to: '/legal/privacy' },
+  { label: 'נגישות',  to: '/legal/accessibility' },
+];
+
+const LINK_CLASS =
+  "block font-['Manrope'] text-[0.82rem] leading-[2.1] text-[#faf8f4]/50 transition-colors duration-200 hover:text-[#faf8f4]/90";
+
+const HEADING_CLASS =
+  "font-['Manrope'] text-[0.52rem] uppercase tracking-[0.34rem] text-[#D6B56D]/55 mb-4";
 
 export default function Footer() {
-  const { user } = useAuth();
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState(null);
-  const [msg, setMsg] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  useEffect(() => {
-    if (user?.email) {
-      api.get(`/newsletter/check/${user.email}`)
-        .then(({ data }) => setIsSubscribed(data.subscribed))
-        .catch(() => {});
-    }
-  }, [user]);
-
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    if (!email) return;
-    setStatus('loading');
-    try {
-      const { data } = await api.post('/newsletter/subscribe', { email });
-      setStatus('success');
-      setMsg(data.message);
-      setEmail('');
-    } catch (err) {
-      setStatus('error');
-      setMsg(err.response?.data?.error || 'שגיאה, נסה שוב');
-    }
-  };
-
   return (
-    <footer className="bg-surface w-full border-t border-outline-variant">
-      {/* Newsletter Bar — נסתר אם כבר נרשם */}
-      {!isSubscribed && <div className="border-b border-outline-variant py-14 px-8 md:px-16 flex flex-col md:flex-row items-center justify-between gap-8">
+    <footer
+      dir="rtl"
+      style={{ backgroundColor: '#1b2e4b' }}
+      aria-labelledby="footer-brand"
+    >
+      {/* ── Main columns ── */}
+      <div className="mx-auto grid max-w-[1600px] gap-10 px-8 pt-12 pb-8 md:px-12 lg:px-20
+                      md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+
+        {/* Brand block */}
         <div>
-          <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.25em] text-on-surface-variant mb-2">
-            רשימת תפוצה
-          </p>
-          <h3 className="font-['Noto_Serif'] text-xl text-on-surface font-light">
-            קבל עדכונים ראשון
-          </h3>
-          <p className="font-['Manrope'] text-xs text-on-surface-variant mt-1">
-            קולקציות חדשות · מבצעים בלעדיים · Early Access
+          <h2
+            id="footer-brand"
+            style={{ fontFamily: 'Olondona, serif', letterSpacing: '0.08em', lineHeight: 1 }}
+            className="text-[1.9rem] text-[#faf8f4]"
+            dir="ltr"
+          >
+            Dream &amp; Work
+          </h2>
+          <p className="mt-4 font-['Manrope'] text-[0.8rem] leading-6 text-[#faf8f4]/45 max-w-[18rem]" dir="rtl">
+            בית אופנה ישראלי המתמחה בלבוש מחויט לחתנים, מלווים וגברים שאוהבים את הפרטים.
           </p>
         </div>
 
-        {status === 'success' ? (
-          <div className="flex items-center gap-3">
-            <span className="text-gold text-lg">✦</span>
-            <p className="font-['Manrope'] text-sm text-on-surface">{msg}</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubscribe} className="flex gap-3 w-full md:w-auto md:min-w-[380px]">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="כתובת האימייל שלך"
-              required
-              className="flex-1 bg-background border border-outline-variant text-on-surface text-sm font-['Manrope'] px-5 py-3 focus:outline-none focus:border-primary/50 placeholder-outline transition-colors"
-              dir="rtl"
-            />
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="gold-shimmer font-['Manrope'] text-[0.65rem] uppercase tracking-[0.15em] font-bold px-6 py-3 hover:opacity-80 transition-opacity whitespace-nowrap disabled:opacity-50 flex-shrink-0"
-            >
-              {status === 'loading' ? '...' : 'הצטרף'}
-            </button>
-          </form>
-        )}
-        {status === 'error' && (
-          <p className="text-red-500 text-xs font-['Manrope'] mt-1">{msg}</p>
-        )}
-      </div>}
+        {/* חנות */}
+        <nav aria-labelledby="footer-col-shop">
+          <h3 id="footer-col-shop" className={HEADING_CLASS}>חנות</h3>
+          <ul className="space-y-0">
+            {SHOP_LINKS.map((item) => (
+              <li key={item.to}>
+                <Link to={item.to} className={LINK_CLASS}>{item.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-      {/* Business Info */}
-      <div className="border-t border-outline-variant px-8 md:px-16 py-8 flex flex-col md:flex-row gap-6 md:gap-16 text-on-surface-variant">
-        <div className="space-y-1 font-['Manrope'] text-xs" dir="rtl">
-          <p className="font-semibold text-on-surface">{BUSINESS_INFO.name}</p>
-          <p>ח.פ: {BUSINESS_INFO.cn}</p>
-          <p>{BUSINESS_INFO.address}</p>
-        </div>
-        <div className="space-y-1 font-['Manrope'] text-xs" dir="rtl">
-          <p>טלפון: <a href={`tel:${BUSINESS_INFO.phone}`} className="hover:text-on-surface transition-colors">{BUSINESS_INFO.phone}</a></p>
-          <p>מייל: <a href={`mailto:${BUSINESS_INFO.email}`} className="hover:text-on-surface transition-colors">{BUSINESS_INFO.email}</a></p>
-        </div>
+        {/* שירות לקוחות */}
+        <nav aria-labelledby="footer-col-service">
+          <h3 id="footer-col-service" className={HEADING_CLASS}>שירות לקוחות</h3>
+          <ul className="space-y-0">
+            {SERVICE_LINKS.map((item) => (
+              <li key={item.label}>
+                <Link to={item.to} className={LINK_CLASS}>{item.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* האטלייר */}
+        <nav aria-labelledby="footer-col-atelier">
+          <h3 id="footer-col-atelier" className={HEADING_CLASS}>האטלייר</h3>
+          <ul className="space-y-0">
+            {ATELIER_LINKS.map((item) => (
+              <li key={item.label}>
+                <Link to={item.to} className={LINK_CLASS}>{item.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-outline-variant py-8 px-8 md:px-16 flex flex-col md:flex-row justify-between items-center gap-6">
-        <span className="text-lg font-['Noto_Serif'] text-on-surface" dir="ltr">
-          Dream &amp; Work
-        </span>
-
-        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
-          {FOOTER_LINKS.map((item) => (
-            <Link
-              key={item.label}
-              to={item.to}
-              className="font-['Manrope'] text-[0.65rem] tracking-[0.15rem] uppercase text-on-surface-variant hover:text-on-surface transition-colors duration-200"
-            >
-              {item.label}
-            </Link>
-          ))}
+      {/* ── Legal bar ── */}
+      <div style={{ borderTop: '1px solid rgba(250,248,244,0.08)' }}>
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-8 py-4 md:flex-row md:items-center md:justify-between md:px-12 lg:px-20">
+          <div className="flex items-center gap-4">
+            {LEGAL_LINKS.map((item, i) => (
+              <span key={item.to} className="flex items-center gap-4">
+                <Link
+                  to={item.to}
+                  className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.2rem] text-[#faf8f4]/25 hover:text-[#faf8f4]/55 transition-colors"
+                >
+                  {item.label}
+                </Link>
+                {i < LEGAL_LINKS.length - 1 && (
+                  <span className="text-[#faf8f4]/15 text-[0.5rem]">·</span>
+                )}
+              </span>
+            ))}
+          </div>
+          <p
+            className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.22rem] text-[#faf8f4]/22"
+            dir="ltr"
+          >
+            DREAM AND WORK &nbsp;·&nbsp; TEL AVIV 2026 &nbsp;&copy;
+          </p>
         </div>
-
-        <p className="font-['Manrope'] text-[10px] tracking-widest uppercase text-outline" dir="ltr">
-          &copy; 2026 DREAM &amp; WORK. ALL RIGHTS RESERVED.
-        </p>
       </div>
     </footer>
   );

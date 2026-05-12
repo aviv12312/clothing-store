@@ -35,7 +35,7 @@ router.post('/', protect, requireAdmin, upload.single('image'), async (req, res)
     const cld = getCloudinary();
     const result = await new Promise((resolve, reject) => {
       const stream = cld.uploader.upload_stream(
-        { folder: 'dream-and-work', transformation: [{ width: 800, crop: 'limit', quality: 'auto' }] },
+        { folder: 'dream-and-work', transformation: [{ width: 2800, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }] },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -62,7 +62,7 @@ router.post('/multiple', protect, requireAdmin, upload.array('images', 5), async
         (file) =>
           new Promise((resolve, reject) => {
             const stream = cld.uploader.upload_stream(
-              { folder: 'dream-and-work', transformation: [{ width: 800, crop: 'limit', quality: 'auto' }] },
+              { folder: 'dream-and-work', transformation: [{ width: 2800, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }] },
               (error, result) => {
                 if (error) reject(error);
                 else resolve(result.secure_url);

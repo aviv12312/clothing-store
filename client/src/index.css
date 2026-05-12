@@ -13,13 +13,17 @@
 
 :root {
   color-scheme: light;
-  --surface: #f3ede5;
-  --surface-low: #f7f3ee;
-  --surface-high: #e8ddd0;
-  --ink: #1b2e4b;
-  --muted: #4a6080;
-  --ghost: rgba(27, 46, 75, 0.10);
+  --surface: #F7F3EA;
+  --surface-low: #FFFFFF;
+  --surface-high: #E5E7EB;
+  --ink: #111827;
+  --muted: #4B5563;
+  --ghost: rgba(11, 31, 58, 0.12);
   --navy: #1b2e4b;
+  --champagne: #D6B56D;
+  --ivory: #F7F3EA;
+  --charcoal: #111827;
+  --soft-gray: #E5E7EB;
   --hand: 'Caveat', 'Architects Daughter', cursive;
 }
 
@@ -35,7 +39,7 @@ body {
   font-family: 'Manrope', sans-serif;
   direction: rtl;
   margin: 0;
-  background: #faf8f4;
+  background: var(--ivory);
   color: var(--ink);
   min-height: 100vh;
 }
@@ -65,7 +69,7 @@ a {
 }
 
 ::selection {
-  background: rgba(184, 150, 62, 0.18);
+  background: rgba(214, 181, 109, 0.28);
 }
 
 .material-symbols-outlined {
@@ -78,11 +82,11 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3ede5;
+  background: var(--ivory);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(27, 46, 75, 0.15);
+  background: rgba(11, 31, 58, 0.25);
 }
 
 .cursor-glow {
@@ -90,7 +94,7 @@ a {
   position: fixed;
   width: 480px;
   height: 480px;
-  background: radial-gradient(circle, rgba(27, 46, 75, 0.045) 0%, rgba(27, 46, 75, 0.012) 35%, transparent 65%);
+  background: radial-gradient(circle, rgba(214, 181, 109, 0.12) 0%, rgba(11, 31, 58, 0.025) 35%, transparent 65%);
   transform: translate(-50%, -50%);
   transition: left 0.14s ease, top 0.14s ease;
   z-index: 1;
@@ -122,7 +126,7 @@ a {
 
 .motion-lift:hover {
   transform: translateY(-10px);
-  box-shadow: 0 24px 70px rgba(27, 46, 75, 0.12);
+  box-shadow: 0 24px 70px rgba(11, 31, 58, 0.14);
 }
 
 .motion-image {
@@ -163,17 +167,72 @@ a {
   animation: fadeUp 920ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.motion-grid > * {
-  animation: fadeUp 980ms cubic-bezier(0.16, 1, 0.3, 1) both;
+/* .motion-grid stagger removed — product grids now use GSAP ScrollTrigger.batch on .product-card */
+
+.cinematic-hero {
+  min-height: 100vh;
 }
 
-.motion-grid > *:nth-child(2) { animation-delay: 120ms; }
-.motion-grid > *:nth-child(3) { animation-delay: 240ms; }
-.motion-grid > *:nth-child(4) { animation-delay: 360ms; }
-.motion-grid > *:nth-child(5) { animation-delay: 480ms; }
-.motion-grid > *:nth-child(6) { animation-delay: 600ms; }
-.motion-grid > *:nth-child(7) { animation-delay: 720ms; }
-.motion-grid > *:nth-child(8) { animation-delay: 840ms; }
+/* .cinematic-hero-media and .cinematic-hero-copy transforms are GSAP-controlled */
+
+.scroll-progress {
+  transform-origin: top;
+}
+
+.pinned-story {
+  position: relative;
+}
+
+.pinned-story-panel {
+  position: sticky;
+  top: 6rem;
+  min-height: calc(100vh - 8rem);
+}
+
+.story-visual {
+  clip-path: inset(var(--clip-top, 0%) var(--clip-side, 0%) var(--clip-bottom, 0%) var(--clip-side, 0%));
+  transform: scale(var(--story-scale, 1));
+  transition: clip-path 520ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.story-step {
+  min-height: 72vh;
+}
+
+.story-step-card {
+  opacity: 0.38;
+  transform: translateY(24px);
+  transition: opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.story-step-card.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mask-reveal {
+  clip-path: inset(0 0 0 0);
+  animation: maskReveal 980ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gallery-frame {
+  box-shadow: inset 0 0 0 1px rgba(214, 181, 109, 0.24);
+}
+
+@keyframes maskReveal {
+  from {
+    opacity: 0.25;
+    clip-path: inset(0 0 100% 0);
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: scale(1);
+  }
+}
 
 @keyframes pageIn {
   from {
@@ -240,8 +299,8 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, #1b2e4b 0%, #243d63 100%);
-  color: #faf8f4;
+  background: linear-gradient(135deg, #1b2e4b 0%, #111827 100%);
+  color: #F7F3EA;
   text-transform: uppercase;
   letter-spacing: 0.24rem;
   font-size: 0.68rem;
@@ -253,7 +312,7 @@ a {
 
 .editorial-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(27, 46, 75, 0.25);
+  box-shadow: 0 8px 24px rgba(11, 31, 58, 0.28);
 }
 
 .editorial-button-secondary {
@@ -268,13 +327,13 @@ a {
   font-size: 0.68rem;
   font-weight: 700;
   padding: 1rem 1.5rem;
-  border: 1px solid rgba(27, 46, 75, 0.25);
+  border: 1px solid rgba(11, 31, 58, 0.22);
   transition: transform 200ms ease, border-color 200ms ease;
 }
 
 .editorial-button-secondary:hover {
   transform: translateY(-2px);
-  border-color: #1b2e4b;
+  border-color: #D6B56D;
 }
 
 .editorial-input,
@@ -290,12 +349,12 @@ a {
 
 .editorial-input:focus,
 .editorial-select:focus {
-  border-color: rgba(27, 28, 28, 0.65);
+  border-color: rgba(214, 181, 109, 0.95);
 }
 
 .gold-shimmer {
-  background: #1b2e4b;
-  color: #faf8f4 !important;
+  background: #D6B56D;
+  color: #111827 !important;
   transition: opacity 0.2s ease !important;
 }
 
@@ -363,35 +422,142 @@ a {
 .stagger > *:nth-child(6) { transition-delay: 700ms; }
 
 /* ============================================
-   HERO ZOOM ANIMATION
+   COMPACT LOOKBOOK CINEMATIC MOTION
    ============================================ */
-@keyframes heroZoom {
-  from { transform: scale(1.06); }
-  to   { transform: scale(1); }
+.lookbook-cinema {
+  clip-path: inset(3% 0 0 0);
+  transition: opacity 1.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.45s cubic-bezier(0.16, 1, 0.3, 1),
+              clip-path 1.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero-zoom {
-  animation: heroZoom 3.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.lookbook-cinema.visible {
+  clip-path: inset(0 0 0 0);
 }
 
-/* ============================================
-   MARQUEE
-   ============================================ */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+.lookbook-copy-panel {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
 
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee 34s linear infinite;
+.lookbook-copy-panel::before {
+  content: '';
+  position: absolute;
+  inset: -30% auto -30% -45%;
+  width: 44%;
+  background: linear-gradient(100deg, transparent 0%, rgba(214, 181, 109, 0.16) 46%, transparent 100%);
+  transform: translateX(-130%) skewX(-12deg);
+  transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: -1;
 }
 
-.marquee-track:hover {
-  animation-play-state: paused;
+.lookbook-cinema.visible .lookbook-copy-panel::before {
+  transform: translateX(360%) skewX(-12deg);
 }
 
+.lookbook-copy {
+  transition: opacity 1.25s ease, transform 1.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lookbook-card {
+  position: relative;
+  transition: opacity 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 900ms ease,
+              box-shadow 900ms ease,
+              filter 900ms ease;
+  transition-delay: var(--lookbook-delay, 0ms);
+  will-change: transform;
+}
+
+.lookbook-card.reveal-scale {
+  transform: scale(0.96) translateY(42px);
+}
+
+.lookbook-card.reveal-scale.visible {
+  transform: scale(1) translateY(0);
+}
+
+.lookbook-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(214, 181, 109, 0);
+  box-shadow: inset 0 0 0 0 rgba(214, 181, 109, 0);
+  transition: border-color 900ms ease, box-shadow 900ms ease;
+  pointer-events: none;
+}
+
+.lookbook-media img {
+  min-height: 100%;
+  transform: scale(1.035);
+  animation: lookbookBreath 13s ease-in-out infinite alternate;
+  transition: transform 1.55s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 1.1s ease;
+  will-change: transform;
+}
+
+.lookbook-card:nth-child(2) .lookbook-media img {
+  animation-delay: -3.5s;
+}
+
+.lookbook-card:nth-child(3) .lookbook-media img {
+  animation-delay: -7s;
+}
+
+.lookbook-card h3,
+.lookbook-card p {
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 900ms ease,
+              color 900ms ease;
+}
+
+@media (hover: hover) {
+  .lookbook-card-grid:hover .lookbook-card:not(:hover) {
+    opacity: 0.68;
+    filter: saturate(0.86) contrast(0.94);
+  }
+
+  .lookbook-card:hover {
+    transform: translateY(-12px) scale(1.012);
+    border-color: rgba(214, 181, 109, 0.58);
+    box-shadow: 0 26px 80px rgba(11, 31, 58, 0.2);
+  }
+
+  .lookbook-card:hover::after {
+    border-color: rgba(214, 181, 109, 0.5);
+    box-shadow: inset 0 0 34px rgba(214, 181, 109, 0.12);
+  }
+
+  .lookbook-card:hover .lookbook-media img {
+    animation: none;
+    transform: scale(1.09) translate3d(0, -1.2%, 0);
+    filter: saturate(1.08) contrast(1.04);
+  }
+
+  .lookbook-card:hover h3 {
+    transform: translateY(-6px);
+    color: #F7F3EA;
+  }
+
+  .lookbook-card:hover p {
+    transform: translateY(-4px);
+    opacity: 0.88;
+  }
+}
+
+@keyframes lookbookBreath {
+  from {
+    transform: scale(1.035) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.075) translate3d(1.4%, -1.4%, 0);
+  }
+}
+
+/* marquee-wrap kept for border/padding fallback only — animation is GSAP-driven */
 .marquee-wrap {
   overflow: hidden;
   white-space: nowrap;
@@ -406,7 +572,7 @@ a {
 
 .card-hover:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(27, 46, 75, 0.12);
+  box-shadow: 0 16px 40px rgba(11, 31, 58, 0.12);
 }
 
 .link-gold {
@@ -420,7 +586,7 @@ a {
   right: 0;
   width: 0;
   height: 1px;
-  background: #1b2e4b;
+  background: #D6B56D;
   transition: width 300ms ease;
 }
 
@@ -441,26 +607,68 @@ a {
   .reveal,
   .reveal-left,
   .reveal-right,
-  .reveal-scale,
-  .hero-zoom {
+  .reveal-scale {
     opacity: 1 !important;
     transform: none !important;
-  }
-
-  .marquee-track {
-    animation: none !important;
   }
 
   .motion-page,
   .motion-drawer,
   .motion-fade-up,
-  .motion-grid > * {
+  .mask-reveal {
     animation: none !important;
   }
 
   .motion-lift:hover,
   .group:hover .motion-image,
-  .motion-image:hover {
+  .motion-image:hover,
+  .lookbook-card,
+  .lookbook-card:hover,
+  .lookbook-media img,
+  .story-visual,
+  .story-step-card {
     transform: none !important;
+  }
+
+  .story-step-card {
+    opacity: 1 !important;
+  }
+
+  .story-visual,
+  .mask-reveal {
+    clip-path: none !important;
+  }
+
+  .lookbook-cinema {
+    clip-path: none !important;
+  }
+
+  .lookbook-copy-panel::before,
+  .lookbook-media img {
+    animation: none !important;
+  }
+
+  /* Ensure any GSAP-hidden product cards are visible without animations */
+  .product-card {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .pinned-story-panel {
+    position: relative;
+    top: auto;
+    min-height: auto;
+  }
+
+  .story-step {
+    min-height: auto;
+  }
+
+  .story-step-card {
+    opacity: 1;
+    transform: none;
   }
 }

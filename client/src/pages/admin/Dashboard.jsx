@@ -4,6 +4,14 @@ import api from '../../services/api';
 const CATEGORIES = ['חתן ומלווים', 'Casual', 'Formal'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '44', '46', '48', '50', '52', '54'];
 const ORDER_STATUSES = ['בטיפול', 'נשלח', 'הגיע', 'בוטל'];
+const CAMPAIGN_SLOTS = [
+  { id: 'hero', label: 'Hero', description: 'התמונה הראשית בראש דף הבית', resolution: 'מומלץ: 2400×1600px, יחס 3:2 או 16:10, תמונת קמפיין רחבה ואופקית.' },
+{ id: 'lookbookWorkday', label: 'Lookbook - Workday', description: 'תמונות אווירה לכרטיס Workday בלוקבוק', resolution: 'מומלץ: 1600×2000px, יחס 4:5, צילום אנכי.' },
+  { id: 'lookbookEvening', label: 'Lookbook - Evening', description: 'תמונות אווירה לכרטיס Evening בלוקבוק', resolution: 'מומלץ: 1600×2000px, יחס 4:5, צילום אנכי.' },
+  { id: 'lookbookEvent', label: 'Lookbook - Event', description: 'תמונות אווירה לכרטיס Event בלוקבוק', resolution: 'מומלץ: 1600×2000px, יחס 4:5, צילום אנכי.' },
+];
+const EMPTY_CAMPAIGN_IMAGES = CAMPAIGN_SLOTS.reduce((acc, slot) => ({ ...acc, [slot.id]: [] }), {});
+const PRODUCT_IMAGE_GUIDANCE = 'מומלץ: 1600×2000px, יחס 4:5, JPG/WebP איכותי. להשאיר מעט מרווח סביב הדגם כדי שהחיתוך באתר לא יפגע בבגד.';
 
 const EMPTY_FORM = {
   name: '',
@@ -100,6 +108,7 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [campaignImages, setCampaignImages] = useState(EMPTY_CAMPAIGN_IMAGES);
   const [form, setForm] = useState(EMPTY_FORM);
   const [sizeStock, setSizeStock] = useState({});
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -111,8 +120,11 @@ export default function AdminDashboard() {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [loadingCampaignImages, setLoadingCampaignImages] = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
+  const [savingCampaignSlot, setSavingCampaignSlot] = useState('');
   const [uploadingGeneral, setUploadingGeneral] = useState(false);
+  const [uploadingCampaignSlot, setUploadingCampaignSlot] = useState('');
   const [uploadingColor, setUploadingColor] = useState('');
   const [statusUpdating, setStatusUpdating] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -150,13 +162,27 @@ export default function AdminDashboard() {
     }
   }, [showMessage]);
 
+  const fetchCampaignImages = useCallback(async () => {
+    try {
+      setLoadingCampaignImages(true);
+      const { data } = await api.get('/homepage-images/admin');
+      setCampaignImages({ ...EMPTY_CAMPAIGN_IMAGES, ...(data || {}) });
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בטעינת תמונות דף הבית', 'error');
+    } finally {
+      setLoadingCampaignImages(false);
+    }
+  }, [showMessage]);
+
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
   useEffect(() => {
     if (tab === 'orders') fetchOrders();
-  }, [fetchOrders, tab]);
+    if (tab === 'campaign') fetchCampaignImages();
+  }, [fetchCampaignImages, fetchOrders, tab]);
 
   const colorList = useMemo(() => parseColors(form.colors), [form.colors]);
 
@@ -231,6 +257,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCampaignImageFiles = async (slot, event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+
+    try {
+      setUploadingCampaignSlot(slot);
+      const urls = await uploadImages(files);
+      setCampaignImages((prev) => ({ ...prev, [slot]: [...(prev[slot] || []), ...urls] }));
+      showMessage(`${urls.length} תמונות קמפיין הועלו`);
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בהעלאת תמונות קמפיין', 'error');
+    } finally {
+      setUploadingCampaignSlot('');
+      event.target.value = '';
+    }
+  };
+
   const removeUploadedImage = (url) => {
     setUploadedImages((prev) => prev.filter((entry) => entry !== url));
   };
@@ -240,6 +284,26 @@ export default function AdminDashboard() {
       ...prev,
       [color]: (prev[color] || []).filter((entry) => entry !== url),
     }));
+  };
+
+  const removeCampaignImage = (slot, url) => {
+    setCampaignImages((prev) => ({
+      ...prev,
+      [slot]: (prev[slot] || []).filter((entry) => entry !== url),
+    }));
+  };
+
+  const saveCampaignSlot = async (slot) => {
+    try {
+      setSavingCampaignSlot(slot);
+      await api.put(`/homepage-images/${slot}`, { images: campaignImages[slot] || [] });
+      showMessage('תמונות הקמפיין נשמרו');
+    } catch (error) {
+      console.error(error);
+      showMessage('שגיאה בשמירת תמונות הקמפיין', 'error');
+    } finally {
+      setSavingCampaignSlot('');
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -417,6 +481,7 @@ export default function AdminDashboard() {
           {[
             { id: 'products', label: 'מוצרים' },
             { id: 'orders', label: 'הזמנות' },
+            { id: 'campaign', label: 'תמונות דף הבית' },
             { id: 'add', label: editId ? 'עריכת מוצר' : 'הוספת מוצר' },
           ].map((item) => (
             <button key={item.id} onClick={() => setTab(item.id)} className={`border-b-2 py-4 font-['Manrope'] text-[0.64rem] uppercase tracking-[0.24rem] ${tab === item.id ? 'border-[#111111] text-[#111111]' : 'border-transparent text-[#8b8485]'}`}>
@@ -560,6 +625,75 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {tab === 'campaign' && (
+          <div className="mx-auto max-w-6xl space-y-8">
+            <div>
+              <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#7d7677]">Homepage Campaign Images</p>
+              <h2 className="mt-2 font-['Noto_Serif'] text-4xl tracking-[-0.04em]">תמונות אווירה לדף הבית</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6f6a6a]">
+                ניהול תמונות בלבד. האתר בוחר תמונה אחת אקראית מכל אזור בזמן טעינת דף הבית. אם אזור ריק, האתר משתמש בתמונת ברירת המחדל או בתמונת מוצר קיימת.
+              </p>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-[#6f6a6a]">
+                כדאי להעלות תמונות חדות בגודל המקורי המומלץ לכל אזור. האתר חותך את התמונות לפי המסגרת, לכן חשוב להשאיר מרווח סביב הדגם ולא להצמיד פנים או פרטים חשובים לקצוות.
+              </p>
+            </div>
+
+            {loadingCampaignImages ? (
+              <div className="flex h-40 items-center justify-center bg-[#f7f6f2]">טוען תמונות דף הבית...</div>
+            ) : (
+              <div className="space-y-5">
+                {CAMPAIGN_SLOTS.map((slot) => (
+                  <section key={slot.id} className="border border-[#ece9e2] bg-white p-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">{slot.label}</p>
+                        <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.03em]">{slot.description}</h3>
+                        <p className="mt-2 text-sm font-medium text-[#111111]">{slot.resolution}</p>
+                        <p className="mt-2 text-sm text-[#6f6a6a]">{campaignImages[slot.id]?.length || 0} תמונות זמינות לאזור זה</p>
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        <label className={`cursor-pointer border border-dashed border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111] ${uploadingCampaignSlot === slot.id ? 'pointer-events-none opacity-50' : ''}`}>
+                          {uploadingCampaignSlot === slot.id ? 'מעלה...' : 'העלה תמונות'}
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => handleCampaignImageFiles(slot.id, event)} />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => saveCampaignSlot(slot.id)}
+                          disabled={savingCampaignSlot === slot.id}
+                          className="bg-[#111111] px-5 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-white disabled:opacity-50"
+                        >
+                          {savingCampaignSlot === slot.id ? 'שומר...' : 'שמור אזור'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {campaignImages[slot.id]?.length > 0 ? (
+                      <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+                        {campaignImages[slot.id].map((url) => (
+                          <div key={url} className="group relative aspect-[4/3] overflow-hidden bg-[#f3f1ec]">
+                            <img src={url} alt={slot.label} className="h-full w-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeCampaignImage(slot.id, url)}
+                              className="absolute inset-0 bg-black/55 font-['Manrope'] text-xs uppercase tracking-[0.18rem] text-white opacity-0 transition-opacity group-hover:opacity-100"
+                            >
+                              הסר
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-6 border border-dashed border-[#ddd9d0] bg-[#faf9f7] px-6 py-10 text-center text-sm text-[#6f6a6a]">
+                        אין עדיין תמונות באזור זה.
+                      </div>
+                    )}
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {tab === 'add' && (
           <form onSubmit={handleSubmit} className="mx-auto max-w-5xl space-y-10">
             <div>
@@ -665,7 +799,10 @@ export default function AdminDashboard() {
 
                     <div className="mt-8">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">תמונות ייעודיות עבור {color}</p>
+                        <div>
+                          <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">תמונות ייעודיות עבור {color}</p>
+                          <p className="mt-2 text-xs leading-6 text-[#6f6a6a]">{PRODUCT_IMAGE_GUIDANCE}</p>
+                        </div>
                         <label className={`cursor-pointer border border-dashed border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111] ${uploadingColor === color ? 'pointer-events-none opacity-50' : ''}`}>
                           {uploadingColor === color ? 'מעלה...' : 'העלה תמונות'}
                           <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => handleColorImageFiles(color, event)} />
@@ -692,6 +829,7 @@ export default function AdminDashboard() {
                 <div>
                   <p className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#7d7677]">General Gallery</p>
                   <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.03em]">תמונות כלליות של המוצר</h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-7 text-[#6f6a6a]">{PRODUCT_IMAGE_GUIDANCE}</p>
                 </div>
                 <label className={`cursor-pointer border border-dashed border-[#d8d5cf] px-4 py-3 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-[#111111] ${uploadingGeneral ? 'pointer-events-none opacity-50' : ''}`}>
                   {uploadingGeneral ? 'מעלה...' : 'העלה תמונות'}

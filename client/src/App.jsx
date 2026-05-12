@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import SplashScreen from './components/SplashScreen';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -27,9 +28,48 @@ import Returns from './pages/legal/Returns';
 import Accessibility from './pages/legal/Accessibility';
 import Unsubscribe from './pages/Unsubscribe';
 import CancelOrder from './pages/CancelOrder';
+import Contact from './pages/Contact';
+
+// Register this tab in the open-tab counter immediately (module-level, runs once).
+const _tabCount = Number(localStorage.getItem('dw_tabs') || '0') + 1;
+localStorage.setItem('dw_tabs', String(_tabCount));
 
 export default function App() {
   const glowRef = useRef(null);
+
+  const [showSplash, setShowSplash] = useState(() => {
+    // Already seen in this exact tab (F5 refresh)
+    if (sessionStorage.getItem('dw_splash')) return false;
+    // Another tab in this session already saw it
+    if (localStorage.getItem('dw_splash')) {
+      sessionStorage.setItem('dw_splash', '1');
+      return false;
+    }
+    // First view — mark immediately so any new tab opened right now won't show it
+    sessionStorage.setItem('dw_splash', '1');
+    localStorage.setItem('dw_splash', '1');
+    return true;
+  });
+
+  const handleSplashDone = () => setShowSplash(false);
+
+  useEffect(() => {
+    // When this tab closes (not bfcache), decrement counter.
+    // When the last tab closes, clear the splash flag so the next
+    // fresh browser session sees the splash again.
+    const onPageHide = (e) => {
+      if (e.persisted) return; // tab is entering bfcache — still alive
+      const remaining = Math.max(0, Number(localStorage.getItem('dw_tabs') || '1') - 1);
+      if (remaining === 0) {
+        localStorage.removeItem('dw_splash');
+        localStorage.removeItem('dw_tabs');
+      } else {
+        localStorage.setItem('dw_tabs', String(remaining));
+      }
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, []);
 
   useEffect(() => {
     const move = (e) => {
@@ -44,6 +84,7 @@ export default function App() {
 
   return (
     <>
+      {showSplash && <SplashScreen onComplete={handleSplashDone} />}
       <div ref={glowRef} className="cursor-glow" />
       <AuthProvider>
       <WishlistProvider>
@@ -83,6 +124,7 @@ function AnimatedRoutes() {
         <Route path="/legal/terms" element={<Terms />} />
         <Route path="/legal/returns" element={<Returns />} />
         <Route path="/legal/accessibility" element={<Accessibility />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/unsubscribe" element={<Unsubscribe />} />
         <Route path="/cancel-order" element={<ProtectedRoute><CancelOrder /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />

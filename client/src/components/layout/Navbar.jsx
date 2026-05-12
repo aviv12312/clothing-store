@@ -3,20 +3,24 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useTranslation } from 'react-i18next';
 
 const NAV_LINKS = [
-  { label: 'New Collection', to: '/shop?collection=new' },
-  { label: 'Sale', to: '/shop?sale=true' },
-  { label: 'Shop', to: '/shop' },
+  { labelKey: 'nav.newCollection', to: '/shop?collection=new' },
+  { labelKey: 'nav.sale', to: '/shop?sale=true' },
+  { labelKey: 'nav.shop', to: '/shop' },
 ];
 
 const SUB_CATEGORIES = [
-  { label: 'חתן ומלווים', to: '/shop?category=חתן ומלווים' },
-  { label: 'Casual', to: '/shop?category=Casual' },
-  { label: 'Formal', to: '/shop?category=Formal' },
+  { labelKey: 'nav.groom', to: '/shop?category=חתן ומלווים' },
+  { labelKey: 'nav.casual', to: '/shop?category=Casual' },
+  { labelKey: 'nav.formal', to: '/shop?category=Formal' },
 ];
 
+const DESKTOP_LINKS = [...NAV_LINKS, ...SUB_CATEGORIES];
+
 export default function Navbar() {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const { count } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -25,25 +29,17 @@ export default function Navbar() {
   const isHomePage = location.pathname === '/';
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [lightMode, setLightMode] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
       const nextScrolled = window.scrollY > 48;
       setScrolled(nextScrolled);
-
-      if (!isHomePage) {
-        setLightMode(true);
-        return;
-      }
-
-      setLightMode(window.scrollY > window.innerHeight * 0.72);
     };
 
     onScroll();
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
-  }, [isHomePage]);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -59,73 +55,95 @@ export default function Navbar() {
     closeMenu();
     navigate('/');
   };
+  const toggleLanguage = () => i18n.changeLanguage(i18n.language === 'he' ? 'en' : 'he');
 
-  const toneClass = lightMode ? 'text-on-surface' : 'text-white';
-  const badgeClass = lightMode ? 'bg-primary text-on-primary' : 'bg-white text-primary';
+  const badgeClass = 'bg-gold text-on-secondary';
 
   return (
     <>
       <nav
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled ? 'px-3 pt-3 sm:px-4 lg:px-6 lg:pt-4' : 'px-3 pt-3 sm:px-4 lg:px-6 lg:pt-5'
-        } ${!isHomePage && scrolled ? 'pointer-events-none -translate-y-6 opacity-0' : 'translate-y-0 opacity-100'} ${
-          lightMode ? 'bg-background/95 backdrop-blur-sm border-b border-outline-variant/40' : ''
+        className={`fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-primary/95 px-3 text-on-primary shadow-[0_18px_60px_rgba(17,24,39,0.18)] backdrop-blur-md transition-all duration-500 sm:px-4 lg:px-8 ${
+          scrolled ? 'py-2' : 'py-2.5'
         }`}
       >
-        <div className="mx-auto flex max-w-[1920px] items-center justify-between gap-2 sm:gap-4">
-          <div className={`flex shrink-0 items-center gap-1.5 transition-colors duration-300 sm:gap-2 lg:gap-6 ${toneClass}`}>
-            <div className="hidden lg:flex lg:items-center lg:gap-4">
-              {user ? (
-                <>
-                  <button onClick={handleLogout} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] transition-opacity hover:opacity-70">Logout</button>
-                  {user.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] transition-opacity hover:opacity-70">Admin</Link>}
-                </>
-              ) : (
-                <Link to="/login" onClick={closeMenu} className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] transition-opacity hover:opacity-70">Login</Link>
-              )}
-            </div>
-
-            <Link to="/profile" onClick={closeMenu} className="flex h-9 w-9 shrink-0 items-center justify-center transition-opacity hover:opacity-70 sm:h-10 sm:w-10">
-              <span className="material-symbols-outlined">person</span>
+        <div className="mx-auto hidden max-w-[1920px] items-center justify-between border-b border-white/10 pb-2 font-['Manrope'] text-[0.54rem] uppercase tracking-[0.18rem] text-white/60 lg:flex">
+          <div className="flex items-center gap-4">
+            <Link to="/cart" onClick={closeMenu} aria-label={`Cart, ${count} items`} className="relative flex items-center gap-1 transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '15px' }}>shopping_bag</span>
+              <span>({count})</span>
             </Link>
-
-            <Link to="/cart" onClick={closeMenu} className="relative flex h-9 w-9 shrink-0 items-center justify-center transition-opacity hover:opacity-70 sm:h-10 sm:w-10">
-              <span className="material-symbols-outlined">shopping_bag</span>
-              {count > 0 && <span className={`absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[0.48rem] font-bold ${badgeClass}`}>{count}</span>}
+            <Link to="/profile" onClick={closeMenu} aria-label={t('nav.profile')} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '15px' }}>person</span>
             </Link>
-
-            <Link to="/wishlist" onClick={closeMenu} className="relative flex h-9 w-9 shrink-0 items-center justify-center transition-opacity hover:opacity-70 sm:h-10 sm:w-10">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: wishlistCount > 0 ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+            <Link to="/wishlist" onClick={closeMenu} aria-label={`Wishlist, ${wishlistCount} items`} className="relative transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '15px', fontVariationSettings: wishlistCount > 0 ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
             </Link>
+            <button onClick={() => setMenuOpen((open) => !open)} aria-label={t('nav.menu')} aria-expanded={menuOpen} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '16px' }}>search</span>
+            </button>
           </div>
 
-          <div className={`hidden items-center gap-6 transition-colors duration-300 lg:flex xl:gap-8 ${toneClass}`}>
-            {NAV_LINKS.map((link) => (
-              <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Manrope'] text-[0.68rem] uppercase tracking-[0.22rem] transition-opacity hover:opacity-70">{link.label}</Link>
+          <div className="flex items-center gap-5">
+            <button onClick={toggleLanguage} aria-label="Switch language" className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              HE / EN
+            </button>
+            <Link to="/contact" onClick={closeMenu} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              {i18n.language === 'he' ? 'שירות לקוחות' : 'Customer Care'}
+            </Link>
+            {user ? (
+              <button onClick={handleLogout} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">{t('nav.logout')}</button>
+            ) : (
+              <Link to="/login" onClick={closeMenu} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">{t('nav.login')}</Link>
+            )}
+            {user?.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">{t('nav.admin')}</Link>}
+          </div>
+        </div>
+
+        <div className="mx-auto grid max-w-[1920px] grid-cols-[1fr_auto_1fr] items-center gap-2 pt-2 sm:gap-4 lg:pt-3">
+          <div className="hidden min-w-0 items-center justify-start gap-5 lg:flex xl:gap-7">
+            {DESKTOP_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} onClick={closeMenu} className="whitespace-nowrap font-['Manrope'] text-[0.58rem] uppercase tracking-[0.2rem] text-white/76 transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">{t(link.labelKey)}</Link>
             ))}
           </div>
 
-          <div className={`flex min-w-0 items-center justify-end gap-2 transition-colors duration-300 sm:gap-4 ${toneClass}`}>
+          <Link
+            to="/"
+            onClick={(e) => { if (isHomePage) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
+            className="flex min-w-0 flex-col items-center justify-center text-center"
+            dir="ltr"
+          >
+            <span style={{ fontFamily: 'Olondona, serif' }} className="truncate text-2xl tracking-[0.04em] text-[#dfdfdf]
+ sm:text-3xl lg:text-[2rem]">Dream &amp; Work</span>
+            <span className="editorial-hand mt-0.5 text-base text-white/45">Dressed for the room</span>
+          </Link>
+
+          <div className="flex min-w-0 items-center justify-end gap-1.5 text-white sm:gap-2 lg:hidden">
+            <Link to="/cart" onClick={closeMenu} aria-label={`Cart, ${count} items`} className="relative flex h-9 w-9 shrink-0 items-center justify-center transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gold/30 sm:h-10 sm:w-10">
+              <span className="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
+              {count > 0 && <span className={`absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full text-[0.48rem] font-bold ${badgeClass}`}>{count}</span>}
+            </Link>
             <button
               onClick={() => setMenuOpen((open) => !open)}
               className="flex h-9 w-9 shrink-0 items-center justify-center transition-opacity hover:opacity-70 sm:h-10 sm:w-auto sm:gap-2 lg:hidden"
-              aria-label={menuOpen ? 'close menu' : 'menu'}
+              aria-label={menuOpen ? t('nav.closeMenu') : t('nav.menu')}
               aria-expanded={menuOpen}
             >
               <span className="material-symbols-outlined">{menuOpen ? 'close' : 'menu'}</span>
-              <span className="hidden font-['Manrope'] text-[0.68rem] uppercase tracking-[0.22rem] sm:inline">Menu</span>
             </button>
+          </div>
 
-            <Link
-              to="/"
-              onClick={(e) => { if (isHomePage) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
-              className="flex min-w-0 items-center gap-3"
-              dir="ltr"
-            >
-              <div className="min-w-0 text-left leading-none">
-                <p style={{ fontFamily: 'Olondona, serif' }} className="truncate text-lg tracking-[0.02em] sm:text-xl md:text-2xl lg:text-3xl">Dream &amp; Work</p>
-                <p className="mt-1 hidden truncate font-['Manrope'] text-[0.48rem] uppercase tracking-[0.22rem] opacity-80 sm:block md:text-[0.52rem] md:tracking-[0.34rem]">Editorial Menswear</p>
-              </div>
+          <div className="hidden items-center justify-end gap-4 text-white/72 lg:flex">
+            <Link to="/profile" onClick={closeMenu} aria-label={t('nav.profile')} className="transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true">person</span>
+            </Link>
+
+            <Link to="/cart" onClick={closeMenu} aria-label={`Cart, ${count} items`} className="relative transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
+              {count > 0 && <span className={`absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full text-[0.48rem] font-bold ${badgeClass}`}>{count}</span>}
+            </Link>
+
+            <Link to="/wishlist" onClick={closeMenu} aria-label={`Wishlist, ${wishlistCount} items`} className="relative transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontVariationSettings: wishlistCount > 0 ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
             </Link>
           </div>
         </div>
@@ -135,33 +153,29 @@ export default function Navbar() {
         <div className={`absolute inset-0 bg-[rgba(27,46,75,0.35)] transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={closeMenu} />
         <div className={`absolute right-0 top-0 h-full w-[min(84vw,24rem)] overflow-y-auto bg-background px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(27,46,75,0.12)] transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex flex-col gap-7">
-            {NAV_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl tracking-[-0.05em] text-on-surface">{link.label}</Link>)}
+            {NAV_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl tracking-[-0.05em] text-on-surface">{t(link.labelKey)}</Link>)}
           </div>
 
           <div className="mt-12 space-y-4 bg-surface p-5">
-            <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-on-surface-variant">Collections</p>
-            {SUB_CATEGORIES.map((cat) => <Link key={cat.to} to={cat.to} onClick={closeMenu} className="block font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-on-surface">{cat.label}</Link>)}
+            <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-on-surface-variant">{t('nav.collections')}</p>
+            {SUB_CATEGORIES.map((cat) => <Link key={cat.to} to={cat.to} onClick={closeMenu} className="block font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-on-surface">{t(cat.labelKey)}</Link>)}
           </div>
 
           <div className="mt-12 flex flex-col gap-4">
+            <button onClick={toggleLanguage} className="text-right font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">{t('nav.language')}</button>
             {user ? (
               <>
-                <Link to="/profile" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Profile</Link>
-                {user.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Admin</Link>}
-                <button onClick={handleLogout} className="text-right font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Logout</button>
+                <Link to="/profile" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">{t('nav.profile')}</Link>
+                {user.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">{t('nav.admin')}</Link>}
+                <button onClick={handleLogout} className="text-right font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">{t('nav.logout')}</button>
               </>
             ) : (
-              <Link to="/login" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">Login / Register</Link>
+              <Link to="/login" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.18rem] text-on-surface">{t('nav.loginRegister')}</Link>
             )}
           </div>
         </div>
       </div>
 
-      <div className={`fixed inset-x-0 top-[72px] z-40 hidden justify-center transition-all duration-500 lg:flex ${isHomePage && scrolled ? 'translate-y-0 opacity-100' : '-translate-y-3 opacity-0 pointer-events-none'}`}>
-        <div className={`flex gap-8 transition-colors duration-300 ${toneClass}`}>
-          {SUB_CATEGORIES.map((cat) => <Link key={cat.to} to={cat.to} onClick={closeMenu} className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.22rem] transition-opacity hover:opacity-70">{cat.label}</Link>)}
-        </div>
-      </div>
     </>
   );
 }
