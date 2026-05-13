@@ -414,62 +414,131 @@ export default function Home() {
             </div>
 
             <div ref={heroCopyRef} className="grid gap-4">
-              {/* Inner panel: navy slab inside cream outer */}
-              <div className="flex min-h-[34rem] items-center border border-navy-deep/30 bg-navy px-7 py-10 md:px-10 lg:px-12">
-                <div className="max-w-xl text-cream">
-                  <div style={{ overflow: 'hidden' }}>
-                    <p ref={heroKickerRef} className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.55rem] text-terracotta-soft">
-                      {t('home.heroKicker')}
+              {/* Inner panel: navy slab with depth gradient — inline style forces render
+                  regardless of Tailwind JIT class generation on production builds */}
+              <div
+                className="flex min-h-[34rem] items-center border border-navy-deep/30 px-7 py-10 md:px-10 lg:px-12"
+                style={{ background: 'linear-gradient(135deg, #1B2E4B 0%, #13243A 100%)' }}
+              >
+                {/* Frame-within-frame: thin terracotta-tinted inner border */}
+                <div className="px-3 py-3 md:px-5 md:py-5" style={{ border: '1px solid rgba(196,122,92,0.22)' }}>
+                  <div className="max-w-xl" style={{ color: '#F4EDE0' }}>
+                    <div style={{ overflow: 'hidden' }}>
+                      <p
+                        ref={heroKickerRef}
+                        className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.55rem]"
+                        style={{ color: '#E0AB94' }}
+                      >
+                        {t('home.heroKicker')}
+                      </p>
+                    </div>
+                    {/* Micro-rule between kicker and headline */}
+                    <div className="mt-4 h-px w-[64px]" style={{ backgroundColor: 'rgba(196,122,92,0.7)' }} />
+                    <h1
+                      className="mt-3 font-['Noto_Serif'] leading-[1.0] tracking-[-0.03em]"
+                      style={{ fontSize: 'clamp(3rem, 5.4vw, 6.6rem)', color: '#F4EDE0' }}
+                    >
+                      <span style={{ display: 'block', overflow: 'hidden' }}>
+                        <span ref={heroLine1Ref} style={{ display: 'block' }}>{t('home.heroTitleLine1')}</span>
+                      </span>
+                      <span style={{ display: 'block', overflow: 'hidden' }}>
+                        <span ref={heroLine2Ref} style={{ display: 'block' }}>{t('home.heroTitleLine2')}</span>
+                      </span>
+                    </h1>
+                    <p
+                      ref={heroBodyRef}
+                      className="mt-6 max-w-sm font-['Manrope'] text-sm leading-7"
+                      style={{ color: 'rgba(244,237,224,0.88)' }}
+                    >
+                      {t('home.heroBody')}
                     </p>
-                  </div>
-                  <h1
-                    className="mt-6 font-['Noto_Serif'] leading-[1.0] tracking-[-0.03em] text-cream"
-                    style={{ fontSize: 'clamp(3rem, 5.4vw, 6.6rem)' }}
-                  >
-                    <span style={{ display: 'block', overflow: 'hidden' }}>
-                      <span ref={heroLine1Ref} style={{ display: 'block' }}>{t('home.heroTitleLine1')}</span>
-                    </span>
-                    <span style={{ display: 'block', overflow: 'hidden' }}>
-                      <span ref={heroLine2Ref} style={{ display: 'block' }}>{t('home.heroTitleLine2')}</span>
-                    </span>
-                  </h1>
-                  <p ref={heroBodyRef} className="mt-6 max-w-sm font-['Manrope'] text-sm leading-7 text-cream/70">
-                    {t('home.heroBody')}
-                  </p>
-                  <p ref={heroHandRef} className="editorial-hand mt-6 text-3xl text-terracotta-soft md:text-4xl">
-                    {t('home.heroHand')}
-                  </p>
-                  <div ref={heroCtaRef} className="mt-10 flex flex-wrap items-center gap-5">
-                    <Link
-                      to="/shop?collection=new"
-                      className="motion-cta border border-terracotta px-9 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-cream transition-all duration-300 hover:bg-terracotta hover:text-navy-deep"
+                    {/* Soft fade-out rule between body copy and hand line */}
+                    <div
+                      className="mt-5"
+                      style={{
+                        height: '1px',
+                        width: '120px',
+                        background: 'linear-gradient(to right, transparent, rgba(196,122,92,0.7), transparent)',
+                      }}
+                    />
+                    <p
+                      ref={heroHandRef}
+                      className="editorial-hand mt-3 text-3xl md:text-4xl"
+                      style={{ color: '#E0AB94' }}
                     >
-                      {t('home.newArrivals')}
-                    </Link>
-                    <Link
-                      to="/shop"
-                      className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] text-cream/55 transition-colors duration-300 hover:text-cream"
-                    >
-                      {t('home.discover')} →
-                    </Link>
+                      {t('home.heroHand')}
+                    </p>
+                    <div ref={heroCtaRef} className="mt-10 flex flex-wrap items-center gap-5">
+                      <Link
+                        to="/shop?collection=new"
+                        className="motion-cta px-9 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] transition-all duration-300"
+                        style={{ border: '1px solid #C47A5C', color: '#F4EDE0' }}
+                      >
+                        {t('home.newArrivals')}
+                      </Link>
+                      <Link
+                        to="/shop"
+                        className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] transition-colors duration-300"
+                        style={{ color: 'rgba(244,237,224,0.65)' }}
+                      >
+                        {t('home.discover')} →
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
-                {/* Sand panel — sits inside cream outer, contrasting the navy slab */}
-                <div className="border border-slate/25 bg-surface-low p-6">
-                  <p ref={momentKickerRef} className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem] text-terracotta">Every moment</p>
-                  <h2 ref={momentTitleRef} className="mt-4 font-['Noto_Serif'] text-3xl tracking-[-0.05em] text-navy-deep md:text-4xl">
+                {/* Sand panel — terracotta top-cap pairs visually with CTA's side stripe */}
+                <div
+                  className="p-6"
+                  style={{
+                    backgroundColor: '#FFFBF2',
+                    border: '1px solid rgba(138,163,184,0.3)',
+                    borderTop: '4px solid rgba(196,122,92,0.5)',
+                  }}
+                >
+                  <p
+                    ref={momentKickerRef}
+                    className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem]"
+                    style={{ color: '#C47A5C' }}
+                  >
+                    Every moment
+                  </p>
+                  <h2
+                    ref={momentTitleRef}
+                    className="mt-4 font-['Noto_Serif'] text-3xl tracking-[-0.05em] md:text-4xl"
+                    style={{ color: '#13243A' }}
+                  >
                     Panels that can change with every campaign.
                   </h2>
-                  <p ref={momentBodyRef} className="mt-4 text-sm leading-7 text-on-surface-variant">
+                  <p
+                    ref={momentBodyRef}
+                    className="mt-4 text-sm leading-7"
+                    style={{ color: '#5A6B7F' }}
+                  >
                     Hero and lookbook imagery are now campaign-controlled, while the layout keeps every visual the same size.
                   </p>
                 </div>
-                {/* Terracotta CTA panel — accent layer */}
-                <div ref={momentCtaRef} className="flex flex-col justify-between border border-terracotta-deep/40 bg-terracotta p-6 text-cream">
-                  <p className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem] text-cream/85">Lookbook Ready</p>
+                {/* Terracotta CTA panel with side stripe + inner cream-tinted frame */}
+                <div
+                  ref={momentCtaRef}
+                  className="flex flex-col justify-between p-6"
+                  style={{
+                    backgroundColor: '#C47A5C',
+                    border: '1px solid rgba(156,90,64,0.5)',
+                    borderLeft: '4px solid #9C5A40',
+                    color: '#F4EDE0',
+                  }}
+                >
+                  <div className="p-4" style={{ border: '1px solid rgba(244,237,224,0.28)' }}>
+                    <p
+                      className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem]"
+                      style={{ color: 'rgba(244,237,224,0.9)' }}
+                    >
+                      Lookbook Ready
+                    </p>
+                  </div>
                   <Link to="/shop" className="mt-10 font-['Manrope'] text-[0.62rem] uppercase tracking-[0.28rem]">
                     Enter the collection →
                   </Link>
@@ -486,6 +555,20 @@ export default function Home() {
             />
           </div>
         </section>
+
+        {/* Editorial section break — magazine-style label between hero and marquee */}
+        <div className="px-4 md:px-8 lg:px-10" style={{ backgroundColor: '#F4EDE0' }}>
+          <div className="mx-auto flex max-w-[1800px] items-center gap-3 py-3">
+            <span className="h-px flex-1" style={{ backgroundColor: 'rgba(196,122,92,0.4)' }} />
+            <span
+              className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.3rem]"
+              style={{ color: '#9C5A40' }}
+            >
+              Coastal Edit
+            </span>
+            <span className="h-px flex-1" style={{ backgroundColor: 'rgba(27,46,75,0.18)' }} />
+          </div>
+        </div>
 
         <Marquee dark />
 
