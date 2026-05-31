@@ -1,27 +1,26 @@
 import { Link } from 'react-router-dom';
 
-const SHOP_LINKS = [
-  { label: 'קולקציה חדשה',  to: '/shop?collection=new' },
-  { label: 'חתן ומלווים',   to: '/shop?category=%D7%97%D7%AA%D7%9F%20%D7%95%D7%9E%D7%9C%D7%95%D7%95%D7%99%D7%9D' },
-  { label: 'Tailoring',     to: '/shop?category=Formal' },
-  { label: 'Casual',        to: '/shop?category=Casual' },
-  { label: 'Sale',          to: '/shop?sale=true' },
+// Each link in the footer has its own purpose; no two links share both label AND
+// destination. Items routed to /contact are placeholders (pages not yet built).
+const SITEMAP_LINKS = [
+  { label: 'חנות',              to: '/shop' },
+  { label: 'מעקב הזמנות',       to: '/profile' },
+  { label: 'ביטול עסקה',        to: '/cancel-order' },
+  { label: 'צור קשר',           to: '/contact' },
 ];
 
 const SERVICE_LINKS = [
-  { label: 'צור קשר',           to: '/contact' },
-  { label: 'שאלות נפוצות',      to: '/contact' },
-  { label: 'מדריך מידות',       to: '/contact' },
-  { label: 'החזרות והחלפות',    to: '/legal/returns' },
-  { label: 'משלוחים',           to: '/legal/terms' },
+  { label: 'משלוחים והחזרות',   to: '/legal/returns' },
+  { label: 'תקנון החנות',       to: '/legal/terms' },
+  { label: 'מדיניות פרטיות',    to: '/legal/privacy' },
+  { label: 'הצהרת נגישות',      to: '/legal/accessibility' },
 ];
 
 const ATELIER_LINKS = [
-  { label: 'סיפור המותג',   to: '/' },
-  { label: 'פגישה אישית',   to: '/contact' },
-  { label: 'Made to Measure', to: '/contact' },
-  { label: 'Instagram',     to: '#' },
-  { label: 'קריירה',        to: '/contact' },
+  { label: 'פגישה אישית',       to: '/contact' },
+  { label: 'שאלות נפוצות',      to: '/contact' },
+  { label: 'מדריך מידות',       to: '/contact' },
+  { label: 'Instagram',         to: '#' },
 ];
 
 const LEGAL_LINKS = [
@@ -62,21 +61,21 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* חנות */}
-        <nav aria-labelledby="footer-col-shop">
-          <h3 id="footer-col-shop" className={HEADING_CLASS}>חנות</h3>
+        {/* מפת אתר */}
+        <nav aria-labelledby="footer-col-sitemap">
+          <h3 id="footer-col-sitemap" className={HEADING_CLASS}>מפת אתר</h3>
           <ul className="space-y-0">
-            {SHOP_LINKS.map((item) => (
-              <li key={item.to}>
+            {SITEMAP_LINKS.map((item) => (
+              <li key={item.label}>
                 <Link to={item.to} className={LINK_CLASS}>{item.label}</Link>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* שירות לקוחות */}
-        <nav aria-labelledby="footer-col-service">
-          <h3 id="footer-col-service" className={HEADING_CLASS}>שירות לקוחות</h3>
+        {/* מידע ותקנון */}
+        <nav aria-labelledby="footer-col-policy">
+          <h3 id="footer-col-policy" className={HEADING_CLASS}>מידע ותקנון</h3>
           <ul className="space-y-0">
             {SERVICE_LINKS.map((item) => (
               <li key={item.label}>
@@ -86,9 +85,9 @@ export default function Footer() {
           </ul>
         </nav>
 
-        {/* האטלייר */}
-        <nav aria-labelledby="footer-col-atelier">
-          <h3 id="footer-col-atelier" className={HEADING_CLASS}>האטלייר</h3>
+        {/* שירות לקוחות */}
+        <nav aria-labelledby="footer-col-service">
+          <h3 id="footer-col-service" className={HEADING_CLASS}>שירות לקוחות</h3>
           <ul className="space-y-0">
             {ATELIER_LINKS.map((item) => (
               <li key={item.label}>
