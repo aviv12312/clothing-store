@@ -869,3 +869,260 @@ Result: Passed. Runtime ESM import succeeded for `config/cloudinary.js`, `servic
 ### Manual Verification
 
 The server was not booted end-to-end during this entry because it requires live environment variables and a MongoDB connection. The forgot-password / reset-password message text, account soft-delete persistence (`isDeleted`/`deletedAt`), `/coupons/validate`, the Stripe/PayPal payment flows, and admin product/image upload still need a manual run against a configured environment.
+
+---
+
+### Date
+2026-07-09
+
+### Feature / Task
+Monochrome storefront palette, category cleanup, and Codex guidance sync
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 648 kB before gzip and about 199 kB after gzip.
+
+```bash
+cd server
+node --check src/controllers/aiController.js
+node --check src/middleware/validators.js
+node --check src/models/Product.js
+```
+
+Result: Passed. Node syntax checks completed without output.
+
+```bash
+git diff --check
+```
+
+Result: Passed. Git reported only Windows line-ending warnings, with no whitespace errors.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. Home, Shop, Product Detail, Cart, Checkout, legal/customer-service pages, admin product creation, mobile navigation, and the new monochrome/SALE treatment still need visual browser review with real data.
+
+---
+
+### Date
+2026-07-10
+
+### Feature / Task
+Finish remaining monochrome CSS remap from Claude handoff
+
+### Commands Run
+
+```bash
+rg -n "#1B2E4B|#13243A|#142844|#F4EDE0|#FFFBF2|#C47A5C|#9C5A40|#A8C4D6|#E0D3BC|#CDBFA1|#5A6B7F|#8AA3B8|#E0AB94|196, 122, 92|196,122,92|168, 196, 214|27, 46, 75|27,46,75|11, 31, 58" client/src client/tailwind.config.js
+```
+
+Result: Passed. No old palette hex/RGB references were found in the searched client source/config paths.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 648 kB before gzip and about 199 kB after gzip.
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+git diff --check
+```
+
+Result: Passed. Git reported only Windows line-ending warnings, with no whitespace errors.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The final monochrome CSS treatment still needs visual review in a browser, especially hover shadows, lookbook cards, selection color, and cursor glow.
+
+---
+
+### Date
+2026-07-10
+
+### Feature / Task
+Directional lookbook hover animation
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 648 kB before gzip and about 199 kB after gzip.
+
+```bash
+git diff --check
+```
+
+Result: Passed. Git reported only Windows line-ending warnings, with no whitespace errors.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The Workday, Evening, and Event hover directions still need visual review in a browser.
+
+---
+
+### Date
+2026-07-10
+
+### Feature / Task
+Mobile storefront responsive polish
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+git diff --check
+```
+
+Result: Passed. Git reported only Windows line-ending warnings, with no whitespace errors.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 650 kB before gzip and about 200 kB after gzip.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The in-app browser was unavailable, so mobile screenshots and touch checks still need visual review in a browser.
+
+---
+
+### Date
+2026-07-10
+
+### Feature / Task
+Dark-first storefront palette
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+git diff --check
+```
+
+Result: Passed. Git reported only Windows line-ending warnings, with no whitespace errors.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Failed in the sandbox. Vite failed while loading `vite.config.js` with `Error: spawn EPERM`.
+
+```bash
+cd client
+npm run build
+```
+
+Result: Passed when rerun outside the sandbox after approval. Vite built 149 modules successfully.
+
+Warning: Vite reported that some chunks are larger than 500 kB after minification. The built JS asset was about 650 kB before gzip and about 200 kB after gzip.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The dark storefront palette still needs visual review in a browser, especially product-card contrast, forms, mobile drawer panels, and text over imagery.
+
+---
+
+### Date
+2026-07-10
+
+### Feature / Task
+Lookbook and motion polish
+
+### Commands Run
+
+```bash
+cd client
+npm run lint
+```
+
+Result: Passed. ESLint completed without reported errors.
+
+```bash
+git diff --check
+```
+
+Result: Passed. Git reported only Windows line-ending warnings, with no whitespace errors.
+
+### Manual Verification
+
+Browser interaction was not run during this entry. The `Every Moment` panel colors, cursor glow strength/tracking, and marquee speed still need visual review in a browser.

@@ -12,33 +12,34 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  /* Coastal Mediterranean palette */
-  --cream: #F4EDE0;
-  --cream-down: #EFE7D6;
-  --ivory: #FFFBF2;
-  --sand: #E0D3BC;
-  --sand-deep: #CDBFA1;
-  --navy: #1B2E4B;
-  --navy-deep: #13243A;
-  --sky: #A8C4D6;
-  --sky-soft: #D8E6EE;
-  --slate: #8AA3B8;
-  --terracotta: #C47A5C;
-  --terracotta-deep: #9C5A40;
-  --terracotta-soft: #E0AB94;
-  --ink: #13243A;
-  --muted: #5A6B7F;
-  --ghost: rgba(27, 46, 75, 0.12);
+  color-scheme: dark;
+  /* Dark monochrome editorial palette - ink-led, red for SALE only */
+  --cream: #080808;
+  --cream-down: #171715;
+  --ivory: #0D0D0C;
+  --sand: #24231F;
+  --sand-deep: #34312B;
+  --navy: #121211;
+  --navy-deep: #121211;
+  --sky: #24231F;
+  --sky-soft: #171715;
+  --slate: #7C766C;
+  --terracotta: #8A8175;
+  --terracotta-deep: #625C51;
+  --terracotta-soft: #B8B2A7;
+  --ink: #F3F1ED;
+  --muted: #B8B2A7;
+  --ghost: rgba(243, 241, 237, 0.16);
+  --sale: #D8231E;
   /* Legacy aliases — keep old class consumers working */
-  --surface: #F4EDE0;
-  --surface-low: #FFFBF2;
-  --surface-high: #E0D3BC;
-  --champagne: #C47A5C;
-  --sage: #C47A5C;
-  --sage-dark: #9C5A40;
-  --charcoal: #13243A;
-  --soft-gray: #E0D3BC;
+  --surface: #080808;
+  --surface-low: #11110F;
+  --surface-high: #24231F;
+  --champagne: #8A8175;
+  --sage: #8A8175;
+  --sage-dark: #625C51;
+  --charcoal: #121211;
+  --soft-gray: #24231F;
   --hand: 'Caveat', 'Architects Daughter', cursive;
 }
 
@@ -54,7 +55,7 @@ body {
   font-family: 'Manrope', sans-serif;
   direction: rtl;
   margin: 0;
-  background: var(--ivory);
+  background: #080808;
   color: var(--ink);
   min-height: 100vh;
 }
@@ -84,7 +85,7 @@ a {
 }
 
 ::selection {
-  background: rgba(168, 196, 214, 0.32);
+  background: rgba(138, 129, 117, 0.48);
 }
 
 .material-symbols-outlined {
@@ -97,11 +98,11 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--ivory);
+  background: #080808;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(11, 31, 58, 0.25);
+  background: rgba(243, 241, 237, 0.28);
 }
 
 .cursor-glow {
@@ -109,12 +110,12 @@ a {
   position: fixed;
   width: 480px;
   height: 480px;
-  background: radial-gradient(circle, rgba(168, 196, 214, 0.16) 0%, rgba(27, 46, 75, 0.025) 35%, transparent 65%);
+  background: radial-gradient(circle, rgba(138, 129, 117, 0.154) 0%, rgba(243, 241, 237, 0.039) 35%, transparent 65%);
   transform: translate(-50%, -50%);
-  transition: left 0.14s ease, top 0.14s ease;
+  transition: none;
   z-index: 1;
-  mix-blend-mode: multiply;
-  opacity: 0.5;
+  mix-blend-mode: screen;
+  opacity: 0.55;
 }
 
 @media (max-width: 768px) {
@@ -126,6 +127,54 @@ a {
 .editorial-shell {
   position: relative;
   isolation: isolate;
+  background: #080808;
+  color: #F3F1ED;
+}
+
+.editorial-shell .bg-white,
+.editorial-shell .bg-background,
+.editorial-shell .bg-surface,
+.editorial-shell .bg-surface-container,
+.editorial-shell .bg-surface-container-low,
+.editorial-shell .bg-surface-container-lowest,
+.editorial-shell .bg-\[\#FBFAF7\],
+.editorial-shell .bg-\[\#F3F1ED\],
+.editorial-shell .bg-\[\#ECE9E3\] {
+  background-color: #11110F !important;
+}
+
+.editorial-shell .bg-surface-low,
+.editorial-shell .bg-surface-dim,
+.editorial-shell .bg-surface-container-high,
+.editorial-shell .bg-\[\#DEDAD2\],
+.editorial-shell .bg-\[\#CFCAC0\] {
+  background-color: #1A1916 !important;
+}
+
+.editorial-shell .text-on-surface,
+.editorial-shell .text-\[\#121211\],
+.editorial-shell .hover\:text-\[\#121211\]:hover {
+  color: #F3F1ED !important;
+}
+
+.editorial-shell .text-on-surface-variant,
+.editorial-shell .text-outline,
+.editorial-shell .text-\[\#6E6A62\],
+.editorial-shell .text-\[\#9A958C\],
+.editorial-shell .text-\[\#9A958C888\] {
+  color: #B8B2A7 !important;
+}
+
+.editorial-shell .border-outline-variant,
+.editorial-shell .border-surface-container-high,
+.editorial-shell .border-\[\#ECE9E3\],
+.editorial-shell .border-\[\#DEDAD2\] {
+  border-color: rgba(243, 241, 237, 0.14) !important;
+}
+
+.editorial-shell .shadow-2xl,
+.editorial-shell .shadow-xl {
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.52) !important;
 }
 
 .motion-page {
@@ -141,7 +190,7 @@ a {
 
 .motion-lift:hover {
   transform: translateY(-10px);
-  box-shadow: 0 24px 70px rgba(11, 31, 58, 0.14);
+  box-shadow: 0 24px 70px rgba(11, 11, 11, 0.14);
 }
 
 .motion-image {
@@ -233,7 +282,7 @@ a {
 }
 
 .gallery-frame {
-  box-shadow: inset 0 0 0 1px rgba(196, 122, 92, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(138, 129, 117, 0.24);
 }
 
 @keyframes maskReveal {
@@ -314,8 +363,8 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, #1B2E4B 0%, #13243A 100%);
-  color: #F4EDE0;
+  background: linear-gradient(135deg, #121211 0%, #121211 100%);
+  color: #F3F1ED;
   text-transform: uppercase;
   letter-spacing: 0.24rem;
   font-size: 0.68rem;
@@ -327,7 +376,7 @@ a {
 
 .editorial-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(11, 31, 58, 0.28);
+  box-shadow: 0 8px 24px rgba(11, 11, 11, 0.28);
 }
 
 .editorial-button-secondary {
@@ -342,13 +391,13 @@ a {
   font-size: 0.68rem;
   font-weight: 700;
   padding: 1rem 1.5rem;
-  border: 1px solid rgba(11, 31, 58, 0.22);
+  border: 1px solid rgba(11, 11, 11, 0.22);
   transition: transform 200ms ease, border-color 200ms ease;
 }
 
 .editorial-button-secondary:hover {
   transform: translateY(-2px);
-  border-color: #C47A5C;
+  border-color: #8A8175;
 }
 
 .editorial-input,
@@ -364,12 +413,12 @@ a {
 
 .editorial-input:focus,
 .editorial-select:focus {
-  border-color: rgba(196, 122, 92, 0.95);
+  border-color: rgba(11, 11, 11, 0.6);
 }
 
 .gold-shimmer {
-  background: #C47A5C;
-  color: #13243A !important;
+  background: #8A8175;
+  color: #121211 !important;
   transition: opacity 0.2s ease !important;
 }
 
@@ -454,6 +503,7 @@ a {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  background-image: linear-gradient(145deg, rgba(243, 241, 237, 0.045), rgba(255, 255, 255, 0));
 }
 
 .lookbook-copy-panel::before {
@@ -461,7 +511,7 @@ a {
   position: absolute;
   inset: -30% auto -30% -45%;
   width: 44%;
-  background: linear-gradient(100deg, transparent 0%, rgba(196, 122, 92, 0.16) 46%, transparent 100%);
+  background: linear-gradient(100deg, transparent 0%, rgba(243, 241, 237, 0.12) 46%, transparent 100%);
   transform: translateX(-130%) skewX(-12deg);
   transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
@@ -478,6 +528,7 @@ a {
 
 .lookbook-card {
   position: relative;
+  --lookbook-pan-x: 0%;
   transition: opacity 1.25s cubic-bezier(0.16, 1, 0.3, 1),
               transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 900ms ease,
@@ -499,8 +550,8 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(196, 122, 92, 0);
-  box-shadow: inset 0 0 0 0 rgba(196, 122, 92, 0);
+  border: 1px solid rgba(138, 129, 117, 0);
+  box-shadow: inset 0 0 0 0 rgba(138, 129, 117, 0);
   transition: border-color 900ms ease, box-shadow 900ms ease;
   pointer-events: none;
 }
@@ -514,12 +565,62 @@ a {
   will-change: transform;
 }
 
+.lookbook-media::before,
+.lookbook-media::after {
+  content: '';
+  position: absolute;
+  inset-block: -8%;
+  width: 42%;
+  background: linear-gradient(100deg, transparent 0%, rgba(243, 241, 237, 0.2) 48%, transparent 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease, transform 1050ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+}
+
+.lookbook-media::after {
+  display: none;
+}
+
+.lookbook-card:nth-child(1) {
+  --lookbook-pan-x: -2.2%;
+}
+
+.lookbook-card:nth-child(1) .lookbook-media::before {
+  right: -44%;
+  transform: translateX(0) skewX(-12deg);
+}
+
+.lookbook-card:nth-child(2) {
+  --lookbook-pan-x: 0%;
+}
+
 .lookbook-card:nth-child(2) .lookbook-media img {
   animation-delay: -3.5s;
 }
 
+.lookbook-card:nth-child(2) .lookbook-media::before {
+  right: -44%;
+  transform: translateX(0) skewX(-12deg);
+}
+
+.lookbook-card:nth-child(2) .lookbook-media::after {
+  display: block;
+  left: -44%;
+  transform: translateX(0) skewX(12deg);
+}
+
+.lookbook-card:nth-child(3) {
+  --lookbook-pan-x: 2.2%;
+}
+
 .lookbook-card:nth-child(3) .lookbook-media img {
   animation-delay: -7s;
+}
+
+.lookbook-card:nth-child(3) .lookbook-media::before {
+  left: -44%;
+  transform: translateX(0) skewX(12deg);
 }
 
 .lookbook-card h3,
@@ -537,24 +638,39 @@ a {
 
   .lookbook-card:hover {
     transform: translateY(-12px) scale(1.012);
-    border-color: rgba(196, 122, 92, 0.58);
-    box-shadow: 0 26px 80px rgba(11, 31, 58, 0.2);
+    border-color: rgba(138, 129, 117, 0.58);
+    box-shadow: 0 26px 80px rgba(11, 11, 11, 0.2);
   }
 
   .lookbook-card:hover::after {
-    border-color: rgba(196, 122, 92, 0.5);
-    box-shadow: inset 0 0 34px rgba(196, 122, 92, 0.12);
+    border-color: rgba(138, 129, 117, 0.5);
+    box-shadow: inset 0 0 34px rgba(138, 129, 117, 0.12);
   }
 
   .lookbook-card:hover .lookbook-media img {
     animation: none;
-    transform: scale(1.09) translate3d(0, -1.2%, 0);
+    transform: scale(1.09) translate3d(var(--lookbook-pan-x), -1.2%, 0);
     filter: saturate(1.08) contrast(1.04);
+  }
+
+  .lookbook-card:hover .lookbook-media::before,
+  .lookbook-card:hover .lookbook-media::after {
+    opacity: 1;
+  }
+
+  .lookbook-card:nth-child(1):hover .lookbook-media::before,
+  .lookbook-card:nth-child(2):hover .lookbook-media::before {
+    transform: translateX(-330%) skewX(-12deg);
+  }
+
+  .lookbook-card:nth-child(2):hover .lookbook-media::after,
+  .lookbook-card:nth-child(3):hover .lookbook-media::before {
+    transform: translateX(330%) skewX(12deg);
   }
 
   .lookbook-card:hover h3 {
     transform: translateY(-6px);
-    color: #F4EDE0;
+    color: #F3F1ED;
   }
 
   .lookbook-card:hover p {
@@ -587,7 +703,7 @@ a {
 
 .card-hover:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(11, 31, 58, 0.12);
+  box-shadow: 0 16px 40px rgba(11, 11, 11, 0.12);
 }
 
 .link-gold {
@@ -601,7 +717,7 @@ a {
   right: 0;
   width: 0;
   height: 1px;
-  background: #C47A5C;
+  background: #8A8175;
   transition: width 300ms ease;
 }
 

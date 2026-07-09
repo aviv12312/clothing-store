@@ -19,14 +19,16 @@ export default function Marquee({ dark = false }) {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced || !trackRef.current) return;
 
+    gsap.killTweensOf(trackRef.current);
     gsap.fromTo(
       trackRef.current,
       { xPercent: 0 },
       {
         xPercent: -33.3333,
         repeat: -1,
-        duration: 26,
+        duration: 32.5,
         ease: 'none',
+        overwrite: true,
       }
     );
   }, { scope: wrapRef });

@@ -4,43 +4,45 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Coastal Mediterranean palette — cream + navy + terracotta + sky
-        background:                  '#F4EDE0', // cream warm
-        surface:                     '#FFFBF2', // warm ivory
-        'surface-low':               '#EFE7D6', // cream-down (inner light panel)
-        'surface-dim':               '#E0D3BC', // sand
-        'surface-container':         '#F4EDE0',
-        'surface-container-low':     '#FFFBF2',
-        'surface-container-high':    '#E0D3BC',
-        'surface-container-highest': '#CDBFA1',
-        'surface-container-lowest':  '#FFFBF2',
-        'on-surface':                '#13243A', // deep navy ink
-        'on-surface-variant':        '#5A6B7F', // slate
-        outline:                     '#8AA3B8', // slate blue
-        'outline-variant':           '#E0D3BC', // sand
-        primary:                     '#1B2E4B', // navy
-        'on-primary':                '#F4EDE0',
-        'primary-container':         '#A8C4D6', // sky soft
-        'on-primary-container':      '#13243A',
-        secondary:                   '#A8C4D6', // sky soft
-        'on-secondary':              '#13243A',
-        tertiary:                    '#C47A5C', // terracotta
-        'on-tertiary':               '#FFFBF2',
-        'inverse-surface':           '#1B2E4B',
-        'inverse-on-surface':        '#F4EDE0',
+        // Dark monochrome editorial palette - ink-led, red reserved for SALE
+        background:                  '#080808',
+        surface:                     '#11110F',
+        'surface-low':               '#171715',
+        'surface-dim':               '#1F1F1C',
+        'surface-container':         '#11110F',
+        'surface-container-low':     '#0D0D0C',
+        'surface-container-high':    '#24231F',
+        'surface-container-highest': '#34312B',
+        'surface-container-lowest':  '#080808',
+        'on-surface':                '#F3F1ED',
+        'on-surface-variant':        '#B8B2A7',
+        outline:                     '#7C766C',
+        'outline-variant':           '#2D2C28',
+        primary:                     '#121211', // navy
+        'on-primary':                '#F3F1ED',
+        'primary-container':         '#24231F',
+        'on-primary-container':      '#F3F1ED',
+        secondary:                   '#24231F',
+        'on-secondary':              '#F3F1ED',
+        tertiary:                    '#8A8175', // terracotta
+        'on-tertiary':               '#FBFAF7',
+        'inverse-surface':           '#121211',
+        'inverse-on-surface':        '#F3F1ED',
+        sale:                        '#D8231E',
+        'sale-dark':                 '#B01A16',
         // Aliases — keep old class names working with new palette
-        gold:                        '#C47A5C', // terracotta
-        'gold-dark':                 '#9C5A40', // terracotta deep
-        navy:                        '#1B2E4B',
-        'navy-deep':                 '#13243A',
-        sky:                         '#A8C4D6',
-        'sky-soft':                  '#D8E6EE',
-        sand:                        '#E0D3BC',
-        terracotta:                  '#C47A5C',
-        'terracotta-soft':           '#E0AB94',
-        slate:                       '#8AA3B8',
-        cream:                       '#F4EDE0',
-        charcoal:                    '#13243A',
+        gold:                        '#8A8175', // terracotta
+        'gold-dark':                 '#625C51', // terracotta deep
+        navy:                        '#F3F1ED',
+        'navy-deep':                 '#F3F1ED',
+        sky:                         '#24231F',
+        'sky-soft':                  '#171715',
+        sand:                        '#2D2C28',
+        terracotta:                  '#8A8175',
+        'terracotta-soft':           '#B8B2A7',
+        slate:                       '#7C766C',
+        cream:                       '#080808',
+        charcoal:                    '#121211',
       },
       fontFamily: {
         headline: ['Noto Serif', 'serif'],

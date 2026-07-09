@@ -47,25 +47,25 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-[200] bg-[#13243A] text-white shadow-2xl" dir="rtl">
-      <div className="mx-auto max-w-6xl px-6 py-5">
+    <div className="fixed bottom-0 inset-x-0 z-[200] bg-[#121211] text-white shadow-2xl" dir="rtl">
+      <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
         {!showDetails ? (
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <p className="flex-1 font-['Manrope'] text-sm leading-relaxed text-[#EFE7D6]">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p className="flex-1 font-['Manrope'] text-sm leading-relaxed text-[#ECE9E3]">
               אנו משתמשים בעוגיות הכרחיות לתפעול האתר. אנליטיקה ושיווק יופעלו רק לאחר אישורך.{' '}
-              <button onClick={() => setShowDetails(true)} className="underline text-[#C47A5C] hover:opacity-80">
+              <button onClick={() => setShowDetails(true)} className="underline text-[#8A8175] hover:opacity-80">
                 מידע נוסף
               </button>
             </p>
 
-            <div className="flex flex-shrink-0 flex-wrap gap-3">
-              <button onClick={() => setShowDetails(true)} className="border border-[#5A6B7F] px-5 py-2.5 font-['Manrope'] text-xs uppercase tracking-[0.15rem] text-[#CDBFA1] transition-colors hover:border-white hover:text-white">
+            <div className="grid flex-shrink-0 grid-cols-1 gap-3 sm:grid-cols-3 md:flex md:flex-wrap">
+              <button onClick={() => setShowDetails(true)} className="border border-[#6E6A62] px-4 py-2.5 font-['Manrope'] text-xs uppercase tracking-[0.1rem] text-[#CFCAC0] transition-colors hover:border-white hover:text-white sm:px-5 sm:tracking-[0.15rem]">
                 התאמה אישית
               </button>
-              <button onClick={() => saveConsent({ analytics: false, marketing: false })} className="border border-[#5A6B7F] px-5 py-2.5 font-['Manrope'] text-xs uppercase tracking-[0.15rem] text-[#CDBFA1] transition-colors hover:border-white hover:text-white">
+              <button onClick={() => saveConsent({ analytics: false, marketing: false })} className="border border-[#6E6A62] px-4 py-2.5 font-['Manrope'] text-xs uppercase tracking-[0.1rem] text-[#CFCAC0] transition-colors hover:border-white hover:text-white sm:px-5 sm:tracking-[0.15rem]">
                 הכרחיות בלבד
               </button>
-              <button onClick={() => saveConsent({ analytics: true, marketing: true })} className="bg-[#C47A5C] px-6 py-2.5 font-['Manrope'] text-xs font-semibold uppercase tracking-[0.15rem] text-[#13243A] transition-opacity hover:opacity-90">
+              <button onClick={() => saveConsent({ analytics: true, marketing: true })} className="bg-[#8A8175] px-4 py-2.5 font-['Manrope'] text-xs font-semibold uppercase tracking-[0.1rem] text-[#121211] transition-opacity hover:opacity-90 sm:px-6 sm:tracking-[0.15rem]">
                 אישור הכל
               </button>
             </div>
@@ -89,14 +89,14 @@ export default function CookieBanner() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button onClick={() => saveConsent({ analytics: false, marketing: false })} className="border border-[#5A6B7F] px-5 py-2 font-['Manrope'] text-xs uppercase tracking-[0.12rem] text-[#CDBFA1] transition-colors hover:border-white hover:text-white">
+            <div className="grid grid-cols-1 gap-3 pt-2 sm:flex sm:flex-wrap">
+              <button onClick={() => saveConsent({ analytics: false, marketing: false })} className="border border-[#6E6A62] px-5 py-2 font-['Manrope'] text-xs uppercase tracking-[0.12rem] text-[#CFCAC0] transition-colors hover:border-white hover:text-white">
                 הכרחיות בלבד
               </button>
-              <button onClick={() => saveConsent(choices)} className="border border-[#C47A5C] px-5 py-2 font-['Manrope'] text-xs uppercase tracking-[0.12rem] text-[#C47A5C] transition-colors hover:bg-[#C47A5C] hover:text-[#13243A]">
+              <button onClick={() => saveConsent(choices)} className="border border-[#8A8175] px-5 py-2 font-['Manrope'] text-xs uppercase tracking-[0.12rem] text-[#8A8175] transition-colors hover:bg-[#8A8175] hover:text-[#121211]">
                 שמירת בחירה
               </button>
-              <button onClick={() => saveConsent({ analytics: true, marketing: true })} className="bg-[#C47A5C] px-6 py-2 font-['Manrope'] text-xs font-semibold uppercase tracking-[0.12rem] text-[#13243A] transition-opacity hover:opacity-90">
+              <button onClick={() => saveConsent({ analytics: true, marketing: true })} className="bg-[#8A8175] px-6 py-2 font-['Manrope'] text-xs font-semibold uppercase tracking-[0.12rem] text-[#121211] transition-opacity hover:opacity-90">
                 אישור הכל
               </button>
             </div>
@@ -109,20 +109,20 @@ export default function CookieBanner() {
 
 function CookieCard({ title, desc, required = false, checked = false, onChange }) {
   return (
-    <div className="bg-[#13243A] p-4">
+    <div className="bg-[#121211] p-4">
       <div className="flex items-center justify-between gap-4">
         <p className="font-['Manrope'] text-sm font-semibold">{title}</p>
         {required ? (
-          <span className="font-['Manrope'] text-[0.6rem] uppercase tracking-widest text-[#C47A5C]">חובה</span>
+          <span className="font-['Manrope'] text-[0.6rem] uppercase tracking-widest text-[#8A8175]">חובה</span>
         ) : (
           <label className="relative inline-flex cursor-pointer items-center">
             <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="peer sr-only" />
-            <span className="h-5 w-9 bg-[#5A6B7F] transition-colors peer-checked:bg-[#C47A5C]" />
+            <span className="h-5 w-9 bg-[#6E6A62] transition-colors peer-checked:bg-[#8A8175]" />
             <span className="absolute right-0.5 h-4 w-4 bg-white transition-transform peer-checked:-translate-x-4" />
           </label>
         )}
       </div>
-      <p className="mt-1 font-['Manrope'] text-xs leading-relaxed text-[#5A6B7F]">{desc}</p>
+      <p className="mt-1 font-['Manrope'] text-xs leading-relaxed text-[#6E6A62]">{desc}</p>
     </div>
   );
 }

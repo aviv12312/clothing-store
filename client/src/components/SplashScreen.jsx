@@ -70,7 +70,7 @@ export default function SplashScreen({ onComplete }) {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        backgroundColor: '#13243A',
+        backgroundColor: '#121211',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -84,7 +84,7 @@ export default function SplashScreen({ onComplete }) {
           style={{
             fontFamily: "'Bodoni Moda', serif",
             fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
-            color: '#F4EDE0',
+            color: '#F3F1ED',
             letterSpacing: '0.22em',
             lineHeight: 1,
           }}
@@ -92,13 +92,13 @@ export default function SplashScreen({ onComplete }) {
           DREAM &amp; WORK
         </div>
 
-        {/* Thin terracotta separator */}
+        {/* Thin taupe separator */}
         <div
           ref={separatorRef}
           style={{
             marginTop: '1.1rem',
             height: '1px',
-            background: 'linear-gradient(to right, transparent, #C47A5C 30%, #C47A5C 70%, transparent)',
+            background: 'linear-gradient(to right, transparent, #8A8175 30%, #8A8175 70%, transparent)',
           }}
         />
 
@@ -111,7 +111,7 @@ export default function SplashScreen({ onComplete }) {
             fontSize: '0.48rem',
             letterSpacing: '0.58rem',
             textTransform: 'uppercase',
-            color: 'rgba(196,122,92,0.75)',
+            color: 'rgba(138,129,117,0.75)',
           }}
         >
           Editorial Menswear
@@ -132,7 +132,7 @@ export default function SplashScreen({ onComplete }) {
             ref={progressRef}
             style={{
               height: '100%',
-              background: 'linear-gradient(to right, #9C5A40, #C47A5C, #E0AB94)',
+              background: 'linear-gradient(to right, #625C51, #8A8175, #B8B2A7)',
               transform: 'scaleX(0)',
               transformOrigin: 'left',
             }}

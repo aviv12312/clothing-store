@@ -21,8 +21,8 @@ const pickRandomImage = (images, fallback = null) => {
 
 const HOUSE_CODES = [
   { num: '01', title: 'New In', description: 'Fresh arrivals that sharpen the collection and give customers a real reason to return.', link: '/shop?collection=new' },
-  { num: '02', title: 'Ceremony', description: 'A tailored edit for grooms, guests, and precise formal moments.', link: '/shop?category=%D7%97%D7%AA%D7%9F%20%D7%95%D7%9E%D7%9C%D7%95%D7%95%D7%99%D7%9D' },
-  { num: '03', title: 'Tailoring', description: 'Clean lines, measured proportions, and quiet presence for a sharper wardrobe.', link: '/shop?category=Formal' },
+  { num: '02', title: 'Ceremony', description: 'Crisp button-downs for ceremony, work, and clean everyday dressing.', link: '/shop?category=מכופתרת' },
+  { num: '03', title: 'Tailoring', description: 'Clean lines, measured proportions, and quiet presence for a sharper wardrobe.', link: '/shop?category=חליפות' },
   { num: '04', title: 'Sale', description: 'A considered sale edit that still feels premium, ordered, and intentional.', link: '/shop?sale=true' },
 ];
 
@@ -31,7 +31,7 @@ function ProductCard({ product, priority = false }) {
   const t = useMemo(() => i18n.getFixedT('en'), [i18n]);
 
   return (
-    <Link to={`/product/${product._id}`} className={`group block motion-lift ${priority ? 'md:col-span-2' : ''}`}>
+    <Link to={`/product/${product._id}`} className={`group block motion-lift ${priority ? 'sm:col-span-2' : ''}`}>
       <div className={`relative overflow-hidden bg-surface ${priority ? 'aspect-[5/4]' : 'aspect-[3/4]'}`}>
         {product.images?.[0] ? (
           <img
@@ -44,24 +44,24 @@ function ProductCard({ product, priority = false }) {
             <span className="material-symbols-outlined text-outline" style={{ fontSize: '54px' }}>checkroom</span>
           </div>
         )}
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-6 items-center justify-between bg-[linear-gradient(180deg,transparent_0%,rgba(10,15,30,0.7)_100%)] px-6 py-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <span className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.28rem] text-white">{t('common.viewProduct')}</span>
+        <div className="absolute inset-x-0 bottom-0 flex translate-y-0 items-center justify-between bg-[linear-gradient(180deg,transparent_0%,rgba(10,15,30,0.7)_100%)] px-4 py-4 opacity-100 transition-all duration-300 md:translate-y-6 md:px-6 md:py-5 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
+          <span className="font-['Manrope'] text-[0.54rem] uppercase tracking-[0.18rem] text-white md:text-[0.6rem] md:tracking-[0.28rem]">{t('common.viewProduct')}</span>
           <span className="material-symbols-outlined text-white" style={{ fontSize: '18px' }}>north_west</span>
         </div>
       </div>
-      <div className="mt-5 flex items-start justify-between gap-4">
-        <div>
-          <p className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.32rem] text-on-surface-variant">{product.category}</p>
-          <h3 className="mt-2 font-['Noto_Serif'] text-xl tracking-[-0.03em] text-on-surface">{product.name}</h3>
+      <div className="mt-4 flex items-start justify-between gap-3 md:mt-5 md:gap-4">
+        <div className="min-w-0">
+          <p className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.18rem] text-on-surface-variant md:text-[0.55rem] md:tracking-[0.32rem]">{product.category}</p>
+          <h3 className="mt-2 font-['Noto_Serif'] text-lg tracking-[-0.03em] text-on-surface md:text-xl">{product.name}</h3>
         </div>
-        <div className="text-left shrink-0">
+        <div className="shrink-0 text-left">
           {product.salePrice ? (
             <>
-              <p className="font-['Noto_Serif'] text-lg text-on-surface">₪{product.salePrice}</p>
-              <p className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.18rem] text-on-surface-variant line-through">₪{product.price}</p>
+              <p className="font-['Noto_Serif'] text-base text-on-surface md:text-lg">₪{product.salePrice}</p>
+              <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.12rem] text-on-surface-variant line-through md:text-[0.6rem] md:tracking-[0.18rem]">₪{product.price}</p>
             </>
           ) : (
-            <p className="font-['Noto_Serif'] text-lg text-on-surface">₪{product.price}</p>
+            <p className="font-['Noto_Serif'] text-base text-on-surface md:text-lg">₪{product.price}</p>
           )}
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function Home() {
         title: 'Ceremony',
         hand: t('home.story.ceremony.hand'),
         text: t('home.story.ceremony.text'),
-        link: '/shop?category=%D7%97%D7%AA%D7%9F%20%D7%95%D7%9E%D7%9C%D7%95%D7%95%D7%99%D7%9D',
+        link: '/shop?category=מכופתרת',
         cta: t('home.story.ceremony.cta'),
         product: storyProducts[1],
       },
@@ -169,7 +169,7 @@ export default function Home() {
         title: 'Tailoring',
         hand: t('home.story.tailoring.hand'),
         text: t('home.story.tailoring.text'),
-        link: '/shop?category=Formal',
+        link: '/shop?category=חליפות',
         cta: t('home.story.tailoring.cta'),
         product: storyProducts[2],
       },
@@ -389,9 +389,9 @@ export default function Home() {
 
 
         {/* ── Hero — panel-in-panel: cream outer → navy slab + terracotta accents ── */}
-        <section ref={heroRef} className="cinematic-hero relative min-h-screen overflow-hidden bg-background px-4 pb-6 pt-32 text-navy-deep md:px-8 lg:px-10 lg:pt-36">
-          <div className="mx-auto grid min-h-[calc(100vh-10rem)] max-w-[1800px] gap-4 lg:grid-cols-[1.18fr_0.82fr]">
-            <div className="relative min-h-[54vh] overflow-hidden border border-slate/30 bg-sand lg:min-h-0">
+        <section ref={heroRef} className="cinematic-hero relative overflow-hidden bg-background px-4 pb-6 pt-28 text-navy-deep sm:pt-32 md:px-8 lg:min-h-screen lg:px-10 lg:pt-36">
+          <div className="mx-auto grid min-h-0 max-w-[1800px] gap-4 lg:min-h-[calc(100vh-10rem)] lg:grid-cols-[1.18fr_0.82fr]">
+            <div className="relative min-h-[46vh] overflow-hidden border border-slate/30 bg-sand sm:min-h-[54vh] lg:min-h-0">
               {/* Render only after API responds — prevents flash of stale local image */}
               {!loadingFeatured && (
                 <img
@@ -407,8 +407,8 @@ export default function Home() {
               )}
               {/* Subtle dark wash only at the very bottom — for label legibility, image stays clear */}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(to_top,rgba(19,36,58,0.55)_0%,rgba(19,36,58,0)_100%)]" />
-              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between gap-4 border-t border-white/25 pt-5 text-white/55">
-                <span className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.32rem]">{t('home.heroKicker')}</span>
+              <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between gap-3 border-t border-white/25 pt-4 text-white/55 md:bottom-6 md:left-6 md:right-6 md:gap-4 md:pt-5">
+                <span className="font-['Manrope'] text-[0.48rem] uppercase tracking-[0.18rem] md:text-[0.5rem] md:tracking-[0.32rem]">{t('home.heroKicker')}</span>
                 <span className="editorial-hand text-base text-terracotta-soft">Campaign Panel</span>
               </div>
             </div>
@@ -417,26 +417,26 @@ export default function Home() {
               {/* Inner panel: navy slab with depth gradient — inline style forces render
                   regardless of Tailwind JIT class generation on production builds */}
               <div
-                className="flex min-h-[34rem] items-center border border-navy-deep/30 px-7 py-10 md:px-10 lg:px-12"
-                style={{ background: 'linear-gradient(135deg, #1B2E4B 0%, #13243A 100%)' }}
+                className="flex min-h-[28rem] items-center border border-navy-deep/30 px-5 py-8 sm:min-h-[34rem] md:px-10 md:py-10 lg:px-12"
+                style={{ background: 'linear-gradient(135deg, #121211 0%, #121211 100%)' }}
               >
-                {/* Frame-within-frame: thin terracotta-tinted inner border */}
-                <div className="px-3 py-3 md:px-5 md:py-5" style={{ border: '1px solid rgba(196,122,92,0.22)' }}>
-                  <div className="max-w-xl" style={{ color: '#F4EDE0' }}>
+                {/* Frame-within-frame: thin taupe-tinted inner border */}
+                <div className="px-3 py-3 md:px-5 md:py-5" style={{ border: '1px solid rgba(138,129,117,0.22)' }}>
+                  <div className="max-w-xl" style={{ color: '#F3F1ED' }}>
                     <div style={{ overflow: 'hidden' }}>
                       <p
                         ref={heroKickerRef}
-                        className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.55rem]"
-                        style={{ color: '#E0AB94' }}
+                        className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.28rem] sm:text-[0.55rem] sm:tracking-[0.55rem]"
+                        style={{ color: '#B8B2A7' }}
                       >
                         {t('home.heroKicker')}
                       </p>
                     </div>
                     {/* Micro-rule between kicker and headline */}
-                    <div className="mt-4 h-px w-[64px]" style={{ backgroundColor: 'rgba(196,122,92,0.7)' }} />
+                    <div className="mt-4 h-px w-[64px]" style={{ backgroundColor: 'rgba(138,129,117,0.7)' }} />
                     <h1
                       className="mt-3 font-['Noto_Serif'] leading-[1.0] tracking-[-0.03em]"
-                      style={{ fontSize: 'clamp(3rem, 5.4vw, 6.6rem)', color: '#F4EDE0' }}
+                      style={{ fontSize: 'clamp(3rem, 5.4vw, 6.6rem)', color: '#F3F1ED' }}
                     >
                       <span style={{ display: 'block', overflow: 'hidden' }}>
                         <span ref={heroLine1Ref} style={{ display: 'block' }}>{t('home.heroTitleLine1')}</span>
@@ -448,7 +448,7 @@ export default function Home() {
                     <p
                       ref={heroBodyRef}
                       className="mt-6 max-w-sm font-['Manrope'] text-sm leading-7"
-                      style={{ color: 'rgba(244,237,224,0.88)' }}
+                      style={{ color: 'rgba(243,241,237,0.88)' }}
                     >
                       {t('home.heroBody')}
                     </p>
@@ -458,28 +458,28 @@ export default function Home() {
                       style={{
                         height: '1px',
                         width: '120px',
-                        background: 'linear-gradient(to right, transparent, rgba(196,122,92,0.7), transparent)',
+                        background: 'linear-gradient(to right, transparent, rgba(138,129,117,0.7), transparent)',
                       }}
                     />
                     <p
                       ref={heroHandRef}
-                      className="editorial-hand mt-3 text-3xl md:text-4xl"
-                      style={{ color: '#E0AB94' }}
+                      className="editorial-hand mt-3 text-2xl sm:text-3xl md:text-4xl"
+                      style={{ color: '#B8B2A7' }}
                     >
                       {t('home.heroHand')}
                     </p>
-                    <div ref={heroCtaRef} className="mt-10 flex flex-wrap items-center gap-5">
+                    <div ref={heroCtaRef} className="mt-8 flex flex-wrap items-center gap-4 sm:mt-10 sm:gap-5">
                       <Link
                         to="/shop?collection=new"
-                        className="motion-cta px-9 py-4 font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] transition-all duration-300"
-                        style={{ border: '1px solid #C47A5C', color: '#F4EDE0' }}
+                        className="motion-cta px-7 py-4 font-['Manrope'] text-[0.56rem] uppercase tracking-[0.22rem] transition-all duration-300 sm:px-9 sm:text-[0.6rem] sm:tracking-[0.34rem]"
+                        style={{ border: '1px solid #8A8175', color: '#F3F1ED' }}
                       >
                         {t('home.newArrivals')}
                       </Link>
                       <Link
                         to="/shop"
                         className="font-['Manrope'] text-[0.6rem] uppercase tracking-[0.34rem] transition-colors duration-300"
-                        style={{ color: 'rgba(244,237,224,0.65)' }}
+                        style={{ color: 'rgba(243,241,237,0.65)' }}
                       >
                         {t('home.discover')} →
                       </Link>
@@ -489,33 +489,33 @@ export default function Home() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
-                {/* Sand panel — terracotta top-cap pairs visually with CTA's side stripe */}
+                {/* Sand panel — taupe top-cap pairs visually with CTA's side stripe */}
                 <div
                   className="p-6"
                   style={{
-                    backgroundColor: '#FFFBF2',
-                    border: '1px solid rgba(138,163,184,0.3)',
-                    borderTop: '4px solid rgba(196,122,92,0.5)',
+                    backgroundColor: '#FBFAF7',
+                    border: '1px solid rgba(154,149,140,0.3)',
+                    borderTop: '4px solid rgba(138,129,117,0.5)',
                   }}
                 >
                   <p
                     ref={momentKickerRef}
                     className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem]"
-                    style={{ color: '#C47A5C' }}
+                    style={{ color: '#8A8175' }}
                   >
                     Every moment
                   </p>
                   <h2
                     ref={momentTitleRef}
                     className="mt-4 font-['Noto_Serif'] text-3xl tracking-[-0.05em] md:text-4xl"
-                    style={{ color: '#13243A' }}
+                    style={{ color: '#121211' }}
                   >
                     Panels that can change with every campaign.
                   </h2>
                   <p
                     ref={momentBodyRef}
                     className="mt-4 text-sm leading-7"
-                    style={{ color: '#5A6B7F' }}
+                    style={{ color: '#6E6A62' }}
                   >
                     Hero and lookbook imagery are now campaign-controlled, while the layout keeps every visual the same size.
                   </p>
@@ -525,16 +525,16 @@ export default function Home() {
                   ref={momentCtaRef}
                   className="flex flex-col justify-between p-6"
                   style={{
-                    backgroundColor: '#C47A5C',
-                    border: '1px solid rgba(156,90,64,0.5)',
-                    borderLeft: '4px solid #9C5A40',
-                    color: '#F4EDE0',
+                    backgroundColor: '#8A8175',
+                    border: '1px solid rgba(98,92,81,0.5)',
+                    borderLeft: '4px solid #625C51',
+                    color: '#F3F1ED',
                   }}
                 >
-                  <div className="p-4" style={{ border: '1px solid rgba(244,237,224,0.28)' }}>
+                  <div className="p-4" style={{ border: '1px solid rgba(243,241,237,0.28)' }}>
                     <p
                       className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.32rem]"
-                      style={{ color: 'rgba(244,237,224,0.9)' }}
+                      style={{ color: 'rgba(243,241,237,0.9)' }}
                     >
                       Lookbook Ready
                     </p>
@@ -557,16 +557,16 @@ export default function Home() {
         </section>
 
         {/* Editorial section break — magazine-style label between hero and marquee */}
-        <div className="px-4 md:px-8 lg:px-10" style={{ backgroundColor: '#F4EDE0' }}>
+        <div className="px-4 md:px-8 lg:px-10" style={{ backgroundColor: '#F3F1ED' }}>
           <div className="mx-auto flex max-w-[1800px] items-center gap-3 py-3">
-            <span className="h-px flex-1" style={{ backgroundColor: 'rgba(196,122,92,0.4)' }} />
+            <span className="h-px flex-1" style={{ backgroundColor: 'rgba(138,129,117,0.4)' }} />
             <span
               className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.3rem]"
-              style={{ color: '#9C5A40' }}
+              style={{ color: '#625C51' }}
             >
-              Coastal Edit
+              Monochrome Edit
             </span>
-            <span className="h-px flex-1" style={{ backgroundColor: 'rgba(27,46,75,0.18)' }} />
+            <span className="h-px flex-1" style={{ backgroundColor: 'rgba(11,11,11,0.18)' }} />
           </div>
         </div>
 
@@ -574,21 +574,21 @@ export default function Home() {
 
         <section className="lookbook-cinema reveal bg-background px-4 py-4 md:px-8 lg:px-10">
           <div className="mx-auto grid max-w-[1800px] gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-            <div className="lookbook-copy-panel border border-slate/25 bg-surface-low px-6 py-8">
-              <p className="editorial-kicker text-terracotta">{t('home.lookbook.kicker')}</p>
-              <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-navy-deep md:text-5xl">
+            <div className="lookbook-copy-panel border border-white/12 bg-[#0F0F0D] px-6 py-8 shadow-[0_24px_80px_rgba(0,0,0,0.42)]">
+              <p className="editorial-kicker text-[#8A8175]">{t('home.lookbook.kicker')}</p>
+              <h2 className="mt-4 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-[#F3F1ED] md:text-5xl">
                 Every Moment
               </h2>
-              <p className="editorial-hand mt-2 text-2xl text-terracotta-deep">curated for you</p>
-              <p className="lookbook-copy mt-4 max-w-sm text-sm leading-7 text-on-surface-variant">
+              <p className="editorial-hand mt-2 text-2xl text-[#B8B2A7]">curated for you</p>
+              <p className="lookbook-copy mt-4 max-w-sm text-sm leading-7 text-[#B8B2A7]">
                 A compact campaign grid for workday, evening, and event dressing.
               </p>
-              <Link to="/shop" className="mt-8 inline-flex font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-navy-deep link-gold">
+              <Link to="/shop" className="mt-8 inline-flex font-['Manrope'] text-[0.62rem] uppercase tracking-[0.24rem] text-[#F3F1ED] link-gold">
                 View the lookbook →
               </Link>
             </div>
 
-            <div className="lookbook-card-grid grid gap-4 md:grid-cols-3">
+            <div className="lookbook-card-grid grid gap-4 sm:grid-cols-3">
               {[
                 { label: 'Workday', sub: 'Sharp focused tailoring', product: storyProducts[0], image: selectedCampaignImages.lookbookWorkday },
                 { label: 'Evening', sub: 'Understated after-dark elegance', product: storyProducts[1], image: selectedCampaignImages.lookbookEvening },
@@ -606,8 +606,8 @@ export default function Home() {
                       alt={item.product?.name || item.label}
                       className="h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_32%,rgba(27,46,75,0.86)_100%)]" />
-                    <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_32%,rgba(11,11,11,0.86)_100%)]" />
+                    <div className="absolute inset-x-0 bottom-0 z-10 p-5">
                       <p className="font-['Manrope'] text-[0.52rem] uppercase tracking-[0.3rem] text-white/45">0{index + 1}</p>
                       <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.05em]">{item.label}</h3>
                       <p className="editorial-hand mt-2 text-lg text-white/65">{item.sub}</p>
@@ -620,15 +620,15 @@ export default function Home() {
         </section>
 
         <section className="bg-primary px-4 py-4 md:px-8 lg:px-10">
-          <div className="mx-auto grid max-w-[1800px] border-y border-white/10 text-white/70 md:grid-cols-4">
+          <div className="mx-auto grid max-w-[1800px] grid-cols-2 border-y border-white/10 text-white/70 md:grid-cols-4">
             {[
               ['Complimentary shipping', 'For qualifying orders'],
               ['Easy returns', 'Clear policy and support'],
               ['Personal styling', 'Fit guidance when needed'],
               ['Secure payments', 'Protected checkout flow'],
             ].map(([title, text]) => (
-              <div key={title} className="border-white/10 px-6 py-5 md:border-l">
-                <p className="editorial-hand text-xl text-gold">{title}</p>
+              <div key={title} className="border-white/10 px-4 py-5 md:border-l md:px-6">
+                <p className="editorial-hand text-lg text-gold sm:text-xl">{title}</p>
                 <p className="mt-1 text-xs text-white/45">{text}</p>
               </div>
             ))}
@@ -738,7 +738,7 @@ export default function Home() {
                       alt={item.product?.name || item.label}
                       className="motion-image h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(27,46,75,0.82)_100%)]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(11,11,11,0.82)_100%)]" />
                     <div className="absolute inset-x-0 bottom-0 p-6">
                       <p className="font-['Manrope'] text-[0.56rem] uppercase tracking-[0.32rem] text-white/45">0{index + 1}</p>
                       <h3 className="mt-2 font-['Noto_Serif'] text-3xl tracking-[-0.05em]">{item.label}</h3>
@@ -753,7 +753,7 @@ export default function Home() {
 
         {/* ── House Codes ── */}
         <section className="py-24">
-          <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20">
+          <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 lg:px-20">
             <div className="reveal mb-12 flex items-end justify-between">
               <div>
                 <p className="editorial-kicker text-on-surface-variant">{t('home.houseCodes')}</p>
@@ -769,11 +769,11 @@ export default function Home() {
               <Link
                 key={item.title}
                 to={item.link}
-                className="reveal-scale group relative flex h-72 flex-col justify-between overflow-hidden bg-primary px-8 py-8 transition-all duration-500 hover:bg-charcoal border border-primary/20 md:h-80 motion-lift"
+                className="reveal-scale group relative flex h-56 flex-col justify-between overflow-hidden border border-primary/20 bg-primary px-4 py-5 transition-all duration-500 hover:bg-charcoal sm:h-64 sm:px-6 sm:py-6 md:h-80 md:px-8 md:py-8 motion-lift"
               >
                 <span className="font-['Manrope'] text-[0.5rem] uppercase tracking-[0.45rem] text-on-primary/30">{item.num}</span>
                 <div>
-                  <p className="font-['Noto_Serif'] text-4xl tracking-[-0.04em] text-on-primary md:text-5xl">{item.title}</p>
+                  <p className="font-['Noto_Serif'] text-3xl tracking-[-0.04em] text-on-primary md:text-5xl">{item.title}</p>
                   <p className="mt-3 text-xs leading-6 text-on-primary/55 line-clamp-2">{item.description}</p>
                   <span className="mt-5 inline-flex font-['Manrope'] text-[0.55rem] uppercase tracking-[0.3rem] text-on-primary/35 transition-all duration-300 group-hover:text-on-primary/70">
                     {t('home.enter')} →
@@ -790,12 +790,12 @@ export default function Home() {
         {/* ── Spotlight ── */}
         {spotlight && (
           <section className="py-24">
-            <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20">
+            <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 lg:px-20">
               <div className="reveal mb-10">
                 <p className="editorial-kicker text-on-surface-variant">{t('home.spotlight')}</p>
               </div>
             </div>
-            <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-20">
+            <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 lg:px-20">
               <div className="grid gap-0 lg:grid-cols-[1.3fr_0.7fr]">
                 <div className="relative overflow-hidden aspect-[4/3] lg:aspect-auto lg:min-h-[600px]">
                   {spotlight.images?.[0] ? (
@@ -806,7 +806,7 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col justify-center bg-surface px-10 py-14 md:px-14">
+                <div className="flex flex-col justify-center bg-surface px-6 py-10 sm:px-10 sm:py-14 md:px-14">
                   <p className="font-['Manrope'] text-[0.55rem] uppercase tracking-[0.4rem] text-on-surface-variant">{t('home.newArrivals')}</p>
                   <h2 className="mt-5 font-['Noto_Serif'] text-4xl leading-tight tracking-[-0.04em] text-on-surface md:text-5xl">{spotlight.name}</h2>
                   <p className="editorial-hand mt-3 text-3xl text-on-surface-variant">{t('home.selectedWithIntent')}</p>
@@ -833,7 +833,7 @@ export default function Home() {
         )}
 
         {/* ── The House Edit ── */}
-        <section className="px-6 py-24 md:px-12 lg:px-20">
+        <section className="px-4 py-20 sm:px-6 md:px-12 md:py-24 lg:px-20">
           <div className="mx-auto max-w-[1600px]">
             <div className="reveal mb-14 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
@@ -841,13 +841,13 @@ export default function Home() {
                 <h2 className="mt-3 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-on-surface md:text-5xl">{t('home.houseEditTitle')}</h2>
               </div>
               <div className="flex flex-col gap-3 text-sm">
-                <Link to="/shop?category=%D7%97%D7%AA%D7%9F%20%D7%95%D7%9E%D7%9C%D7%95%D7%95%D7%99%D7%9D" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-on-surface-variant link-gold">{t('home.groomLink')} →</Link>
-                <Link to="/shop?category=Formal" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-on-surface-variant link-gold">{t('home.formalLink')} →</Link>
-                <Link to="/shop?category=Casual" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-on-surface-variant link-gold">{t('home.casualLink')} →</Link>
+                <Link to="/shop?category=מכופתרת" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-on-surface-variant link-gold">{t('home.groomLink')} →</Link>
+                <Link to="/shop?category=חליפות" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-on-surface-variant link-gold">{t('home.formalLink')} →</Link>
+                <Link to="/shop?category=מכנסיים" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.22rem] text-on-surface-variant link-gold">{t('home.casualLink')} →</Link>
               </div>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-2 md:gap-8 xl:grid-cols-3">
               {featured.map((product, index) => (
                 <div key={product._id} className="product-card">
                   <ProductCard product={product} priority={index === 0} />
@@ -864,8 +864,8 @@ export default function Home() {
         </section>
 
         {/* ── Editorial Note ── */}
-        <section className="px-6 py-24 md:px-12 lg:px-20">
-          <div className="mx-auto max-w-[1600px] bg-primary px-10 py-16 md:px-16 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-16">
+        <section className="px-4 py-20 sm:px-6 md:px-12 md:py-24 lg:px-20">
+          <div className="mx-auto max-w-[1600px] bg-primary px-6 py-12 sm:px-10 sm:py-16 md:px-16 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-16">
             <div className="reveal-left">
               <p className="editorial-kicker text-white/40">{t('home.editorialNote')}</p>
               <h2 className="mt-5 font-['Noto_Serif'] text-4xl tracking-[-0.05em] text-white md:text-5xl">{t('home.editorialTitle')}</h2>
@@ -876,7 +876,7 @@ export default function Home() {
         </section>
 
         {/* ── New Collection ── */}
-        <section className="px-6 py-24 md:px-12 lg:px-20">
+        <section className="px-4 py-20 sm:px-6 md:px-12 md:py-24 lg:px-20">
           <div className="mx-auto max-w-[1600px]">
             <div className="reveal mb-14 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
               <div>
@@ -885,7 +885,7 @@ export default function Home() {
               </div>
               <Link to="/shop?collection=new" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.26rem] text-on-surface link-gold">{t('home.viewAllNew')}</Link>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
               {newCollection.map((product) => (
                 <div key={product._id} className="product-card">
                   <ProductCard product={product} />
@@ -897,7 +897,7 @@ export default function Home() {
 
         {/* ── Sale ── */}
         {saleSelection.length > 0 && (
-          <section className="px-6 pb-24 md:px-12 lg:px-20">
+          <section className="px-4 pb-24 sm:px-6 md:px-12 lg:px-20">
             <div className="mx-auto max-w-[1600px]">
               <div className="reveal mb-14 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                 <div>
@@ -906,7 +906,7 @@ export default function Home() {
                 </div>
                 <Link to="/shop?sale=true" className="font-['Manrope'] text-[0.62rem] uppercase tracking-[0.26rem] text-on-surface link-gold">{t('home.viewSale')}</Link>
               </div>
-              <div className="grid gap-6 md:grid-cols-3">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-6">
                 {saleSelection.map((product) => (
                   <div key={product._id} className="product-card">
                     <ProductCard product={product} />
@@ -917,7 +917,7 @@ export default function Home() {
           </section>
         )}
 
-        <section className="px-6 pb-24 md:px-12 lg:px-20" dir="rtl" aria-labelledby="service-actions-title">
+        <section className="px-4 pb-24 sm:px-6 md:px-12 lg:px-20" dir="rtl" aria-labelledby="service-actions-title">
           <div className="mx-auto grid max-w-[1600px] gap-8 border-y border-outline-variant py-10 md:grid-cols-[1fr_auto] md:items-center">
             <div>
               <p className="editorial-kicker text-on-surface-variant">Customer Care</p>

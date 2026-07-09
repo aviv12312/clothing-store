@@ -38,7 +38,7 @@ export default function AIChatButton() {
     <>
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-8 left-8 w-14 h-14 bg-[#13243A] shadow-xl flex items-center justify-center hover:bg-black transition-all duration-300 z-50 border border-[#5A6B7F]"
+        className="fixed bottom-5 left-5 z-50 flex h-12 w-12 items-center justify-center border border-[#6E6A62] bg-[#121211] shadow-xl transition-all duration-300 hover:bg-black sm:bottom-8 sm:left-8 sm:h-14 sm:w-14"
         title="בוט סטייליסט AI"
       >
         <span className="material-symbols-outlined text-white text-2xl">smart_toy</span>
@@ -46,29 +46,29 @@ export default function AIChatButton() {
 
       {open && (
         <div
-          className="fixed bottom-28 left-8 bg-white border border-[#EFE7D6] shadow-2xl z-50 flex flex-col"
-          style={{ width: '340px', height: '480px' }}
+          className="fixed bottom-20 left-3 right-3 z-50 flex w-auto flex-col border border-[#ECE9E3] bg-white shadow-2xl sm:bottom-28 sm:left-8 sm:right-auto sm:w-[340px]"
+          style={{ height: 'min(70vh, 520px)' }}
         >
           {/* Header */}
-          <div className="flex justify-between items-center px-4 py-3 border-b border-[#EFE7D6] shrink-0">
+          <div className="flex shrink-0 items-center justify-between border-b border-[#ECE9E3] px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#13243A] text-sm">smart_toy</span>
-              <span className="font-headline text-[#13243A] text-sm">סטייליסט AI</span>
+              <span className="material-symbols-outlined text-[#121211] text-sm">smart_toy</span>
+              <span className="font-headline text-[#121211] text-sm">סטייליסט AI</span>
             </div>
-            <button onClick={() => setOpen(false)} className="text-[#8AA3B8888] hover:text-[#13243A]">
+            <button onClick={() => setOpen(false)} className="text-[#9A958C888] hover:text-[#121211]">
               <span className="material-symbols-outlined text-sm">close</span>
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'}`}>
                 <div
-                  className={`max-w-[80%] px-3 py-2 text-xs font-label whitespace-pre-wrap leading-relaxed ${
+                  className={`max-w-[86%] whitespace-pre-wrap px-3 py-2 text-xs font-label leading-relaxed sm:max-w-[80%] ${
                     m.role === 'user'
-                      ? 'bg-[#FFFBF2] text-[#13243A] border border-[#EFE7D6]'
-                      : 'bg-[#13243A] text-white border border-[#13243A]'
+                      ? 'bg-[#FBFAF7] text-[#121211] border border-[#ECE9E3]'
+                      : 'bg-[#121211] text-white border border-[#121211]'
                   }`}
                 >
                   {m.text}
@@ -78,7 +78,7 @@ export default function AIChatButton() {
 
             {loading && (
               <div className="flex justify-end">
-                <div className="bg-[#13243A] border border-[#13243A] px-3 py-2">
+                <div className="bg-[#121211] border border-[#121211] px-3 py-2">
                   <div className="flex gap-1">
                     <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -91,20 +91,20 @@ export default function AIChatButton() {
             {/* Product recommendations */}
             {products.length > 0 && (
               <div className="mt-2">
-                <p className="text-[#8AA3B8888] text-xs font-label mb-2">מוצרים מומלצים:</p>
+                <p className="text-[#9A958C888] text-xs font-label mb-2">מוצרים מומלצים:</p>
                 <div className="flex flex-col gap-2">
                   {products.map(p => (
                     <a
                       key={p._id}
                       href={`/product/${p._id}`}
-                      className="flex items-center gap-3 bg-[#FFFBF2] border border-[#EFE7D6] hover:border-[#13243A]/30 p-2 transition-colors"
+                      className="flex items-center gap-3 bg-[#FBFAF7] border border-[#ECE9E3] hover:border-[#121211]/30 p-2 transition-colors"
                     >
                       {p.images?.[0] && (
                         <img src={p.images[0]} alt={p.name} className="w-10 h-12 object-cover shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-[#13243A] text-xs font-label truncate">{p.name}</p>
-                        <p className="text-[#5A6B7F666] text-xs">
+                        <p className="text-[#121211] text-xs font-label truncate">{p.name}</p>
+                        <p className="text-[#6E6A62666] text-xs">
                           {p.salePrice ? `₪${p.salePrice}` : `₪${p.price}`}
                         </p>
                       </div>
@@ -118,19 +118,19 @@ export default function AIChatButton() {
           </div>
 
           {/* Input */}
-          <div className="px-4 pb-4 shrink-0 flex gap-2">
+          <div className="flex shrink-0 gap-2 px-4 pb-4">
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && send()}
               placeholder="מה אתה מחפש?"
               disabled={loading}
-              className="flex-1 bg-[#FFFBF2] border border-[#EFE7D6] text-[#13243A] px-3 py-2 text-xs font-label placeholder-[#8AA3B8888] focus:outline-none focus:border-[#13243A] disabled:opacity-50"
+              className="flex-1 bg-[#FBFAF7] border border-[#ECE9E3] text-[#121211] px-3 py-2 text-xs font-label placeholder-[#9A958C888] focus:outline-none focus:border-[#121211] disabled:opacity-50"
             />
             <button
               onClick={send}
               disabled={loading || !input.trim()}
-              className="bg-[#13243A] text-white px-3 py-2 hover:bg-black disabled:opacity-40 transition-colors"
+              className="bg-[#121211] text-white px-3 py-2 hover:bg-black disabled:opacity-40 transition-colors"
             >
               <span className="material-symbols-outlined text-sm">send</span>
             </button>

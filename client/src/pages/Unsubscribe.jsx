@@ -34,16 +34,16 @@ export default function Unsubscribe() {
     <div className="min-h-screen bg-white flex items-center justify-center px-6" dir="rtl">
       <div className="max-w-md w-full text-center">
         {status === 'loading' && (
-          <p className="font-['Manrope'] text-[#8AA3B8]">מעבד את הבקשה...</p>
+          <p className="font-['Manrope'] text-[#9A958C]">מעבד את הבקשה...</p>
         )}
 
         {status === 'success' && (
           <>
             <p className="text-4xl mb-6">✦</p>
-            <h1 className="font-['Noto_Serif'] text-2xl text-[#13243A]">הוסרת בהצלחה</h1>
-            <p className="mt-3 font-['Manrope'] text-sm text-[#5A6B7F]">{msg}</p>
-            <p className="mt-2 font-['Manrope'] text-xs text-[#8AA3B8]">לא תקבל יותר עדכונים שיווקיים. עדכונים על הזמנות ימשיכו להישלח.</p>
-            <Link to="/" className="mt-8 inline-block font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#13243A] px-6 py-3 hover:bg-[#13243A] hover:text-white transition-colors">
+            <h1 className="font-['Noto_Serif'] text-2xl text-[#121211]">הוסרת בהצלחה</h1>
+            <p className="mt-3 font-['Manrope'] text-sm text-[#6E6A62]">{msg}</p>
+            <p className="mt-2 font-['Manrope'] text-xs text-[#9A958C]">לא תקבל יותר עדכונים שיווקיים. עדכונים על הזמנות ימשיכו להישלח.</p>
+            <Link to="/" className="mt-8 inline-block font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#121211] px-6 py-3 hover:bg-[#121211] hover:text-white transition-colors">
               חזרה לאתר
             </Link>
           </>
@@ -52,9 +52,9 @@ export default function Unsubscribe() {
         {status === 'error' && (
           <>
             <p className="text-4xl mb-6">✕</p>
-            <h1 className="font-['Noto_Serif'] text-2xl text-[#13243A]">שגיאה בהסרה</h1>
-            <p className="mt-3 font-['Manrope'] text-sm text-[#5A6B7F]">{msg}</p>
-            <Link to="/" className="mt-8 inline-block font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#13243A] px-6 py-3 hover:bg-[#13243A] hover:text-white transition-colors">
+            <h1 className="font-['Noto_Serif'] text-2xl text-[#121211]">שגיאה בהסרה</h1>
+            <p className="mt-3 font-['Manrope'] text-sm text-[#6E6A62]">{msg}</p>
+            <Link to="/" className="mt-8 inline-block font-['Manrope'] text-xs uppercase tracking-[0.2rem] border border-[#121211] px-6 py-3 hover:bg-[#121211] hover:text-white transition-colors">
               חזרה לאתר
             </Link>
           </>

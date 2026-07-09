@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema(
     salePrice: Number,
     category: {
       type: String,
-      enum: ['חתן ומלווים', 'Casual', 'Formal'],
+      enum: ['חליפות', 'מכופתרת', 'מכנסיים'],
       required: true,
     },
     tags: [String],

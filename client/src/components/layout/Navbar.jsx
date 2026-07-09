@@ -5,19 +5,13 @@ import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTranslation } from 'react-i18next';
 
-const NAV_LINKS = [
-  { labelKey: 'nav.newCollection', to: '/shop?collection=new' },
-  { labelKey: 'nav.sale', to: '/shop?sale=true' },
-  { labelKey: 'nav.shop', to: '/shop' },
+const CATEGORY_LINKS = [
+  { labelKey: 'nav.suits', to: '/shop?category=חליפות' },
+  { labelKey: 'nav.shirts', to: '/shop?category=מכופתרת' },
+  { labelKey: 'nav.pants', to: '/shop?category=מכנסיים' },
 ];
 
-const SUB_CATEGORIES = [
-  { labelKey: 'nav.groom', to: '/shop?category=חתן ומלווים' },
-  { labelKey: 'nav.casual', to: '/shop?category=Casual' },
-  { labelKey: 'nav.formal', to: '/shop?category=Formal' },
-];
-
-const DESKTOP_LINKS = [...NAV_LINKS, ...SUB_CATEGORIES];
+const SALE_LINK = { label: 'SALE', to: '/shop?sale=true' };
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -57,7 +51,7 @@ export default function Navbar() {
   };
   const toggleLanguage = () => i18n.changeLanguage(i18n.language === 'he' ? 'en' : 'he');
 
-  const badgeClass = 'bg-gold text-on-secondary';
+  const badgeClass = 'bg-on-primary text-primary';
 
   return (
     <>
@@ -101,9 +95,10 @@ export default function Navbar() {
 
         <div className="mx-auto grid max-w-[1920px] grid-cols-[1fr_auto_1fr] items-center gap-2 pt-2 sm:gap-4 lg:pt-3">
           <div className="hidden min-w-0 items-center justify-start gap-5 lg:flex xl:gap-7">
-            {DESKTOP_LINKS.map((link) => (
+            {CATEGORY_LINKS.map((link) => (
               <Link key={link.to} to={link.to} onClick={closeMenu} className="whitespace-nowrap font-['Manrope'] text-[0.58rem] uppercase tracking-[0.2rem] text-white/76 transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/30">{t(link.labelKey)}</Link>
             ))}
+            <Link to={SALE_LINK.to} onClick={closeMenu} className="whitespace-nowrap font-['Manrope'] text-[0.58rem] font-semibold uppercase tracking-[0.2rem] text-sale transition-colors hover:text-sale-dark focus:outline-none focus:ring-2 focus:ring-sale/30">{SALE_LINK.label}</Link>
           </div>
 
           <Link
@@ -112,9 +107,8 @@ export default function Navbar() {
             className="flex min-w-0 flex-col items-center justify-center text-center"
             dir="ltr"
           >
-            <span style={{ fontFamily: "'Bodoni Moda', serif" }} className="truncate text-2xl tracking-[0.04em] text-[#F4EDE0]
- sm:text-3xl lg:text-[2rem]">Dream &amp; Work</span>
-            <span className="editorial-hand mt-0.5 text-base text-white/45">Dressed for the room</span>
+            <span style={{ fontFamily: "'Bodoni Moda', serif" }} className="truncate text-[1.35rem] tracking-[0.04em] text-[#F3F1ED] sm:text-3xl lg:text-[2rem]">Dream &amp; Work</span>
+            <span className="editorial-hand mt-0.5 hidden text-base text-white/45 sm:block">Dressed for the room</span>
           </Link>
 
           <div className="flex min-w-0 items-center justify-end gap-1.5 text-white sm:gap-2 lg:hidden">
@@ -150,15 +144,12 @@ export default function Navbar() {
       </nav>
 
       <div className={`fixed inset-0 z-[60] lg:hidden ${menuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
-        <div className={`absolute inset-0 bg-[rgba(27,46,75,0.35)] transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={closeMenu} />
-        <div className={`absolute right-0 top-0 h-full w-[min(84vw,24rem)] overflow-y-auto bg-background px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(27,46,75,0.12)] transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`absolute inset-0 bg-[rgba(11,11,11,0.35)] transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={closeMenu} />
+        <div className={`absolute right-0 top-0 h-full w-[min(84vw,24rem)] overflow-y-auto bg-background px-6 pb-8 pt-24 shadow-[0_24px_60px_rgba(11,11,11,0.12)] transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex flex-col gap-7">
-            {NAV_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl tracking-[-0.05em] text-on-surface">{t(link.labelKey)}</Link>)}
-          </div>
-
-          <div className="mt-12 space-y-4 bg-surface p-5">
-            <p className="font-['Manrope'] text-[0.58rem] uppercase tracking-[0.28rem] text-on-surface-variant">{t('nav.collections')}</p>
-            {SUB_CATEGORIES.map((cat) => <Link key={cat.to} to={cat.to} onClick={closeMenu} className="block font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-on-surface">{t(cat.labelKey)}</Link>)}
+            {CATEGORY_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl tracking-[-0.05em] text-on-surface">{t(link.labelKey)}</Link>)}
+            <Link to={SALE_LINK.to} onClick={closeMenu} className="font-['Noto_Serif'] text-2xl font-semibold tracking-[-0.05em] text-sale">{SALE_LINK.label}</Link>
+            <Link to="/shop" onClick={closeMenu} className="font-['Manrope'] text-sm uppercase tracking-[0.16rem] text-on-surface-variant">{t('nav.shop')}</Link>
           </div>
 
           <div className="mt-12 flex flex-col gap-4">
@@ -179,4 +170,3 @@ export default function Navbar() {
     </>
   );
 }
-

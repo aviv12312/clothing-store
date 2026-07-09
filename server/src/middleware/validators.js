@@ -31,6 +31,6 @@ export const loginRules = [
 export const productRules = [
   body('name').trim().notEmpty().isLength({ max: 200 }),
   body('price').isFloat({ min: 0.01, max: 100000 }),
-  body('category').isIn(['חתן ומלווים', 'Casual', 'Formal']),
+  body('category').isIn(['חליפות', 'מכופתרת', 'מכנסיים']),
   body('stock').isInt({ min: 0 }),
 ];

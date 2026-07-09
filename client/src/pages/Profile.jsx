@@ -90,17 +90,17 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#13243A] flex flex-col">
+    <div className="min-h-screen bg-white text-[#121211] flex flex-col">
       <div className="pt-20 flex flex-1">
 
         {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col py-10 gap-2 w-64 border-l border-[#EFE7D6eee] sticky top-20 h-[calc(100vh-5rem)]">
+        <aside className="hidden lg:flex flex-col py-10 gap-2 w-64 border-l border-[#ECE9E3eee] sticky top-20 h-[calc(100vh-5rem)]">
           <div className="px-8 mb-8">
-            <div className="w-12 h-12 rounded-full bg-[#FFFBF2] border border-[#EFE7D6] mb-4 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#8AA3B8888]">person</span>
+            <div className="w-12 h-12 rounded-full bg-[#FBFAF7] border border-[#ECE9E3] mb-4 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[#9A958C888]">person</span>
             </div>
             <h2 className="font-headline text-lg">{user?.name}</h2>
-            <p className="text-xs text-[#13243A] uppercase tracking-widest font-label mt-0.5">
+            <p className="text-xs text-[#121211] uppercase tracking-widest font-label mt-0.5">
               {user?.role === 'admin' ? 'מנהל מערכת' : 'חבר'}
             </p>
           </div>
@@ -115,8 +115,8 @@ export default function Profile() {
                 onClick={() => setTab(item.id)}
                 className={`flex items-center gap-3 px-4 py-3 font-label text-sm transition-colors text-right ${
                   tab === item.id
-                    ? 'bg-[#FFFBF2] text-[#13243A] border-r-2 border-[#13243A]'
-                    : 'text-[#8AA3B8888] hover:text-[#13243A]'
+                    ? 'bg-[#FBFAF7] text-[#121211] border-r-2 border-[#121211]'
+                    : 'text-[#9A958C888] hover:text-[#121211]'
                 }`}
               >
                 <span className="material-symbols-outlined text-sm">{item.icon}</span>
@@ -127,7 +127,7 @@ export default function Profile() {
             {user?.role === 'admin' && (
               <button
                 onClick={() => navigate('/admin')}
-                className="flex items-center gap-3 px-4 py-3 text-[#13243A] font-label text-sm hover:text-black transition-colors"
+                className="flex items-center gap-3 px-4 py-3 text-[#121211] font-label text-sm hover:text-black transition-colors"
               >
                 <span className="material-symbols-outlined text-sm">admin_panel_settings</span>
                 פאנל ניהול
@@ -147,36 +147,36 @@ export default function Profile() {
               </h1>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-                <div className="bg-[#FFFBF2] border border-[#EFE7D6eee] p-8">
-                  <span className="font-label text-[10px] uppercase tracking-widest text-[#8AA3B8888]">שם מלא</span>
+                <div className="bg-[#FBFAF7] border border-[#ECE9E3eee] p-8">
+                  <span className="font-label text-[10px] uppercase tracking-widest text-[#9A958C888]">שם מלא</span>
                   <p className="mt-3 text-xl font-headline">{user?.name}</p>
                 </div>
-                <div className="bg-[#FFFBF2] border border-[#EFE7D6eee] p-8">
-                  <span className="font-label text-[10px] uppercase tracking-widest text-[#8AA3B8888]">אימייל</span>
-                  <p className="mt-3 text-sm font-body text-[#5A6B7F666]">{user?.email}</p>
+                <div className="bg-[#FBFAF7] border border-[#ECE9E3eee] p-8">
+                  <span className="font-label text-[10px] uppercase tracking-widest text-[#9A958C888]">אימייל</span>
+                  <p className="mt-3 text-sm font-body text-[#6E6A62666]">{user?.email}</p>
                 </div>
-                <div className="bg-[#FFFBF2] border border-[#EFE7D6eee] p-8">
-                  <span className="font-label text-[10px] uppercase tracking-widest text-[#8AA3B8888]">סטטוס חשבון</span>
-                  <p className="mt-3 text-[#13243A] font-label text-sm uppercase tracking-widest">
+                <div className="bg-[#FBFAF7] border border-[#ECE9E3eee] p-8">
+                  <span className="font-label text-[10px] uppercase tracking-widest text-[#9A958C888]">סטטוס חשבון</span>
+                  <p className="mt-3 text-[#121211] font-label text-sm uppercase tracking-widest">
                     {user?.role === 'admin' ? '⚡ מנהל מערכת' : '✦ חבר פעיל'}
                   </p>
                 </div>
                 <div
-                  className="bg-[#FFFBF2] border border-[#EFE7D6eee] p-8 cursor-pointer hover:border-[#CDBFA1] transition-colors"
+                  className="bg-[#FBFAF7] border border-[#ECE9E3eee] p-8 cursor-pointer hover:border-[#CFCAC0] transition-colors"
                   onClick={() => setTab('orders')}
                 >
-                  <span className="font-label text-[10px] uppercase tracking-widest text-[#8AA3B8888]">הזמנות</span>
+                  <span className="font-label text-[10px] uppercase tracking-widest text-[#9A958C888]">הזמנות</span>
                   <p className="mt-3 font-headline text-2xl">
                     {orders.length || '→'}
                   </p>
-                  <p className="text-[#8AA3B8888] text-xs font-label mt-1">לחץ לצפייה</p>
+                  <p className="text-[#9A958C888] text-xs font-label mt-1">לחץ לצפייה</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
                 <button
                   onClick={handleLogout}
-                  className="border border-[#EFE7D6] px-8 py-3 font-label text-xs uppercase tracking-widest text-[#8AA3B8888] hover:text-[#13243A] hover:border-[#8AA3B8888] transition-colors"
+                  className="border border-[#ECE9E3] px-8 py-3 font-label text-xs uppercase tracking-widest text-[#9A958C888] hover:text-[#121211] hover:border-[#9A958C888] transition-colors"
                 >
                   התנתקות
                 </button>
@@ -197,16 +197,16 @@ export default function Profile() {
 
               {loadingOrders ? (
                 <div className="text-center py-24">
-                  <div className="inline-block w-8 h-8 border-2 border-[#EFE7D6] border-t-[#13243A] rounded-full animate-spin mb-4" />
-                  <p className="text-[#8AA3B8888] font-label text-xs uppercase tracking-widest">טוען הזמנות...</p>
+                  <div className="inline-block w-8 h-8 border-2 border-[#ECE9E3] border-t-[#121211] rounded-full animate-spin mb-4" />
+                  <p className="text-[#9A958C888] font-label text-xs uppercase tracking-widest">טוען הזמנות...</p>
                 </div>
               ) : orders.length === 0 ? (
-                <div className="text-center py-24 bg-[#FFFBF2] border border-[#EFE7D6eee]">
-                  <span className="material-symbols-outlined text-5xl text-[#CDBFA1] block mb-4">inbox</span>
-                  <p className="text-[#8AA3B8888] font-label text-xs uppercase tracking-widest mb-6">אין הזמנות עדיין</p>
+                <div className="text-center py-24 bg-[#FBFAF7] border border-[#ECE9E3eee]">
+                  <span className="material-symbols-outlined text-5xl text-[#CFCAC0] block mb-4">inbox</span>
+                  <p className="text-[#9A958C888] font-label text-xs uppercase tracking-widest mb-6">אין הזמנות עדיין</p>
                   <button
                     onClick={() => navigate('/shop')}
-                    className="bg-[#13243A] text-white px-8 py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
+                    className="bg-[#121211] text-white px-8 py-3 font-label text-xs uppercase tracking-widest hover:bg-black transition-colors"
                   >
                     לחנות
                   </button>
@@ -214,7 +214,7 @@ export default function Profile() {
               ) : (
                 <div className="flex flex-col gap-4">
                   {orders.map((order) => (
-                    <div key={order._id} className="bg-[#FFFBF2] border border-[#EFE7D6eee] hover:border-[#EFE7D6] transition-colors">
+                    <div key={order._id} className="bg-[#FBFAF7] border border-[#ECE9E3eee] hover:border-[#ECE9E3] transition-colors">
 
                       {/* header */}
                       <button
@@ -223,7 +223,7 @@ export default function Profile() {
                       >
                         <div className="flex items-center gap-6">
                           {/* סטטוס */}
-                          <span className={`flex items-center gap-1.5 px-3 py-1 font-label text-xs uppercase tracking-widest rounded-sm ${STATUS_COLORS[order.orderStatus] || 'text-[#8AA3B8888] bg-[#FFFBF2]'}`}>
+                          <span className={`flex items-center gap-1.5 px-3 py-1 font-label text-xs uppercase tracking-widest rounded-sm ${STATUS_COLORS[order.orderStatus] || 'text-[#9A958C888] bg-[#FBFAF7]'}`}>
                             <span className="material-symbols-outlined text-sm">
                               {STATUS_ICON[order.orderStatus] || 'help'}
                             </span>
@@ -231,17 +231,17 @@ export default function Profile() {
                           </span>
 
                           {/* סה"כ */}
-                          <span className="text-[#13243A] font-body text-sm">₪{order.totalPrice?.toFixed(2)}</span>
+                          <span className="text-[#121211] font-body text-sm">₪{order.totalPrice?.toFixed(2)}</span>
 
                           {/* תאריך */}
-                          <span className="text-[#8AA3B8888] font-label text-xs hidden md:block">{formatDate(order.createdAt)}</span>
+                          <span className="text-[#9A958C888] font-label text-xs hidden md:block">{formatDate(order.createdAt)}</span>
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <span className="text-[#8AA3B8888] font-label text-xs">
+                          <span className="text-[#9A958C888] font-label text-xs">
                             #{order._id.slice(-6).toUpperCase()}
                           </span>
-                          <span className="material-symbols-outlined text-[#8AA3B8888] text-sm">
+                          <span className="material-symbols-outlined text-[#9A958C888] text-sm">
                             {expandedOrder === order._id ? 'expand_less' : 'expand_more'}
                           </span>
                         </div>
@@ -249,39 +249,39 @@ export default function Profile() {
 
                       {/* פירוט */}
                       {expandedOrder === order._id && (
-                        <div className="border-t border-[#EFE7D6eee] p-6">
+                        <div className="border-t border-[#ECE9E3eee] p-6">
 
                           {/* מוצרים */}
                           <div className="flex flex-col gap-3 mb-6">
                             {order.items?.map((item, i) => (
                               <div key={i} className="flex items-center gap-4">
-                                <div className="w-14 h-14 bg-[#EFE7D6eee] flex-shrink-0 overflow-hidden">
+                                <div className="w-14 h-14 bg-[#ECE9E3eee] flex-shrink-0 overflow-hidden">
                                   {item.image ? (
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center">
-                                      <span className="material-symbols-outlined text-[#CDBFA1]">checkroom</span>
+                                      <span className="material-symbols-outlined text-[#CFCAC0]">checkroom</span>
                                     </div>
                                   )}
                                 </div>
                                 <div className="flex-1">
                                   <p className="font-body text-sm">{item.name}</p>
-                                  <p className="text-[#8AA3B8888] text-xs font-label mt-0.5">
+                                  <p className="text-[#9A958C888] text-xs font-label mt-0.5">
                                     {item.size && `מידה: ${item.size}`}
                                     {item.color && ` · צבע: ${item.color}`}
                                     {` · כמות: ${item.quantity}`}
                                   </p>
                                 </div>
-                                <p className="font-body text-sm text-[#13243A]">₪{(item.price * item.quantity).toFixed(2)}</p>
+                                <p className="font-body text-sm text-[#121211]">₪{(item.price * item.quantity).toFixed(2)}</p>
                               </div>
                             ))}
                           </div>
 
                           {/* כתובת */}
                           {order.shippingAddress && (
-                            <div className="bg-white border border-[#EFE7D6eee] p-4 mb-4">
-                              <p className="font-label text-[10px] uppercase tracking-widest text-[#8AA3B8888] mb-2">כתובת משלוח</p>
-                              <p className="text-sm font-body text-[#5A6B7F666]">
+                            <div className="bg-white border border-[#ECE9E3eee] p-4 mb-4">
+                              <p className="font-label text-[10px] uppercase tracking-widest text-[#9A958C888] mb-2">כתובת משלוח</p>
+                              <p className="text-sm font-body text-[#6E6A62666]">
                                 {order.shippingAddress.name} · {order.shippingAddress.street}, {order.shippingAddress.city}
                                 {order.shippingAddress.phone && ` · ${order.shippingAddress.phone}`}
                               </p>

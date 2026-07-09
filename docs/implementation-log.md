@@ -887,3 +887,262 @@ No plan file was created because the user approved the code-review fixes directl
 
 - If desired, write a migration to physically unset the removed `wishlist`/`address`/`newsletter` fields from existing user documents.
 - Optionally standardize `req.user.id` vs `req.user._id` usage across routes in a later low-risk pass.
+
+---
+
+### Date
+
+2026-07-09
+
+### Feature / Task
+
+Monochrome storefront palette, category cleanup, and Codex guidance sync
+
+### Goal
+
+Finish the interrupted design/category task by aligning the app to the monochrome mobile-first direction, keeping SALE as the only red accent, and updating Codex guidance from the current Claude guidance.
+
+### Plan Reference
+
+No plan file was created because the work was a continuation of an interrupted implementation and remained within the existing client/server structure.
+
+### Implemented Changes
+
+- Added `CODEX.md` synchronized from `CLAUDE.md`, with Codex-specific wording and stable ASCII arrows.
+- Replaced the old coastal palette across shared CSS, Tailwind tokens, and hardcoded client color references with monochrome ink/paper/grey values.
+- Added `sale`/`sale-dark` Tailwind colors and used the red sale accent in the main navigation.
+- Changed storefront/admin product categories from `חתן ומלווים`, `Casual`, and `Formal` to `חליפות`, `מכופתרת`, and `מכנסיים`.
+- Updated category filtering links, home page category CTAs, admin product defaults, server product validation, the Product model enum, and the AI stylist category prompt.
+- Preserved existing routes, auth/cart/payment behavior, i18n structure, and admin workflows.
+
+### Files Changed
+
+- `CODEX.md`
+- `client/tailwind.config.js`
+- `client/src/index.css`
+- `client/src/components/`
+- `client/src/pages/`
+- `client/src/i18n/locales/en.js`
+- `client/src/i18n/locales/he.js`
+- `server/src/controllers/aiController.js`
+- `server/src/middleware/validators.js`
+- `server/src/models/Product.js`
+- `docs/verification.md`
+
+### Important Decisions
+
+- Legacy class/token names such as `gold`, `navy`, and `terracotta` were retained for compatibility, but their values now render as monochrome/taupe.
+- Existing unused legacy translation keys were left in place where removal was unnecessary, to avoid broad i18n churn.
+- No database migration was added for products that may already have old category values.
+
+### Follow-up Tasks
+
+- Visually review the full storefront and admin product form in a browser with real product data.
+- Decide whether existing MongoDB product category values need a one-time migration from the old enum to the new Hebrew categories.
+
+---
+
+### Date
+
+2026-07-10
+
+### Feature / Task
+
+Finish remaining monochrome CSS remap from Claude handoff
+
+### Goal
+
+Complete the interrupted Claude handoff by removing the remaining old palette RGB values from shared CSS after the initial monochrome remap.
+
+### Plan Reference
+
+No plan file was created because this was a narrow follow-up cleanup in one CSS file.
+
+### Implemented Changes
+
+- Replaced the remaining old sky/navy/terracotta `rgba(...)` values in `client/src/index.css` with neutral ink/taupe equivalents.
+- Updated shared interaction details including selection color, scrollbar thumb, cursor glow, gallery frame, input focus borders, motion shadows, and lookbook hover effects.
+
+### Files Changed
+
+- `client/src/index.css`
+- `docs/verification.md`
+
+### Important Decisions
+
+- No layout, animation timing, routes, API calls, or product/category logic changed in this follow-up.
+
+### Follow-up Tasks
+
+- Review the monochrome interaction states in the browser on desktop and mobile.
+
+---
+
+### Date
+
+2026-07-10
+
+### Feature / Task
+
+Directional lookbook hover animation
+
+### Goal
+
+Make each card in the top lookbook grid animate from the direction that matches its visual position.
+
+### Plan Reference
+
+No plan file was created because this was a narrow CSS/JSX interaction change.
+
+### Implemented Changes
+
+- Added per-card hover pan variables for the `lookbook-card-grid` cards.
+- Added directional sweep overlays:
+  - Workday starts from the right and travels left.
+  - Evening starts from both right and left in sync.
+  - Event starts from the left and travels right.
+- Raised the card text layer above the sweep effect so the labels remain readable during hover.
+
+### Files Changed
+
+- `client/src/index.css`
+- `client/src/pages/Home.jsx`
+- `docs/verification.md`
+
+### Important Decisions
+
+- Used physical `left`/`right` positioning instead of logical inline positioning so the direction remains correct in the RTL layout.
+- Did not change layout, routes, data loading, or the second legacy lookbook/product-card section.
+
+### Follow-up Tasks
+
+- Visually review the three hover states in a browser to tune sweep distance or opacity if needed.
+
+---
+
+### Date
+
+2026-07-10
+
+### Feature / Task
+
+Mobile storefront responsive polish
+
+### Goal
+
+Improve the clothing-store experience on phone and small tablet screens after the editorial redesign.
+
+### Plan Reference
+
+No plan file was created because this was a targeted responsive polish pass across existing storefront surfaces.
+
+### Implemented Changes
+
+- Tightened mobile spacing, type scale, and grid density on the home, shop, wishlist, product detail, and cart pages.
+- Made product-card hover actions visible on touch devices while preserving hover reveal behavior on larger screens.
+- Adjusted the AI stylist chat launcher and panel so they fit inside narrow mobile viewports.
+- Reduced mobile footer, navbar, and cookie banner crowding.
+
+### Files Changed
+
+- `client/src/components/AIChatButton.jsx`
+- `client/src/components/CookieBanner.jsx`
+- `client/src/components/layout/Footer.jsx`
+- `client/src/components/layout/Navbar.jsx`
+- `client/src/pages/Cart.jsx`
+- `client/src/pages/Home.jsx`
+- `client/src/pages/ProductDetail.jsx`
+- `client/src/pages/Shop.jsx`
+- `client/src/pages/Wishlist.jsx`
+- `docs/verification.md`
+
+### Important Decisions
+
+- Kept the existing React/Tailwind structure and did not introduce new dependencies.
+- Favored two-column product browsing on mobile where product cards are compact enough, while keeping checkout-oriented content clearer and less dense.
+- Left the existing data loading, routes, and commerce logic unchanged.
+
+### Follow-up Tasks
+
+- Visually review the updated pages on real mobile widths once a browser session is available.
+
+---
+
+### Date
+
+2026-07-10
+
+### Feature / Task
+
+Dark-first storefront palette
+
+### Goal
+
+Shift the storefront from a mixed black/white monochrome look to a mostly black editorial experience while preserving readability and the existing commerce layout.
+
+### Plan Reference
+
+No plan file was created because this was a focused palette-level adjustment.
+
+### Implemented Changes
+
+- Changed the Tailwind monochrome tokens from light paper surfaces to dark ink-led backgrounds and panels.
+- Switched shared CSS root variables, body background, scrollbar, cursor glow, and editorial shell defaults to dark mode.
+- Added scoped `.editorial-shell` overrides so common hardcoded white/ivory backgrounds and dark text classes render as dark panels with light text on storefront pages.
+- Adjusted legacy `navy` text aliases to light values while keeping `primary` and `charcoal` dark for backgrounds.
+
+### Files Changed
+
+- `client/tailwind.config.js`
+- `client/src/index.css`
+- `docs/verification.md`
+
+### Important Decisions
+
+- Kept the red SALE accent unchanged.
+- Scoped the broad class overrides to `.editorial-shell` so the public storefront darkens without globally forcing every utility class in unrelated contexts.
+- Did not change routes, data loading, layout structure, or server behavior.
+
+### Follow-up Tasks
+
+- Visually review the storefront in a browser to tune contrast in product cards, forms, and legal/customer-service pages.
+
+---
+
+### Date
+
+2026-07-10
+
+### Feature / Task
+
+Lookbook and motion polish
+
+### Goal
+
+Tune the final dark storefront interaction details requested after the palette shift.
+
+### Plan Reference
+
+No plan file was created because these were small targeted visual adjustments.
+
+### Implemented Changes
+
+- Restyled the `Every Moment` lookbook copy panel for the dark background with an ink panel, soft light border, cream title, and taupe supporting text.
+- Increased the cursor glow strength by about 10% and removed its left/top transition so it tracks the pointer without lag.
+- Slowed the GSAP marquee by reducing effective speed by 20%, and forced old marquee tweens to be killed before creating a new one.
+
+### Files Changed
+
+- `client/src/pages/Home.jsx`
+- `client/src/index.css`
+- `client/src/components/Marquee.jsx`
+- `docs/verification.md`
+
+### Important Decisions
+
+- Kept the marquee animation GSAP-driven.
+- Did not change routes, data loading, or product logic.
+
+### Follow-up Tasks
+
+- Visually review the cursor glow and marquee speed in a browser.

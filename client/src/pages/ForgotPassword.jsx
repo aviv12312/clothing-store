@@ -26,7 +26,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-12">
-          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#13243A]">
+          <Link to="/" className="font-['Noto_Serif'] text-2xl font-light tracking-[0.3em] text-[#121211]">
             DREAM & WORK
           </Link>
         </div>
@@ -34,19 +34,19 @@ export default function ForgotPassword() {
         {sent ? (
           <div className="text-center">
             <div className="text-5xl mb-6">📧</div>
-            <h2 className="font-['Noto_Serif'] text-2xl text-[#13243A] mb-4">הקישור נשלח!</h2>
-            <p className="font-['Manrope'] text-sm text-[#8AA3B8888] leading-relaxed mb-8">
+            <h2 className="font-['Noto_Serif'] text-2xl text-[#121211] mb-4">הקישור נשלח!</h2>
+            <p className="font-['Manrope'] text-sm text-[#9A958C888] leading-relaxed mb-8">
               אם האימייל קיים במערכת — שלחנו קישור לאיפוס סיסמה.<br />
               תקף ל-30 דקות בלבד.
             </p>
-            <Link to="/login" className="font-['Manrope'] text-xs uppercase tracking-widest text-[#13243A] hover:opacity-70 transition-opacity">
+            <Link to="/login" className="font-['Manrope'] text-xs uppercase tracking-widest text-[#121211] hover:opacity-70 transition-opacity">
               חזור להתחברות
             </Link>
           </div>
         ) : (
           <>
-            <h1 className="font-['Noto_Serif'] text-3xl text-[#13243A] text-center mb-2">שכחתי סיסמה</h1>
-            <p className="font-['Manrope'] text-sm text-[#8AA3B8888] text-center mb-10">
+            <h1 className="font-['Noto_Serif'] text-3xl text-[#121211] text-center mb-2">שכחתי סיסמה</h1>
+            <p className="font-['Manrope'] text-sm text-[#9A958C888] text-center mb-10">
               הכנס את האימייל שלך ונשלח לך קישור לאיפוס
             </p>
 
@@ -58,14 +58,14 @@ export default function ForgotPassword() {
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
-                <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#8AA3B8888] mb-2">
+                <label className="block font-['Manrope'] text-[0.65rem] uppercase tracking-widest text-[#9A958C888] mb-2">
                   אימייל
                 </label>
                 <input
                   type="email" required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border-b border-[#EFE7D6] text-[#13243A] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#8AA3B8888] transition-colors"
+                  className="w-full bg-transparent border-b border-[#ECE9E3] text-[#121211] py-3 font-['Manrope'] text-sm focus:outline-none focus:border-[#9A958C888] transition-colors"
                   placeholder="your@email.com"
                 />
               </div>
@@ -78,9 +78,9 @@ export default function ForgotPassword() {
               </button>
             </form>
 
-            <p className="text-center font-['Manrope'] text-xs text-[#8AA3B8888] mt-8">
+            <p className="text-center font-['Manrope'] text-xs text-[#9A958C888] mt-8">
               נזכרת?{' '}
-              <Link to="/login" className="text-[#13243A] hover:opacity-70 transition-opacity">
+              <Link to="/login" className="text-[#121211] hover:opacity-70 transition-opacity">
                 התחבר
               </Link>
             </p>
