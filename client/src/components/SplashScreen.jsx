@@ -82,7 +82,7 @@ export default function SplashScreen({ onComplete }) {
         <div
           ref={logoRef}
           style={{
-            fontFamily: 'Olondona, serif',
+            fontFamily: "'Bodoni Moda', serif",
             fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
             color: '#F4EDE0',
             letterSpacing: '0.22em',

@@ -50,7 +50,7 @@ export default function Footer() {
         <div>
           <h2
             id="footer-brand"
-            style={{ fontFamily: 'Olondona, serif', letterSpacing: '0.08em', lineHeight: 1 }}
+            style={{ fontFamily: "'Bodoni Moda', serif", letterSpacing: '0.08em', lineHeight: 1 }}
             className="text-[1.9rem] text-[#F4EDE0]"
             dir="ltr"
           >
