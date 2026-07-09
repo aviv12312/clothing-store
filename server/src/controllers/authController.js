@@ -64,8 +64,8 @@ export const refreshToken = (req, res) => {
   }
 };
 
-export const me = async (req, res) => {
-  const user = await User.findById(req.user.id).select('-password');
+export const me = (req, res) => {
+  const user = req.user;
   if (!user) return res.status(404).json({ error: 'משתמש לא נמצא' });
   res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role } });
 };

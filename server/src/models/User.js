@@ -7,16 +7,10 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, minlength: 8, select: false },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    address: {
-      street: String,
-      city: String,
-      zipCode: String,
-      phone: String,
-    },
-    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-    newsletter: { type: Boolean, default: false },
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

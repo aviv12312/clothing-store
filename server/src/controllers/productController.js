@@ -1,14 +1,5 @@
 ﻿import Product from '../models/Product.js';
-import { v2 as cloudinary } from 'cloudinary';
-
-const getCloudinary = () => {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-  return cloudinary;
-};
+import { getCloudinary } from '../config/cloudinary.js';
 
 const buildVariantPayload = (payload) => {
   if (Array.isArray(payload.variants) && payload.variants.length) {

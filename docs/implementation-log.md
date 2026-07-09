@@ -835,3 +835,55 @@ Approved chat plan: "Navy, Cream & Sage Editorial Palette".
 
 - Visually review Home, Shop, Product Detail, Wishlist, Cart, and Checkout on desktop and mobile.
 - If the sage feels too muted or too green in real imagery, tune only the token values.
+
+---
+
+### Date
+
+2026-07-09
+
+### Feature / Task
+
+Server code review cleanup: encoding fix, dead code removal, and deduplication
+
+### Goal
+
+Fix broken and dead server code found during a full code review, and consolidate duplicated logic to a single source of truth, without changing runtime behavior, auth logic, payment flows, or dependencies.
+
+### Plan Reference
+
+No plan file was created because the user approved the code-review fixes directly in chat.
+
+### Implemented Changes
+
+- Fixed double-encoded (mojibake) Hebrew strings in the forgot-password and reset-password handlers, including user-facing response messages; logic was left unchanged.
+- Removed unused `User` schema fields (`wishlist`, `address`, `newsletter`) that no route ever read or wrote (wishlist is client-side localStorage only).
+- Added `isDeleted` and `deletedAt` to the `User` schema so the existing account-deletion route's soft-delete flags actually persist (Mongoose was silently dropping them).
+- Removed a fully duplicated `STATUS_META` key block in the email service (JS kept only the second copy; the first was dead).
+- Simplified the `me` controller to use the already-loaded `req.user` instead of issuing a second `findById` on every authenticated page load.
+- Extracted the coupon validation logic into a shared `services/couponService.js` and reused it from both the payment flow and the `/coupons/validate` route, removing the duplicated checks.
+- Extracted the duplicated Cloudinary config into a shared `config/cloudinary.js` used by both the product controller and the upload route.
+
+### Files Changed
+
+- `server/src/routes/auth.js`
+- `server/src/models/User.js`
+- `server/src/services/emailService.js`
+- `server/src/controllers/authController.js`
+- `server/src/services/couponService.js`
+- `server/src/routes/payment.js`
+- `server/src/routes/coupons.js`
+- `server/src/config/cloudinary.js`
+- `server/src/controllers/productController.js`
+- `server/src/routes/upload.js`
+
+### Important Decisions
+
+- No dependencies were added or changed.
+- The Stripe webhook flow, payment logic, and the `req.user.id`/`req.user._id` style inconsistency were intentionally left untouched to avoid risk in payment-critical code.
+- Removing dead schema fields does not delete existing MongoDB documents; a separate migration would be needed to purge stored values, and none was run.
+
+### Follow-up Tasks
+
+- If desired, write a migration to physically unset the removed `wishlist`/`address`/`newsletter` fields from existing user documents.
+- Optionally standardize `req.user.id` vs `req.user._id` usage across routes in a later low-risk pass.

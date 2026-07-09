@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import crypto from 'crypto';
 import {
   register,
@@ -25,27 +25,27 @@ router.post('/refresh', refreshToken);
 router.get('/me', protect, me);
 router.post('/logout', logout);
 
-// ×©×œ×— ××™×ž×™×™×œ ×œ××™×¤×•×¡ ×¡×™×¡×ž×”
+// שלח אימייל לאיפוס סיסמה
 router.post('/forgot-password', authLimiter, async (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ error: '× ×“×¨×© ××™×ž×™×™×œ' });
+  if (!email) return res.status(400).json({ error: 'נא להזין אימייל' });
 
   const user = await User.findOne({ email: email.toLowerCase() }).select('+resetPasswordToken +resetPasswordExpires');
-  // ×ª×ž×™×“ ×ž×—×–×™×¨ success ×›×“×™ ×œ× ×œ×—×©×•×£ ×× ×”××™×ž×™×™×œ ×§×™×™×
-  if (!user) return res.json({ message: '×× ×”××™×ž×™×™×œ ×§×™×™× ×‘×ž×¢×¨×›×ª â€” × ×©×œ×— ×§×™×©×•×¨ ×œ××™×¤×•×¡' });
+  // תמיד מחזיר success כדי לא לחשוף אם האימייל קיים
+  if (!user) return res.json({ message: 'אם האימייל קיים במערכת — נשלח קישור לאיפוס' });
 
   const token = crypto.randomBytes(32).toString('hex');
   user.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
-  user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 ×“×§×•×ª
+  user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 דקות
   await user.save();
 
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
   await sendPasswordReset(user.email, user.name, resetUrl);
 
-  res.json({ message: '×× ×”××™×ž×™×™×œ ×§×™×™× ×‘×ž×¢×¨×›×ª â€” × ×©×œ×— ×§×™×©×•×¨ ×œ××™×¤×•×¡' });
+  res.json({ message: 'אם האימייל קיים במערכת — נשלח קישור לאיפוס' });
 });
 
-// ××™×¤×•×¡ ×”×¡×™×¡×ž×” ×¢× ×”×˜×•×§×Ÿ
+// איפוס הסיסמה עם הטוקן
 router.post('/reset-password/:token', async (req, res) => {
   const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
   const user = await User.findOne({
@@ -53,7 +53,7 @@ router.post('/reset-password/:token', async (req, res) => {
     resetPasswordExpires: { $gt: Date.now() },
   }).select('+password +resetPasswordToken +resetPasswordExpires');
 
-  if (!user) return res.status(400).json({ error: '×”×§×™×©×•×¨ ×¤×’ ×ª×•×§×£ ××• ××™× ×• ×ª×§×™×Ÿ' });
+  if (!user) return res.status(400).json({ error: 'הקישור פג תוקף או אינו תקין' });
 
   const { password } = req.body;
   if (!password || password.length < 8 || password.length > 128) return res.status(400).json({ error: 'סיסמה חייבת להיות בין 8 ל-128 תווים' });
@@ -63,7 +63,7 @@ router.post('/reset-password/:token', async (req, res) => {
   user.resetPasswordExpires = undefined;
   await user.save();
 
-  res.json({ message: '×”×¡×™×¡×ž×” ××•×¤×¡×” ×‘×”×¦×œ×—×”' });
+  res.json({ message: 'הסיסמה אופסה בהצלחה' });
 });
 
 // מחיקת חשבון לקוח — תיקון 13 לחוק הגנת הפרטיות
@@ -86,4 +86,3 @@ router.delete('/account', protect, async (req, res) => {
 });
 
 export default router;
-

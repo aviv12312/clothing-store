@@ -1,19 +1,9 @@
 import express from 'express';
 import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
 import { protect, requireAdmin } from '../middleware/auth.js';
+import { getCloudinary } from '../config/cloudinary.js';
 
 const router = express.Router();
-
-// Cloudinary מוגדר בתוך ה-handler כי ES modules מריצים imports לפני dotenv
-const getCloudinary = () => {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key:    process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-  return cloudinary;
-};
 
 // multer — שמור בזיכרון (לא בדיסק)
 const storage = multer.memoryStorage();

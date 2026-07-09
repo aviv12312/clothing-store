@@ -837,3 +837,35 @@ Warning: Vite reported that some chunks are larger than 500 kB after minificatio
 ### Manual Verification
 
 Browser interaction was not run during this entry. Home, Shop, Product Detail, Wishlist, Cart, Checkout, hover/focus states, and mobile contrast still need visual review in a browser.
+
+---
+
+### Date
+2026-07-09
+
+### Feature / Task
+Server code review cleanup: encoding fix, dead code removal, and deduplication
+
+### Commands Run
+
+```bash
+cd server
+for f in src/routes/auth.js src/routes/payment.js src/routes/coupons.js \
+  src/routes/upload.js src/models/User.js src/services/emailService.js \
+  src/services/couponService.js src/config/cloudinary.js \
+  src/controllers/authController.js src/controllers/productController.js \
+  src/app.js; do node --check "$f"; done
+```
+
+Result: Passed. All eleven changed/affected server files passed `node --check` with no syntax errors.
+
+```bash
+cd server
+node --input-type=module -e "<dynamic import of every changed module>"
+```
+
+Result: Passed. Runtime ESM import succeeded for `config/cloudinary.js`, `services/couponService.js`, `services/emailService.js`, `models/User.js`, `controllers/authController.js`, `controllers/productController.js`, `routes/coupons.js`, `routes/payment.js`, `routes/upload.js`, and `routes/auth.js`. This confirmed the extracted coupon service and shared Cloudinary config resolve at runtime and no broken imports remain after the refactor.
+
+### Manual Verification
+
+The server was not booted end-to-end during this entry because it requires live environment variables and a MongoDB connection. The forgot-password / reset-password message text, account soft-delete persistence (`isDeleted`/`deletedAt`), `/coupons/validate`, the Stripe/PayPal payment flows, and admin product/image upload still need a manual run against a configured environment.
