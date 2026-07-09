@@ -15,11 +15,27 @@ Dream & Work is an existing full-stack Hebrew RTL clothing-store project with a 
 ## Stack & Layout
 
 - Root: `package.json` exists, contains `@paypal/react-paypal-js`, and has no useful npm scripts.
-- Client: React 19, React Router 7, Axios, Vite 8, Tailwind CSS 3, ESLint 9.
+- Client: React 19, React Router 7, Axios, Vite 8, Tailwind CSS 3, ESLint 9, i18next/react-i18next (bilingual he/en), GSAP.
 - Server: Node.js ESM, Express 5, Mongoose 9/MongoDB, JWT, bcryptjs, Stripe, Cloudinary, Multer, Groq SDK, Helmet/CORS/rate-limit/validation/sanitization middleware.
 - Main folders: `client/src/`, `server/src/`, `docs/`, `.claude/`.
-- Client source areas: `components/`, `context/`, `hooks/`, `pages/`, `services/`.
+- Client source areas: `components/`, `context/`, `hooks/`, `pages/`, `services/`, `i18n/`, `data/`.
 - Server source areas: `config/`, `controllers/`, `jobs/`, `middleware/`, `models/`, `routes/`, `services/`.
+
+## Architecture
+
+Big-picture flows that span multiple files:
+
+**Server request lifecycle** (`server/src/app.js`): `validateEnv()` runs before anything. Middleware order is load-bearing — `helmet` → `cors` (allows configured `CLIENT_URL` origins plus any `*.vercel.app`) → `/api/` rate limiter (100/15min, skips `/auth/me` and all of non-production) → **`/api/payment/webhook` raw body parser (must come before `express.json()`)** → `express.json` (250kb) → `cookieParser` → custom `sanitizeRequest` (mongo-sanitize) → `hpp`. Then feature routers mount under `/api/*`, followed by a catch-all 404 and a final JSON error handler. `connectDB()` gates `app.listen`; `checkAbandonedCarts` is scheduled via `setInterval` every hour.
+
+**Route → controller pattern**: Only `auth`, `products`, and `ai` have dedicated controller files (`server/src/controllers/`); the other routers (`cart`, `orders`, `payment`, `coupons`, `newsletter`, `homepageImages`, `upload`) define their handlers inline. Admin-only endpoints are guarded by chaining `protect, requireAdmin` (see `middleware/auth.js`); file uploads use `multer` memory storage passed to Cloudinary.
+
+**Auth flow**: `protect` verifies `JWT_ACCESS_SECRET` and loads `req.user` (password stripped). Expired access tokens return `{ error, code: 'TOKEN_EXPIRED' }`. The client (`client/src/services/api.js`) has a response interceptor that catches `TOKEN_EXPIRED`, calls `/auth/refresh` (httpOnly refresh cookie, single-flight via `isRefreshing`/`refreshPromise`), stores the new access token, and retries the original request once. `AuthContext` keeps the access token + a cached `user` object in `localStorage` and re-validates via `/auth/me` on mount.
+
+**Cart flow**: `CartContext` is client-first — items live in `localStorage`, and `syncCart` mirrors them to `POST /cart/save` only when a token exists. Stock is resolved through `getProductStock`, which reads nested `product.sizeStock[color][size]`, then `sizeStock[size]`, then flat `product.stock`.
+
+**i18n / RTL**: `client/src/i18n/index.js` initializes i18next with `he`/`en` resources; language is persisted under the `dw_language` localStorage key. `applyDocumentLanguage` sets `document.documentElement.dir` to `rtl` for Hebrew and `ltr` otherwise — RTL is language-driven, not hardcoded. Default/fallback language is `en`. Adoption is partial: some components use `useTranslation`/`t()` with keys in `locales/he.js` & `locales/en.js`, while others still contain literal strings.
+
+**Provider nesting** (`client/src/App.jsx`): `AuthProvider` → `WishlistProvider` → `CartProvider` → `BrowserRouter`. Protected routes wrap elements in `ProtectedRoute`; admin routes (`/admin/*`) in `AdminRoute`. A cross-tab `SplashScreen` gate is coordinated through `dw_splash`/`dw_tabs` localStorage counters.
 
 ## Commands
 
@@ -83,7 +99,7 @@ Behavior changes:
 
 ## Client Rules
 
-- Preserve Hebrew user-facing text and RTL layout.
+- The app is bilingual (Hebrew/English) via i18next; RTL is applied automatically for Hebrew. For components already using `useTranslation`, add user-facing strings as keys in both `locales/he.js` and `locales/en.js` rather than hardcoding. Do not break existing Hebrew text or RTL layout.
 - Preserve existing React Router routes unless explicitly changing routing.
 - Use existing React Context state: `AuthContext`, `CartContext`, `WishlistContext`.
 - Use `client/src/services/api.js` for API calls unless there is a clear reason not to.
